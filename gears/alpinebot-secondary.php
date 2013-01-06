@@ -814,7 +814,7 @@ class PhotoTileForInstagramBasic extends PhotoTileForInstagramBase{
       $this->ReAuthorize( $user ); 
     }elseif( $submitted && $_POST[ $this->settings.'_add']['submit-add'] == 'Add and Authorize New User' ){
       $options = $this->SimpleUpdate( $currenttab, $_POST, $options ); // Don't display previously input info
-    }elseif($submitted && $_POST['manual-user-form'] == 'Add New User'){
+    }elseif($submitted && $_POST['manual-user-form'] == 'Add New User' && $_POST['access_token'] && $_POST['user_id'] && $_POST['client_id'] && $_POST['username']){
       $success = $this->AddUser($_POST);
     }
 
