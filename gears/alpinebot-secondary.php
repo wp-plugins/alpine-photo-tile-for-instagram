@@ -147,7 +147,7 @@ class PhotoTileForInstagramBasic extends PhotoTileForInstagramBase{
         'client_id' => $client_id,
         'client_secret' => $client_secret
       );*/
-    if($post_content['access_token'] && $post_content['username']){
+    if($post_content['access_token'] && $post_content['username'] && $post_content['user_id']){
       $user = $post_content['username'];
       $oldoptions = $this->get_all_options();
       $currentUsers = $oldoptions['users'];
@@ -767,7 +767,7 @@ class PhotoTileForInstagramBasic extends PhotoTileForInstagramBase{
             'redirect_uri' => $redirect,
             'client_id' => $client_id,
             'client_secret' => $client_secret,
-            'grant_type' => 'authorization_code',
+            'grant_type' => 'authorization_code'
           ),
           'sslverify' => apply_filters('https_local_ssl_verify', false)
         )
@@ -811,10 +811,13 @@ class PhotoTileForInstagramBasic extends PhotoTileForInstagramBase{
       $this->DeleteUser( $user );
     }elseif( $submitted && $_POST[ $this->settings.'_reauthorize']['submit-reauthorize'] == 'Re-Authorize' ){
       $user = $_POST['user'];
-      $this->ReAuthorize( $user );
-    }elseif( $submitted ){
+      $this->ReAuthorize( $user ); 
+    }elseif( $submitted && $_POST[ $this->settings.'_add']['submit-add'] == 'Add and Authorize New User' ){
       $options = $this->SimpleUpdate( $currenttab, $_POST, $options ); // Don't display previously input info
+    }elseif($submitted && $_POST['manual-user-form'] == 'Add New User'){
+      $success = $this->AddUser($_POST);
     }
+
     
     $defaults = $this->option_defaults();
     $positions = $this->get_option_positions_by_tab( $currenttab );
@@ -947,7 +950,43 @@ class PhotoTileForInstagramBasic extends PhotoTileForInstagramBase{
             }); 
         });
       </script>
-  
+      
+      <div style="margin-top:80px">
+        <h1>If the above method does not seem to be working:</h1>
+        <p>I have setup a troubleshooting tool at <a href="http://thealpinepress.com/instagram-tool/" target="_blank">the Alpine Press</a> that you can use to manually retrieve the information you need.</p>
+        <p>Once this is done, fill out and submit the form below.</p>
+        
+        
+         <div id="AlpinePhotoTiles-manual-user-form" style="margin-bottom:20px;padding-bottom:20px;overflow:hidden;border-bottom: 1px solid #DDDDDD;">
+            <form id="alpine-photo-tile-for-instagram-settings-add-user" method="post" action="">
+              <input type="hidden" value="Y" name="hidden">
+                <div class="center">
+                  <table class="form-table">
+                    <tbody>
+                      <?php  $the_content = array('username' => 'Username','user_id' =>'User ID','access_token' => 'Access Token','client_id' => 'Client ID','client_secret' => 'Client Secret','picture' => 'Picture');
+                        foreach($the_content as $name=>$title){
+                        ?>
+                        <tr valign="top">
+                        <td>
+                          <div class="title">
+                          <label for="<?php echo $name;?>"><?php echo $title;?> : </label>
+                          </div>
+                          <input id="<?php echo $name;?>" type="text" value="" name="<?php echo $name;?>">
+                        </td>
+                        </tr>
+
+                        <?php }?>
+                    </tbody>
+                  </table>
+                </div>
+              <input id="manual-form-submit" class="button-primary" type="submit" value="Add New User" style="margin-top:15px;" name="manual-user-form">
+            </form>
+          <br style="clear:both;">
+        </div>
+        
+        
+        
+      </div>
     <?php
 
   }
