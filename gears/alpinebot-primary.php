@@ -8,7 +8,7 @@ class PhotoTileForInstagramBase {
   public $dir;
   public $cacheDir;
   public $ver = '1.2.1';
-  public $vers = '1-2-1';
+  public $vers = '1-2-1-2';
   public $domain = 'APTFINbyTAP_domain';
   public $settings = 'alpine-photo-tile-for-instagram-settings'; // All lowercase
   public $name = 'Alpine Photo Tile for Instagram';

@@ -172,7 +172,7 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBasic{
           // If set, generate instagram link
           if( $instagram_options['instagram_display_link'] ) {
             $user_link = '<div class="AlpinePhotoTiles-display-link" >';
-            $user_link .='<a href="=http://instagram.com/'.$instagram_uid.'" target="_blank" >';
+            $user_link .='<a href="http://instagram.com/'.$instagram_uid.'" target="_blank" >';
             $user_link .= $instagram_options['instagram_display_link_text'];
             $user_link .= '</a></div>';
           }
