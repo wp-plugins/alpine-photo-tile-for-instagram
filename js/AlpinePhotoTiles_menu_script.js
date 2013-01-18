@@ -1,5 +1,5 @@
 /*
- * Alpine PhotoTile for Pinterest: Widget Menu Display and Nesting
+ * Alpine PhotoTile : Widget Menu Display and Nesting
  * By: Eric Burger, http://thealpinepress.com
  * Version: 1.0.0
  * Updated: August 2012

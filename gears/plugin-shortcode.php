@@ -2,8 +2,8 @@
 /**
  * Alpine PhotoTile for Instagram: Shortcode
  *
- * @since 1.1.1
- *
+ * @ Since 1.1.1
+ * @ Updated 1.2.3
  */
  
   function APTFINbyTAP_shortcode_function( $atts ) {
@@ -17,31 +17,30 @@
         $options[$opt] = $atts[ $details['short'] ];
       }
     }
-    if( $options['instagram_image_link_option'] == "fancybox" ){
-      wp_enqueue_script( 'fancybox' );
-      wp_enqueue_style( 'fancybox-stylesheet');
-    } 
-    wp_enqueue_style($bot->wcss);
-    wp_enqueue_script($bot->wjs);
 
     $id = rand(100, 1000);
-    $source_results = $bot->photo_retrieval($id, $options);
+    $bot->wid = $id;
+    $bot->options = $options;
+    $bot->photo_retrieval($id, $options);
+    
+    $bot->enqueue_style_and_script();
     
     $return .= '<div id="'.$bot->id.'-by-shortcode-'.$id.'" class="AlpinePhotoTiles_inpost_container">';
-    $return .= $source_results['hidden'];
-    if( $source_results['continue'] ){  
+    $return .= $bot->results['hidden'];
+    if( $bot->results['continue'] ){  
       if( "vertical" == $options['style_option'] ){
-        $return .= $bot->display_vertical($id, $options, $source_results);
+        $bot->display_vertical();
       }elseif( "cascade" == $options['style_option'] ){
-        $return .= $bot->display_cascade($id, $options, $source_results);
+        $bot->display_cascade();
       }else{
-        $return .= $bot->display_hidden($id, $options, $source_results);
+        $bot->display_hidden();
       }
+      $return .= $bot->out;
     }
     // If user does not have necessary extensions 
     // or error occured before content complete, report such...
     else{
-      $return .= 'Sorry:<br>'.$source_results['message'];
+      $return .= 'Sorry:<br>'.$bot->results['message'];
     }
     $return .= $after_widget;
     $return .= '</div>';

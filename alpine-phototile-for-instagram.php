@@ -3,7 +3,7 @@
 Plugin Name: Alpine PhotoTile for Instagram
 Plugin URI: http://thealpinepress.com/alpine-phototile-for-instagram/
 Description: The Alpine PhotoTile for Instagram is capable of retrieving photos from a particular Instagram user or tag. The photos can be linked to the your Instagram page, a specific URL, or to a Fancybox slideshow. Also, the Shortcode Generator makes it easy to insert the widget into posts without learning any of the code. This lightweight but powerful widget takes advantage of WordPress's built in JQuery scripts to create a sleek presentation that I hope you will like.
-Version: 1.2.1.2
+Version: 1.2.3
 Author: the Alpine Press
 Author URI: http://thealpinepress.com/
 License: GNU General Public License v3.0
@@ -60,20 +60,16 @@ License URI: http://www.gnu.org/licenses/gpl-3.0.html
 /**
  * Load Admin JS and CSS
  *  
- * @since 1.0.0
- *
+ * @ Since 1.0.0
+ * @ Updated 1.2.3
  */
 	function APTFINbyTAP_admin_widget_script($hook){ 
     $bot = new PhotoTileForInstagramBot();
     wp_register_script($bot->wmenujs,$bot->url.'/js/'.$bot->wmenujs.'.js','',$bot->ver); 
     wp_register_style($bot->acss,$bot->url.'/css/'.$bot->acss.'.css','',$bot->ver);
     
-    wp_register_script($bot->wjs,$bot->url.'/js/'.$bot->wjs.'.js','',$bot->ver);
-    wp_register_style($bot->wcss,$bot->url.'/css/'.$bot->wcss.'.css','',$bot->ver);  
-    
-    wp_register_script( 'fancybox', $bot->url.'/js/fancybox/jquery.fancybox-1.3.4.pack.js', '', '1.0', true );
-		wp_register_style( 'fancybox-stylesheet', $bot->url . '/js/fancybox/jquery.fancybox-1.3.4.css', false, '1.0', 'screen' );		
-    
+    $bot->register_style_and_script(); // Register widget styles and scripts
+
     wp_register_script( 'jquery-form', $bot->url.'/js/form/jquery.form.js', '', '1.0', true );
         
     if( 'widgets.php' != $hook ){ return; }
@@ -92,7 +88,7 @@ License URI: http://www.gnu.org/licenses/gpl-3.0.html
 /**
  * Load JS to activate menu toggles
  *  
- * @since 1.0.0
+ * @ Since 1.0.0
  *
  */
   function APTFINbyTAP_menu_toggles(){
@@ -111,9 +107,9 @@ License URI: http://www.gnu.org/licenses/gpl-3.0.html
     <?php   
   }
 /**
- * Load LS to highlight and select shortcode upon hovering
+ * Load JS to highlight and select shortcode upon hovering
  *  
- * @since 1.0.0
+ * @ Since 1.0.0
  *
  */
   function APTFINbyTAP_shortcode_select(){
@@ -134,16 +130,14 @@ License URI: http://www.gnu.org/licenses/gpl-3.0.html
 /**
  * Load Display JS and CSS
  *  
- * @since 1.0.0
- *
+ * @ Since 1.0.0
+ * @ Updated 1.2.3
  */
   function APTFINbyTAP_enqueue_display_scripts() {
     $bot = new PhotoTileForInstagramBot();
     wp_enqueue_script( 'jquery' );
-    wp_register_script($bot->wjs,$bot->url.'/js/'.$bot->wjs.'.js','',$bot->ver);
-    wp_register_style($bot->wcss,$bot->url.'/css/'.$bot->wcss.'.css','',$bot->ver);
-    wp_register_script( 'fancybox', $bot->url.'/js/fancybox/jquery.fancybox-1.3.4.pack.js', '', '1.0', true );
-		wp_register_style( 'fancybox-stylesheet', $bot->url . '/js/fancybox/jquery.fancybox-1.3.4.css', false, '1.0', 'screen' );		
+    
+    $bot->register_style_and_script(); // Register widget styles and scripts
   }
   add_action('wp_enqueue_scripts', 'APTFINbyTAP_enqueue_display_scripts');
   
@@ -200,7 +194,7 @@ License URI: http://www.gnu.org/licenses/gpl-3.0.html
     /* Check that the user hasn't already clicked to ignore the message */
     if ( ! get_user_meta($user_id, 'APTFINbyTAP_ignore_notice') ) {
       $bot = new PhotoTileForInstagramBot();
-      $users = $bot->get_users();
+      $users = $bot->get_instagram_users();
       if( $users['none'] ){
         echo '<div class="updated"><p>';
         echo 'Add user to Photo Tile for Instagram <a href="'.admin_url().'options-general.php?page='.$bot->settings.'&tab=add">here</a>';

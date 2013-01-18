@@ -1,10 +1,10 @@
 === Alpine PhotoTile for Instagram ===
 Contributors: theAlpinePress
 Donate link: thealpinepress.com
-Tags: photos, instagram, photostream, javascript, jQuery, stylish, pictures, images, widget, sidebar, display, gallery, wall, lightbox, fancybox
+Tags: photos, instagram, photostream, javascript, jQuery, stylish, pictures, images, widget, sidebar, display, gallery, wall, lightbox, fancybox, colorbox
 Requires at least: 2.8
 Tested up to: 3.5
-Stable tag: 1.2.1.2
+Stable tag: 1.2.3
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -22,7 +22,7 @@ presentation that I hope you will like. A full description and demonstration is 
 
 * Display Instagram images in a sidebar, post, or page
 * Multiple styles to allow for customization
-* Fancybox/lighbox feature for interactive slideshow
+* Lighbox feature for interactive slideshow (Fancybox, prettyBox, or ColorBox)
 * Simple instructions
 * Widget & shortcode options
 * Feed caching/storage for improved page loading
@@ -76,3 +76,19 @@ I am a one-man development team and I distribute these plugins for free, so plea
 * Added Fancybox jQuery option
 * Fixed galleryHeight bug
 * Implemented fetch with wp_remote_get()
+
+= 1.2.1 =
+* Rebuilt admin div structure
+* Fixed admin css issues
+
+= 1.2.2 =
+* Added aspect ratio options for gallery style
+* Add key generator function
+* Add get_image_url() functions
+* Object oriented id, options, results, and output storage
+* Object oriented display generation
+
+= 1.2.3 =
+* Add FancyboxForAlpine (Fancybox Safemode)
+* Add choice between Fancybox, prettyBox, and ColorBox
+* Add hidden options, including custom rel for lightbox

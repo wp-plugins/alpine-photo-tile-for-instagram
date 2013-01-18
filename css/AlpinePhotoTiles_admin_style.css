@@ -79,11 +79,11 @@
     margin:0 0 15px 0;
   }
   .AlpinePhotoTiles-container .auto_select{
-    height:auto;
     width:100%;
     max-width:680px;
     background:#E0E0E0;
     padding:10px;
+    height:80px;
   }
   .AlpinePhotoTiles-container .user-icon{
     /* PhotoTile 500px and Instagram Only */
@@ -105,6 +105,7 @@
   .AlpinePhotoTiles-preview textarea{
     max-width:95%;
     margin-bottom:15px;
+    height:70px;
   }
   .AlpinePhotoTiles-preview div{
     max-width:100%;
@@ -134,7 +135,7 @@
     margin-right:5px;
   } 
   .AlpinePhotoTiles-container  textarea{
-    width:100%;
+    width:95%;
   }
   .AlpinePhotoTiles-container input[type="text"]{
     width:50%;
@@ -196,6 +197,7 @@
     height:auto;
     padding:15px 0 10px 0;
     margin-top:10px;
+    margin-bottom:30px;
     border-top:1px solid #DDD;
     position:relative;
   }    

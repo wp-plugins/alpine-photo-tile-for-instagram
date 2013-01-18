@@ -1,8 +1,8 @@
 /*
- * Alpine PhotoTile for Pinterest: jQuery Tile Display Functions
+ * Alpine PhotoTile : jQuery Tile Display Functions
  * By: Eric Burger, http://thealpinepress.com
- * Version: 1.0.0
- * Updated: August  2012
+ * Version: 1.0.2
+ * Updated: January  2012
  * 
  */
 
@@ -11,6 +11,7 @@
   
     options = s.extend( {}, s.fn.AlpinePhotoTilesPlugin.options, options );
   
+    // IE 7 fallback
     if(s.browser.msie && !d.querySelector){
       if('windows' != options.style){
         options.style = 'rift';
@@ -191,7 +192,7 @@
         parent.css({'width':'100%'});
         width = parent.width();
         var imageRow=[],currentImage,sumWidth=0,maxHeight=0;
-//console.log(width);
+
         s.each(images, function(i){
           img = this;
           src = img.src;
@@ -325,7 +326,14 @@
           perm = allPerms[i];
           
           if( 0 == i ){
-            galleryHeight = width/options.perRow*options.galleryHeight;
+            if( options.galleryHeight ){ // Keep for compatibility
+            console.log( options.galleryHeight );
+              galleryHeight = width/options.perRow*options.galleryHeight;
+            }else if( options.galRatioHeight && options.galRatioWidth ){
+              galleryHeight = width*options.galRatioHeight/options.galRatioWidth;
+            }else{
+              galleryHeight = width*600/800;
+            }
             
             newRow( galleryHeight, i ); 
                  
@@ -398,8 +406,9 @@
         });
       }
     
-      if(options.fancybox){
-        s( "a[rel^='fancybox-"+options.id+"']" ).fancybox( { titleShow: false, overlayOpacity: .8, overlayColor: '#000' } );
+      // Lastly, call lighbox if applicable
+      if(options.callback){
+        options.callback();
       }
       
       function newRow(height,i){
@@ -443,12 +452,16 @@
         newDivContainer.append(newDiv);
         
         if(perm){
-          if(options.fancybox){
-            newDiv.wrap('<a href="'+perm.href+'" class="AlpinePhotoTiles-link" target="_blank" rel="fancybox-'+options.id+'"></a>');
+          if(options.lightbox){
+            newDiv.wrap('<a href="'+perm.href+'" class="AlpinePhotoTiles-link AlpinePhotoTiles-lightbox" target="_blank"></a>');
+            s(perm).removeClass( 'AlpinePhotoTiles-lightbox' );
           }else{
             newDiv.wrap('<a href="'+perm.href+'" class="AlpinePhotoTiles-link" target="_blank"></a>');
           }
         }
+        /*if( img.title ){
+          newDivContainer.append('<div style="position:absolute;bottom:10px;right:10px;background:#fff;padding:3px;border-radius: 2px 2px 2px 2px;opacity:0.85;">'+img.title+'</div>');
+        }*/
         if(options.imageBorder){
           newDivContainer.addClass('AlpinePhotoTiles-border-div');
           newDivContainer.width( newDivContainer.width()-10 );
@@ -498,7 +511,7 @@
   s.fn.AlpinePhotoTilesPlugin.options = {
     id: 'AlpinePress',
     pinIt: false,
-    fancybox:false
+    lightbox:false
   }
 })( window, jQuery, document );
   

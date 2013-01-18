@@ -78,6 +78,7 @@ class PhotoTileForInstagramBasic extends PhotoTileForInstagramBase{
  *  Create array of positions for a given tab along with a list of settings for each position
  *  
  *  @ Since 1.2.0
+ *  @ Updated 1.2.3
  */
   function get_option_positions_by_tab( $tab = 'generator' ){
     $positions = $this->option_positions();
@@ -86,8 +87,9 @@ class PhotoTileForInstagramBasic extends PhotoTileForInstagramBase{
       $options = $this->get_options_by_tab( $tab );
       $defaults = $this->option_defaults();
       
-      foreach($positions[$tab] as $pos => $title ){
-        $return[$pos]['title'] = $title;
+      foreach($positions[$tab] as $pos => $info ){
+        $return[$pos]['title'] = $info['title'];
+        $return[$pos]['description'] = $info['description'];
         $return[$pos]['options'] = array();
       }
       foreach($options as $name){
@@ -117,6 +119,86 @@ class PhotoTileForInstagramBasic extends PhotoTileForInstagramBase{
     }
     return $return; 
   }
+  
+/**
+ * Register styles and scripts
+ *  
+ * @ Since 1.2.3
+ *
+ */
+  function register_style_and_script(){
+    wp_register_script($this->wjs,$this->url.'/js/'.$this->wjs.'.js','',$this->ver);
+    wp_register_style($this->wcss,$this->url.'/css/'.$this->wcss.'.css','',$this->ver);  
+   
+    $lightbox = $this->get_option('general_lightbox');
+    $prevent = $this->get_option('general_lightbox_no_load');
+    
+    if( 'fancybox' == $lightbox && !$prevent ){
+      wp_register_script( 'fancybox', $this->url.'/js/fancybox/jquery.fancybox-1.3.4.pack.js', '', '1.3.4', true );
+      wp_register_style( 'fancybox-stylesheet', $this->url . '/js/fancybox/jquery.fancybox-1.3.4.css', false, '1.3.4', 'screen' );		
+    }elseif( 'prettyphoto' == $lightbox && !$prevent ){
+      wp_register_script( 'prettyphoto', $this->url.'/js/prettyphoto/js/jquery.prettyPhoto.js', '', '3.1.4', true );
+      wp_register_style( 'prettyphoto-stylesheet', $this->url . '/js/prettyphoto/css/prettyPhoto.css', false, '3.1.4', 'screen' );		
+    }elseif( 'colorbox' == $lightbox && !$prevent ){
+      wp_register_script( 'colorbox', $this->url.'/js/colorbox/jquery.colorbox-min.js', '', '1.3.21', true );
+      wp_register_style( 'colorbox-stylesheet', $this->url . '/js/colorbox/colorbox.css', false, '3.1.4', 'screen' );		
+    }elseif( 'alpine-fancybox' == $lightbox ){
+      wp_register_script( 'fancybox-alpine', $this->url.'/js/fancybox-alpine-safemode/jquery.fancyboxForAlpine-1.3.4.pack.js', '', '1.3.4', true );
+      wp_register_style( 'fancybox-alpine-stylesheet', $this->url . '/js/fancybox-alpine-safemode/jquery.fancyboxForAlpine-1.3.4.css', false, '1.3.4', 'screen' );		
+    }
+    
+    // Enable loading the styles and scripts in the header
+    $headerload = $this->get_option('general_load_header');
+    if( $headerload ){
+      if( 'fancybox' == $lightbox && !$prevent ){
+        wp_enqueue_script( 'fancybox' );
+        wp_enqueue_style( 'fancybox-stylesheet');
+      }elseif( 'prettyphoto' == $lightbox && !$prevent ){
+        wp_enqueue_script( 'prettyphoto' );
+        wp_enqueue_style( 'prettyphoto-stylesheet');
+      }elseif( 'colorbox' == $lightbox && !$prevent ){
+        wp_enqueue_script( 'colorbox' );
+        wp_enqueue_style( 'colorbox-stylesheet' );
+      }elseif( 'alpine-fancybox' == $lightbox ){
+        wp_enqueue_script( 'fancybox-alpine' );
+        wp_enqueue_style( 'fancybox-alpine-stylesheet' );		
+      }
+      wp_enqueue_style($this->wcss);
+      wp_enqueue_script($this->wjs);
+    }
+  }
+/**
+ * Enqueue styles and scripts
+ *  
+ * @ Since 1.2.3
+ *
+ */
+  function enqueue_style_and_script(){
+    $headerload = $this->get_option('general_load_header');
+    if( !$headerload ){
+      // Change web source
+      if( $this->options['instagram_image_link_option'] == "fancybox" ){
+        $lightbox = $this->get_option('general_lightbox');
+        $prevent = $this->get_option('general_lightbox_no_load');
+        if( 'fancybox' == $lightbox && !$prevent ){
+          wp_enqueue_script( 'fancybox' );
+          wp_enqueue_style( 'fancybox-stylesheet');
+        }elseif( 'prettyphoto' == $lightbox && !$prevent ){
+          wp_enqueue_script( 'prettyphoto' );
+          wp_enqueue_style( 'prettyphoto-stylesheet');
+        }elseif( 'colorbox' == $lightbox && !$prevent ){
+          wp_enqueue_script( 'colorbox' );
+          wp_enqueue_style( 'colorbox-stylesheet' );
+        }elseif( 'alpine-fancybox' == $lightbox ){
+          wp_enqueue_script( 'fancybox-alpine' );
+          wp_enqueue_style( 'fancybox-alpine-stylesheet' );		
+        }
+      } 
+      wp_enqueue_style($this->wcss);
+      wp_enqueue_script($this->wjs);
+    }
+  }
+  
 /**
  * Options Simple Update for Admin Page
  *  
@@ -131,54 +213,6 @@ class PhotoTileForInstagramBasic extends PhotoTileForInstagramBase{
     }
     update_option( $this->settings, $oldoptions);
     return $oldoptions;
-  }
-/**
- * 
- *  
- * @since 1.2.0
- *
- */
-  function AddUser( $post_content ){
-    /* $post_content = array(
-        'access_token' => $access_token,
-        'username' => $user->username,
-        'picture' => $user->profile_picture,
-        'fullname' => $user->full_name,
-        'client_id' => $client_id,
-        'client_secret' => $client_secret
-      );*/
-    if($post_content['access_token'] && $post_content['username'] && $post_content['user_id']){
-      $user = $post_content['username'];
-      $oldoptions = $this->get_all_options();
-      $currentUsers = $oldoptions['users'];
-      if( empty($currentUsers[ $user ]) || ($currentUsers[ $user ]['access_token'] != $post_content['access_token']) ){
-        $post_content['name'] = $user;
-        $post_content['title'] = $user;
-        $currentUsers[ $user ] = $post_content;
-        $oldoptions['users'] = $currentUsers;
-        update_option( $this->settings, $oldoptions);
-      }
-    }
-    return true;
-  } 
-  function DeleteUser( $user ){
-    $oldoptions = $this->get_all_options();
-    $currentUsers = $oldoptions['users'];
-    if( !empty($currentUsers[$user]) ){
-      unset($currentUsers[$user]);
-    }
-    $oldoptions['users'] = $currentUsers;
-    update_option( $this->settings, $oldoptions);
-  }
-  function ReAuthorize( $user ){
-    $oldoptions = $this->get_all_options();
-    $currentUsers = $oldoptions['users'];
-    $current = $currentUsers[ $user ];
-    if( $current['client_id'] && $current['client_secret'] ){
-      $oldoptions['client_id'] = $current['client_id'];
-      $oldoptions['client_secret'] = $current['client_secret'];
-      update_option( $this->settings, $oldoptions);
-    }
   }
 /**
   * Function for displaying forms in the widget page
@@ -367,8 +401,8 @@ class PhotoTileForInstagramBasic extends PhotoTileForInstagramBase{
 /**
  * Options Validate Pseudo-Callback
  *
- * @since 1.0.0
- *
+ * @ Since 1.0.0
+ * @ Updated 1.2.3
  */
   function MenuOptionsValidate( $newinput, $oldinput, $optiondetails ) {
       $valid_input = $oldinput;
@@ -399,6 +433,37 @@ class PhotoTileForInstagramBasic extends PhotoTileForInstagramBase{
       // Validate text input and textarea fields
       else if ( ( 'text' == $optiondetails['type'] || 'textarea' == $optiondetails['type'] || 'image-upload' == $optiondetails['type']) ) {
         $valid_input = strip_tags( $newinput );
+        
+        // Validate no-HTML content
+        // nospaces option offers additional filters
+        if ( 'nospaces' == $optiondetails['sanitize'] ) {
+          // Pass input data through the wp_filter_nohtml_kses filter
+          $valid_input = wp_filter_nohtml_kses( $newinput );
+          
+          // Remove specified character(s)
+          if(Null !== $optiondetails['remove']){
+            if( is_array($optiondetails['remove']) ){
+              foreach( $optiondetails['remove'] as $remove ){
+                $valid_input = str_replace($remove,'',$valid_input);
+              }
+            }else{
+              $valid_input = str_replace($optiondetails['remove'],'',$valid_input);
+            }
+          }
+          // Switch or encode characters
+          if( is_array( $optiondetails['encode'] ) ){
+            foreach( $optiondetails['encode'] as $find=>$replace ){
+              $valid_input = str_replace($find,$replace,$valid_input);
+            }
+          }
+          // Replace spaces with provided character or just remove spaces
+          if(Null !== $optiondetails['replace']){
+            $valid_input = str_replace(array('  ',' '),$optiondetails['replace'],$valid_input);
+          }else{
+            $valid_input = str_replace(' ','',$valid_input);
+          }
+        }    
+        
         // Check if numeric
         if ( 'numeric' == $optiondetails['sanitize'] && is_numeric( wp_filter_nohtml_kses( $newinput ) ) ) {
           // Pass input data through the wp_filter_nohtml_kses filter
@@ -419,22 +484,7 @@ class PhotoTileForInstagramBasic extends PhotoTileForInstagramBase{
           if( NULL !== $optiondetails['max'] && $valid_input>$optiondetails['max']){
             $valid_input = $optiondetails['max'];
           }
-        }      
-        // Validate no-HTML content
-        if ( 'nospaces' == $optiondetails['sanitize'] ) {
-          // Pass input data through the wp_filter_nohtml_kses filter
-          $valid_input = wp_filter_nohtml_kses( $newinput );
-          
-          if(Null !== $optiondetails['remove']){
-            $valid_input = str_replace($optiondetails['remove'],'',$valid_input);
-          }
-          
-          if(Null !== $optiondetails['replace']){
-            $valid_input = str_replace(array('  ',' '),$optiondetails['replace'],$valid_input);
-          }else{
-            $valid_input = str_replace(' ','',$valid_input);
-          }
-        }           
+        }         
         if ( 'tag' == $optiondetails['sanitize'] ) {
           // Pass input data through the wp_filter_nohtml_kses filter
           $valid_input = wp_filter_nohtml_kses( $newinput );
@@ -474,58 +524,6 @@ class PhotoTileForInstagramBasic extends PhotoTileForInstagramBase{
       return $valid_input;
   }
   
-  
-  
-  /**
-   * Alpine PhotoTile: Options Page
-   *
-   * @since 1.1.1
-   *
-   */
-  function build_settings_page(){
-    $optiondetails = $this->option_defaults();
-    $currenttab = $this->get_current_tab();
-    
-    echo '<div class="wrap AlpinePhotoTiles_settings_wrap">';
-    $this->admin_options_page_tabs( $currenttab );
-
-      echo '<div class="AlpinePhotoTiles-container '.$this->domain.'">';
-      
-      if( 'general' == $currenttab ){
-        $this->display_general();
-      }elseif( 'add' == $currenttab ){
-        $this->display_add();
-      }elseif( 'preview' == $currenttab ){
-        $this->display_preview();
-      }else{
-        $options = $this->get_all_options();     
-        $settings_section = $this->id . '_' . $currenttab . '_tab';
-        $submitted = ( ( isset($_POST[ "hidden" ]) && ($_POST[ "hidden" ]=="Y") ) ? true : false );
-
-        if( $submitted ){
-          $options = $this->SimpleUpdate( $currenttab, $_POST, $options );
-          if( 'generator' == $currenttab ) {
-            $short = $this->generate_shortcode( $options, $optiondetails );
-          }
-        }
-        echo '<div class="AlpinePhotoTiles-'.$currenttab.'">';
-          if( $_POST[$this->settings.'_'.$currenttab]['submit-'.$currenttab] == 'Delete Current Cache' ){
-            $this->clearAllCache();
-            echo '<div class="announcement">'.__("Cache Cleared").'</div>';
-          }
-          elseif( $_POST[$this->settings.'_'.$currenttab]['submit-'.$currenttab] == 'Save Settings' ){
-            $this->clearAllCache();
-            echo '<div class="announcement">'.__("Settings Saved").'</div>';
-          }
-          echo '<form action="" method="post">';
-            echo '<input type="hidden" name="hidden" value="Y">';
-            $this->display_options_form($options,$currenttab,$short);
-          echo '</form>';
-        echo '</div>';
-      }
-      echo '</div>'; // Close Container
-    echo '</div>'; // Close wrap
-  }
 /**
  * Get current settings page tab
  *  
@@ -655,7 +653,8 @@ class PhotoTileForInstagramBasic extends PhotoTileForInstagramBase{
 /**
  * Function for printing options page
  *  
- * @since 1.1.0
+ * @ Since 1.1.0
+ * @ Updated 1.2.3
  *
  */
   function display_options_form($options,$currenttab,$short){
@@ -674,6 +673,7 @@ class PhotoTileForInstagramBasic extends PhotoTileForInstagramBase{
       foreach( $positions as $position=>$positionsinfo){
         echo '<div class="'. $position .'">'; 
           if( $positionsinfo['title'] ){ echo '<h4>'. $positionsinfo['title'].'</h4>'; } 
+          if( $positionsinfo['description'] ){ echo '<div style="margin-bottom:15px;"><span class="description" >'. $positionsinfo['description'].'</span></div>'; } 
           echo '<table class="form-table">';
             echo '<tbody>';
               if( count($positionsinfo['options']) ){
@@ -682,25 +682,30 @@ class PhotoTileForInstagramBasic extends PhotoTileForInstagramBase{
                   $fieldname = ( $option['name'] );
                   $fieldid = ( $option['name'] );
 
-                  if( 'generator' == $currenttab ){
-                    if($option['parent']){
-                      $class = $option['parent'];
-                    }elseif($option['child']){
-                      $class =($option['child']);
-                    }else{
-                      $class = ('unlinked');
-                    }
-                    $trigger = ($option['trigger']?('data-trigger="'.(($option['trigger'])).'"'):'');
-                    $hidden = ($option['hidden']?' '.$option['hidden']:'');
-                    
+                  if( $option['hidden-option'] && $option['check'] ){
+                    $show = $this->get_option( $option['check'] );
+                    if( !$show ){ continue; }
+                  }
+                  
+                  if($option['parent']){
+                    $class = $option['parent'];
+                  }elseif($option['child']){
+                    $class =($option['child']);
+                  }else{
+                    $class = ('unlinked');
+                  }
+                  $trigger = ($option['trigger']?('data-trigger="'.(($option['trigger'])).'"'):'');
+                  $hidden = ($option['hidden']?' '.$option['hidden']:'');
+                  
+                  if( 'generator' == $currenttab ){                  
                     echo '<tr valign="top"> <td class="'.$class.' '.$hidden.'" '.$trigger.'>';
                       $this->MenuDisplayCallback($options,$option,$fieldname,$fieldid);
                     echo '</td></tr>';   
                   }else{
-                    echo '<tr valign="top"><td>';
+                    echo '<tr valign="top"><td class="'.$class.' '.$hidden.'" '.$trigger.'>';
                       $this->AdminDisplayCallback($options,$option,$fieldname,$fieldid);
                     echo '</td></tr>';   
-                  }     
+                  }       
                 }
               }
             echo '</tbody>';
@@ -718,16 +723,275 @@ class PhotoTileForInstagramBasic extends PhotoTileForInstagramBase{
     }
 
   }
+    
   
+/**
+ * Functions for caching results and clearing cache
+ *  
+ * @since 1.1.0
+ *
+ */
+  public function setCacheDir($val) {  $this->cacheDir = $val; }  
+  public function setExpiryInterval($val) {  $this->expiryInterval = $val; }  
+  public function getExpiryInterval($val) {  return (int)$this->expiryInterval; }
+  
+  public function cacheExists($key) {  
+    $filename_cache = $this->cacheDir . '/' . $key . '.cache'; //Cache filename  
+    $filename_info = $this->cacheDir . '/' . $key . '.info'; //Cache info  
+  
+    if (file_exists($filename_cache) && file_exists($filename_info)) {  
+      $cache_time = file_get_contents ($filename_info) + (int)$this->expiryInterval; //Last update time of the cache file  
+      $time = time(); //Current Time  
+      $expiry_time = (int)$time; //Expiry time for the cache  
+
+      if ((int)$cache_time >= (int)$expiry_time) {//Compare last updated and current time  
+        return true;  
+      }  
+    }
+    return false;  
+  } 
+
+  public function getCache($key)  {  
+    $filename_cache = $this->cacheDir . '/' . $key . '.cache'; //Cache filename  
+    $filename_info = $this->cacheDir . '/' . $key . '.info'; //Cache info  
+  
+    if (file_exists($filename_cache) && file_exists($filename_info))  {  
+      $cache_time = file_get_contents ($filename_info) + (int)$this->expiryInterval; //Last update time of the cache file  
+      $time = time(); //Current Time  
+
+      $expiry_time = (int)$time; //Expiry time for the cache  
+
+      if ((int)$cache_time >= (int)$expiry_time){ //Compare last updated and current time 
+        return file_get_contents ($filename_cache);   //Get contents from file  
+      }  
+    }
+    return null;  
+  }  
+
+  public function putCache($key, $content) {  
+    $time = time(); //Current Time  
+    
+    if ( ! file_exists($this->cacheDir) ){  
+      @mkdir($this->cacheDir);  
+      $cleaning_info = $this->cacheDir . '/cleaning.info'; //Cache info 
+      @file_put_contents ($cleaning_info , $time); // save the time of last cache update  
+    }
+    
+    if ( file_exists($this->cacheDir) && is_dir($this->cacheDir) ){ 
+      $dir = $this->cacheDir . '/';
+      $filename_cache = $dir . $key . '.cache'; //Cache filename  
+      $filename_info = $dir . $key . '.info'; //Cache info  
+    
+      @file_put_contents($filename_cache ,  $content); // save the content  
+      @file_put_contents($filename_info , $time); // save the time of last cache update  
+    }
+  }
+  
+  public function clearAllCache() {
+    $dir = $this->cacheDir . '/';
+    if(is_dir($dir)){
+      $opendir = @opendir($dir);
+      while(false !== ($file = readdir($opendir))) {
+        if($file != "." && $file != "..") {
+          if(file_exists($dir.$file)) {
+            $file_array = @explode('.',$file);
+            $file_type = @array_pop( $file_array );
+            // only remove cache or info files
+            if( 'cache' == $file_type || 'info' == $file_type){
+              @chmod($dir.$file, 0777);
+              @unlink($dir.$file);
+            }
+          }
+          /*elseif(is_dir($dir.$file)) {
+            @chmod($dir.$file, 0777);
+            @chdir('.');
+            @destroy($dir.$file.'/');
+            @rmdir($dir.$file);
+          }*/
+        }
+      }
+      @closedir($opendir);
+    }
+  }
+  
+  public function cleanCache() {
+    $cleaning_info = $this->cacheDir . '/cleaning.info'; //Cache info     
+    if (file_exists($cleaning_info))  {  
+      $cache_time = file_get_contents ($cleaning_info) + (int)$this->cleaningInterval; //Last update time of the cache cleaning  
+      $time = time(); //Current Time  
+      $expiry_time = (int)$time; //Expiry time for the cache  
+      if ((int)$cache_time < (int)$expiry_time){ //Compare last updated and current time     
+        // Clean old files
+        $dir = $this->cacheDir . '/';
+        if(is_dir($dir)){
+          $opendir = @opendir($dir);
+          while(false !== ($file = readdir($opendir))) {                            
+            if($file != "." && $file != "..") {
+              if(is_dir($dir.$file)) {
+                //@chmod($dir.$file, 0777);
+                //@chdir('.');
+                //@destroy($dir.$file.'/');
+                //@rmdir($dir.$file);
+              }
+              elseif(file_exists($dir.$file)) {
+                $file_array = @explode('.',$file);
+                $file_type = @array_pop( $file_array );
+                $file_key = @implode( $file_array );
+                if( $file_type && $file_key && 'info' == $file_type){
+                  $filename_cache = $dir . $file_key . '.cache'; //Cache filename  
+                  $filename_info = $dir . $file_key . '.info'; //Cache info   
+                  if (file_exists($filename_cache) && file_exists($filename_info)) {  
+                    $cache_time = file_get_contents ($filename_info) + (int)$this->cleaningInterval; //Last update time of the cache file  
+                    $expiry_time = (int)$time; //Expiry time for the cache  
+                    if ((int)$cache_time < (int)$expiry_time) {//Compare last updated and current time  
+                      @chmod($filename_cache, 0777);
+                      @unlink($filename_cache);
+                      @chmod($filename_info, 0777);
+                      @unlink($filename_info);
+                    }  
+                  }
+                }
+              }
+            }
+          }
+          @closedir($opendir);
+        }
+        @file_put_contents ($cleaning_info , $time); // save the time of last cache cleaning        
+      }
+    }
+  } 
+  
+  /////////////////////////////////////////////////////////////
+  ///////// Source-specific functions below this line /////////
+  /////////////////////////////////////////////////////////////
+  
+/**
+ * Add User
+ *  
+ * @since 1.2.0
+ *
+ */
+  function AddUser( $post_content ){
+    /* $post_content = array(
+        'access_token' => $access_token,
+        'username' => $user->username,
+        'picture' => $user->profile_picture,
+        'fullname' => $user->full_name,
+        'client_id' => $client_id,
+        'client_secret' => $client_secret
+      );*/
+    if($post_content['access_token'] && $post_content['username'] && $post_content['user_id']){
+      $user = $post_content['username'];
+      $oldoptions = $this->get_all_options();
+      $currentUsers = $oldoptions['users'];
+      if( empty($currentUsers[ $user ]) || ($currentUsers[ $user ]['access_token'] != $post_content['access_token']) ){
+        $post_content['name'] = $user;
+        $post_content['title'] = $user;
+        $currentUsers[ $user ] = $post_content;
+        $oldoptions['users'] = $currentUsers;
+        update_option( $this->settings, $oldoptions);
+      }
+    }
+    return true;
+  } 
+/**
+ * Delete User
+ *  
+ * @since 1.2.0
+ *
+ */
+  function DeleteUser( $user ){
+    $oldoptions = $this->get_all_options();
+    $currentUsers = $oldoptions['users'];
+    if( !empty($currentUsers[$user]) ){
+      unset($currentUsers[$user]);
+    }
+    $oldoptions['users'] = $currentUsers;
+    update_option( $this->settings, $oldoptions);
+  }
+/**
+ * ReAuthorize User
+ *  
+ * @since 1.2.0
+ *
+ */
+  function ReAuthorize( $user ){
+    $oldoptions = $this->get_all_options();
+    $currentUsers = $oldoptions['users'];
+    $current = $currentUsers[ $user ];
+    if( $current['client_id'] && $current['client_secret'] ){
+      $oldoptions['client_id'] = $current['client_id'];
+      $oldoptions['client_secret'] = $current['client_secret'];
+      update_option( $this->settings, $oldoptions);
+    }
+  }
+  
+/**
+ * Alpine PhotoTile: Options Page
+ *
+ * @ Since 1.1.1
+ *
+ */
+  function build_settings_page(){
+    $optiondetails = $this->option_defaults();
+    $currenttab = $this->get_current_tab();
+    
+    echo '<div class="wrap AlpinePhotoTiles_settings_wrap">';
+    $this->admin_options_page_tabs( $currenttab );
+
+      echo '<div class="AlpinePhotoTiles-container '.$this->domain.'">';
+      
+      if( 'general' == $currenttab ){
+        $this->display_general();
+      }elseif( 'add' == $currenttab ){
+        $this->display_add();
+      }elseif( 'preview' == $currenttab ){
+        $this->display_preview();
+      }else{
+        $options = $this->get_all_options();     
+        $settings_section = $this->id . '_' . $currenttab . '_tab';
+        $submitted = ( ( isset($_POST[ "hidden" ]) && ($_POST[ "hidden" ]=="Y") ) ? true : false );
+
+        if( $submitted ){
+          $options = $this->SimpleUpdate( $currenttab, $_POST, $options );
+          if( 'generator' == $currenttab ) {
+            $short = $this->generate_shortcode( $options, $optiondetails );
+          }
+        }
+        echo '<div class="AlpinePhotoTiles-'.$currenttab.'">';
+          if( $_POST[$this->settings.'_'.$currenttab]['submit-'.$currenttab] == 'Delete Current Cache' ){
+            $this->clearAllCache();
+            echo '<div class="announcement">'.__("Cache Cleared").'</div>';
+          }
+          elseif( $_POST[$this->settings.'_'.$currenttab]['submit-'.$currenttab] == 'Save Settings' ){
+            $this->clearAllCache();
+            echo '<div class="announcement">'.__("Settings Saved").'</div>';
+          }
+          echo '<form action="" method="post">';
+            echo '<input type="hidden" name="hidden" value="Y">';
+            $this->display_options_form($options,$currenttab,$short);
+          echo '</form>';
+        echo '</div>';
+      }
+      echo '</div>'; // Close Container
+    echo '</div>'; // Close wrap
+  }
+/**
+ * Show User Function
+ *  
+ * @ Since 1.2.0
+ * @ Updated 1.2.3
+ */
   function show_user($info){
-    $output = '<div id="user-icon-'.$info['username'].'" class="user-icon">';
+    $output = '<div id="user-icon-'.$info['username'].'" class="user-icon" style="padding-bottom:10px;">';
     $output .=  '<div><h4>'.$info['username'].'</h4></div>';
     $output .=  '<div><img src="'.$info['picture'].'" style="width:80px;height:80px;"></div>';
-    $output .=  '<form id="'.$this->settings.'-user-'.$info['username'].'" action="" method="post">';
+    // Not currently needed
+  /*  $output .=  '<form id="'.$this->settings.'-user-'.$info['username'].'" action="" method="post">';
     $output .=  '<input type="hidden" name="hidden" value="Y">';
     $output .=  '<input type="hidden" name="user" value="'.$info['username'].'">';
     $output .=  '<input id="'.$this->settings.'-submit" name="'.$this->settings.'_reauthorize[submit-reauthorize]" type="submit" class="button-primary" style="margin-top:15px;float:none;" value="Re-Authorize" />';
-    $output .=  '</form>';
+    $output .=  '</form>';*/
     $output .=  '<form id="'.$this->settings.'-delete-'.$info['username'].'" action="" method="post">';
     $output .=  '<input type="hidden" name="hidden" value="Y">';
     $output .=  '<input type="hidden" name="user" value="'.$info['username'].'">';
@@ -736,12 +1000,24 @@ class PhotoTileForInstagramBasic extends PhotoTileForInstagramBase{
     $output .=  '</div>';
     return $output;
   }
+/**
+ * Show User Javascript
+ *  
+ * @ Since 1.2.0
+ *
+ * // Not currently needed
+ */
   function show_user_js($info){
     $redirect = admin_url( 'options-general.php?page='.$this->settings.'&tab=add' );
     $output = 'jQuery(document).ready(function() {var url = "https://api.instagram.com/oauth/authorize/"+"?redirect_uri=" + encodeURIComponent("'.$redirect . '")+ "&response_type=code" + "&client_id='.$info['client_id'].'" + "&display=touch";jQuery("#'.$this->settings.'-user-'.$info['username'].'").ajaxForm({ success: function(responseText){  window.location.replace(url); } });  });';
     return $output;
   }
-  
+/**
+ * Display Add User Page
+ *  
+ * @ Since 1.2.0
+ * @ Updated 1.2.3
+ */
   function display_add(){ 
   
     wp_enqueue_script( 'jquery-form');
@@ -804,7 +1080,6 @@ class PhotoTileForInstagramBasic extends PhotoTileForInstagramBase{
       }
     }  
   	
-   
     if( $submitted && $_POST[ $this->settings.'_delete']['submit-delete'] == 'Delete User' ){
       $delete = true;
       $user = $_POST['user'];
@@ -818,7 +1093,6 @@ class PhotoTileForInstagramBasic extends PhotoTileForInstagramBase{
       $success = $this->AddUser($_POST);
     }
 
-    
     $defaults = $this->option_defaults();
     $positions = $this->get_option_positions_by_tab( $currenttab );
     
@@ -835,13 +1109,13 @@ class PhotoTileForInstagramBasic extends PhotoTileForInstagramBase{
               if( $position == 'top'){
                 echo '<div id="AlpinePhotoTiles-user-list" style="margin-bottom:20px;padding-bottom:20px;overflow:hidden;border-bottom: 1px solid #DDDDDD;">'; 
                 if( $positionsinfo['title'] ){ echo '<h4>'. $positionsinfo['title'].'</h4>'; } 
-                $users = $this->get_users();
+                $users = $this->get_instagram_users();
                 if( $users['none']['name'] == 'none' ){
                   echo '<p id="AlpinePhotoTiles-user-empty">No users available. Add a user by following the instructions below.</p>';
                 }else{
                   foreach($users as $name=>$info){
                     echo $this->show_user($info);
-                    echo '<script type = "text/javascript">'.$this->show_user_js($info).'</script>';
+                    //echo '<script type = "text/javascript">'.$this->show_user_js($info).'</script>'; // Not currently needed
                   }
                 }
                 echo '</div>';
@@ -991,142 +1265,6 @@ class PhotoTileForInstagramBasic extends PhotoTileForInstagramBase{
 
   }
   
-  
-/**
- * Functions for caching results and clearing cache
- *  
- * @since 1.1.0
- *
- */
-  public function setCacheDir($val) {  $this->cacheDir = $val; }  
-  public function setExpiryInterval($val) {  $this->expiryInterval = $val; }  
-  public function getExpiryInterval($val) {  return (int)$this->expiryInterval; }
-  
-  public function cacheExists($key) {  
-    $filename_cache = $this->cacheDir . '/' . $key . '.cache'; //Cache filename  
-    $filename_info = $this->cacheDir . '/' . $key . '.info'; //Cache info  
-  
-    if (file_exists($filename_cache) && file_exists($filename_info)) {  
-      $cache_time = file_get_contents ($filename_info) + (int)$this->expiryInterval; //Last update time of the cache file  
-      $time = time(); //Current Time  
-      $expiry_time = (int)$time; //Expiry time for the cache  
-
-      if ((int)$cache_time >= (int)$expiry_time) {//Compare last updated and current time  
-        return true;  
-      }  
-    }
-    return false;  
-  } 
-
-  public function getCache($key)  {  
-    $filename_cache = $this->cacheDir . '/' . $key . '.cache'; //Cache filename  
-    $filename_info = $this->cacheDir . '/' . $key . '.info'; //Cache info  
-  
-    if (file_exists($filename_cache) && file_exists($filename_info))  {  
-      $cache_time = file_get_contents ($filename_info) + (int)$this->expiryInterval; //Last update time of the cache file  
-      $time = time(); //Current Time  
-
-      $expiry_time = (int)$time; //Expiry time for the cache  
-
-      if ((int)$cache_time >= (int)$expiry_time){ //Compare last updated and current time 
-        return file_get_contents ($filename_cache);   //Get contents from file  
-      }  
-    }
-    return null;  
-  }  
-
-  public function putCache($key, $content) {  
-    $time = time(); //Current Time  
-    
-    if ( ! file_exists($this->cacheDir) ){  
-      @mkdir($this->cacheDir);  
-      $cleaning_info = $this->cacheDir . '/cleaning.info'; //Cache info 
-      @file_put_contents ($cleaning_info , $time); // save the time of last cache update  
-    }
-    
-    if ( file_exists($this->cacheDir) && is_dir($this->cacheDir) ){ 
-      $dir = $this->cacheDir . '/';
-      $filename_cache = $dir . $key . '.cache'; //Cache filename  
-      $filename_info = $dir . $key . '.info'; //Cache info  
-    
-      @file_put_contents($filename_cache ,  $content); // save the content  
-      @file_put_contents($filename_info , $time); // save the time of last cache update  
-    }
-  }
-  
-  public function clearAllCache() {
-    $dir = $this->cacheDir . '/';
-    if(is_dir($dir)){
-      $opendir = @opendir($dir);
-      while(false !== ($file = readdir($opendir))) {
-        if($file != "." && $file != "..") {
-          if(file_exists($dir.$file)) {
-            $file_array = @explode('.',$file);
-            $file_type = @array_pop( $file_array );
-            // only remove cache or info files
-            if( 'cache' == $file_type || 'info' == $file_type){
-              @chmod($dir.$file, 0777);
-              @unlink($dir.$file);
-            }
-          }
-          /*elseif(is_dir($dir.$file)) {
-            @chmod($dir.$file, 0777);
-            @chdir('.');
-            @destroy($dir.$file.'/');
-            @rmdir($dir.$file);
-          }*/
-        }
-      }
-      @closedir($opendir);
-    }
-  }
-  
-  public function cleanCache() {
-    $cleaning_info = $this->cacheDir . '/cleaning.info'; //Cache info     
-    if (file_exists($cleaning_info))  {  
-      $cache_time = file_get_contents ($cleaning_info) + (int)$this->cleaningInterval; //Last update time of the cache cleaning  
-      $time = time(); //Current Time  
-      $expiry_time = (int)$time; //Expiry time for the cache  
-      if ((int)$cache_time < (int)$expiry_time){ //Compare last updated and current time     
-        // Clean old files
-        $dir = $this->cacheDir . '/';
-        if(is_dir($dir)){
-          $opendir = @opendir($dir);
-          while(false !== ($file = readdir($opendir))) {                            
-            if($file != "." && $file != "..") {
-              if(is_dir($dir.$file)) {
-                //@chmod($dir.$file, 0777);
-                //@chdir('.');
-                //@destroy($dir.$file.'/');
-                //@rmdir($dir.$file);
-              }
-              elseif(file_exists($dir.$file)) {
-                $file_array = @explode('.',$file);
-                $file_type = @array_pop( $file_array );
-                $file_key = @implode( $file_array );
-                if( $file_type && $file_key && 'info' == $file_type){
-                  $filename_cache = $dir . $file_key . '.cache'; //Cache filename  
-                  $filename_info = $dir . $file_key . '.info'; //Cache info   
-                  if (file_exists($filename_cache) && file_exists($filename_info)) {  
-                    $cache_time = file_get_contents ($filename_info) + (int)$this->cleaningInterval; //Last update time of the cache file  
-                    $expiry_time = (int)$time; //Expiry time for the cache  
-                    if ((int)$cache_time < (int)$expiry_time) {//Compare last updated and current time  
-                      @chmod($filename_cache, 0777);
-                      @unlink($filename_cache);
-                      @chmod($filename_info, 0777);
-                      @unlink($filename_info);
-                    }  
-                  }
-                }
-              }
-            }
-          }
-          @closedir($opendir);
-        }
-        @file_put_contents ($cleaning_info , $time); // save the time of last cache cleaning        
-      }
-    }
-  } 
 }
 
 

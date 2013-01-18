@@ -7,11 +7,11 @@ class PhotoTileForInstagramBase {
   public $url;
   public $dir;
   public $cacheDir;
-  public $ver = '1.2.1';
-  public $vers = '1-2-1-2';
+  public $ver = '1.2.3';
+  public $vers = '1-2-3';
   public $domain = 'APTFINbyTAP_domain';
   public $settings = 'alpine-photo-tile-for-instagram-settings'; // All lowercase
-  public $name = 'Alpine Photo Tile for Instagram';
+  public $name = 'Alpine PhotoTile for Instagram';
   public $info = 'http://thealpinepress.com/alpine-phototile-for-instagram/';
   public $wplink = 'http://wordpress.org/extend/plugins/alpine-photo-tile-for-instagram/';
   public $page = 'AlpineTile: Instagram';
@@ -36,7 +36,13 @@ class PhotoTileForInstagramBase {
     $this->dir = untrailingslashit( plugin_dir_path( dirname(__FILE__) ) );
     $this->cacheDir = WP_CONTENT_DIR . '/cache/' . $this->settings;
   }
-  
+
+/**
+ * Option positions for widget page
+ *  
+ * @ Since 1.2.0
+ * 
+ */
   function widget_positions(){
       $options = array(
       'top' => '',
@@ -46,26 +52,37 @@ class PhotoTileForInstagramBase {
     );
     return $options;
   }
+  
+/**
+ * Option positions for settings pages
+ *  
+ * @ Since 1.2.0
+ * @ Updated 1.2.3
+ */  
   function option_positions(){
     $positions = array(
       'generator' => array(
-        'left' => 'Instagram Settings',
-        'right' => 'Style Settings',
-        'bottom' => 'Format Settings'
+        'left' => array( 'title' => 'Instagram Settings' ),
+        'right' => array( 'title' => 'Style Settings' ),
+        'bottom' => array( 'title' => 'Format Settings')
       ),
       'add' => array(
-        'top' => 'Available Users',
-        'center' =>'Add New User (See Instructions Below)'
+        'top' => array( 'title' => 'Available Users' ),
+        'center' => array( 'title' => 'Add New User (See Instructions Below)' )
       ),
       'plugin-settings' => array(
-        'top' => 'Cache Options',
-        'center' =>'Global Style Options'
+        'top' => array( 'title' => 'Global Style Options', 'description' => "Below are style settings that will be applied to every instance of the plugin. " ),
+        'center' => array( 'title' => 'Hidden Options', 'description' => "Below are additional options that you can choose to enable by checking the box." ),
+        'bottom' => array( 'title' => 'Cache Options' ),
       )
     );
     return $positions;
   }
 /**
  * Plugin Admin Settings Page Tabs
+ *  
+ * @ Since 1.2.0
+ *
  */
   function settings_page_tabs() {
     $tabs = array( 
@@ -92,8 +109,14 @@ class PhotoTileForInstagramBase {
     );
     return $tabs;
   }
-  
-  function get_users(){
+
+/**
+ * Retrieve Available Users
+ *  
+ * @ Since 1.2.0
+ *
+ */
+  function get_instagram_users(){
     $return = array(
           'none' => array(
             'name' => 'none',
@@ -107,6 +130,13 @@ class PhotoTileForInstagramBase {
     }
     return $return;
   }
+  
+/**
+ * Option Parameters and Defaults
+ *  
+ * @ Since 1.0.0
+ * @ Updated 1.2.3
+ */  
   function option_defaults(){
     $options = array(
       'widget_title' => array(
@@ -125,7 +155,7 @@ class PhotoTileForInstagramBase {
         'short' => 'user',
         'title' => 'Select User: ',
         'type' => 'select',
-        'valid_options' => $this->get_users(),
+        'valid_options' => $this->get_instagram_users(),
         'description' => '',
         'widget' => true,
         'tab' => 'generator',
@@ -210,7 +240,7 @@ class PhotoTileForInstagramBase {
           ),
           'fancybox' => array(
             'name' => 'fancybox',
-            'title' => 'Use Fancybox'
+            'title' => 'Use Lightbox'
           )               
         ),
         'description' => '<br>*Privacy settings may prevent linking to Instagram Page',
@@ -220,7 +250,25 @@ class PhotoTileForInstagramBase {
         'parent' => 'AlpinePhotoTiles-parent', 
         'trigger' => 'instagram_image_link_option',
         'default' => 'fancybox'
-      ),      
+      ),
+      'custom_lightbox_rel' => array(
+        'name' => 'custom_lightbox_rel',
+        'short' => 'crel',
+        'title' => 'Custom Lightbox "rel" (Optional): ',
+        'type' => 'text',
+        'sanitize' => 'nospaces',
+        'encode' => array("["=>"{ltsq}","]"=>"{rtsq}"),
+        'description' => '',
+        'child' => 'instagram_image_link_option', 
+        'hidden' => 'none original instagram link',
+        'widget' => true,
+        'hidden-option' => true,
+        'check' => 'hidden_lightbox_custom_rel',
+        'tab' => 'generator',
+        'position' => 'left',
+        'since' => '1.2.3',
+        'default' => ''
+      ),   
       'custom_link_url' => array(
         'name' => 'custom_link_url',
         'title' => 'Custom Link URL : ',
@@ -235,31 +283,6 @@ class PhotoTileForInstagramBase {
         'position' => 'left',
         'default' => ''
       ),
-      'instagram_photo_size' => array(
-        'name' => 'instagram_photo_size',
-        'short' => 'size',
-        'title' => 'Photo Size : ',
-        'type' => 'select',
-        'valid_options' => array(
-          'Th' => array(
-            'name' => 'Th',
-            'title' => 'Thumb'
-          ),
-          'M' => array(
-            'name' => 'M',
-            'title' => 'Medium'
-          ),
-          'L' => array(
-            'name' => 'L',
-            'title' => 'Large'
-          )  
-        ),
-        'description' => '',
-        'widget' => true,
-        'tab' => 'generator',
-        'position' => 'left',
-        'default' => 'M'
-      ),
       'instagram_display_link' => array(
         'name' => 'instagram_display_link',
         'short' => 'dl',
@@ -269,8 +292,11 @@ class PhotoTileForInstagramBase {
         'child' => 'instagram_source',
         'hidden' => 'community',
         'widget' => true,
+        'hidden-option' => true,
+        'check' => 'hidden_display_link',
         'tab' => 'generator',
         'position' => 'left',
+        'since' => '1.2.3',
         'default' => ''
       ),    
       'instagram_display_link_text' => array(
@@ -283,8 +309,11 @@ class PhotoTileForInstagramBase {
         'child' => 'instagram_source', 
         'hidden' => 'community',
         'widget' => true,
+        'hidden-option' => true,
+        'check' => 'hidden_display_link',
         'tab' => 'generator',
         'position' => 'left',
+        'since' => '1.2.3',
         'default' => 'Instagram'
       ),    
 
@@ -389,45 +418,38 @@ class PhotoTileForInstagramBase {
         'position' => 'right',
         'default' => '2'
       ),     
-      'style_gallery_height' => array(
-        'name' => 'style_gallery_height',
-        'short' => 'gheight',
-        'title' => 'Gallery Size : ',
-        'type' => 'select',
-        'valid_options' => array(
-          '2' => array(
-            'name' => 2,
-            'title' => 'XS'
-          ),
-          '3' => array(
-            'name' => 3,
-            'title' => 'Small'
-          ),
-          '4' => array(
-            'name' => 4,
-            'title' => 'Medium'
-          ),
-          '5' => array(
-            'name' => 5,
-            'title' => 'Large'
-          ),
-          '6' => array(
-            'name' => 6,
-            'title' => 'XL'
-          ),
-          '7' => array(
-            'name' => 7,
-            'title' => 'XXL'
-          )             
-        ),
-        'description' => '',
+      'style_gallery_ratio_width' => array(
+        'name' => 'style_gallery_ratio_width',
+        'short' => 'grwidth',
+        'title' => 'Aspect Ratio Width : ',
+        'type' => 'text',
+        'sanitize' => 'numeric',
+        'min' => '1',
+        'description' => "",
         'child' => 'style_option',
-        'hidden' => 'vertical cascade floor wall rift bookshelf windows',
+        'hidden' => 'vertical floor wall bookshelf windows rift cascade',
         'widget' => true,
         'tab' => 'generator',
         'position' => 'right',
-        'default' => '3'
-      ),     
+        'since' => '1.2.3',
+        'default' => '800'
+      ),      
+      'style_gallery_ratio_height' => array(
+        'name' => 'style_gallery_ratio_height',
+        'short' => 'grheight',
+        'title' => 'Aspect Ratio Height : ',
+        'type' => 'text',
+        'sanitize' => 'numeric',
+        'min' => '1',
+        'description' => "Set the Aspect Ratio of the gallery display. <br>(Default: 800 by 600)",
+        'widget' => true,
+        'child' => 'style_option',
+        'hidden' => 'vertical floor wall bookshelf windows rift cascade',
+        'tab' => 'generator',
+        'position' => 'right',
+        'since' => '1.2.3',
+        'default' => '600'
+      ),  
       'instagram_photo_number' => array(
         'name' => 'instagram_photo_number',
         'short' => 'num',
@@ -441,6 +463,31 @@ class PhotoTileForInstagramBase {
         'tab' => 'generator',
         'position' => 'right',
         'default' => '4'
+      ),
+      'instagram_photo_size' => array(
+        'name' => 'instagram_photo_size',
+        'short' => 'size',
+        'title' => 'Photo Size : ',
+        'type' => 'select',
+        'valid_options' => array(
+          'Th' => array(
+            'name' => 'Th',
+            'title' => 'Thumb'
+          ),
+          'M' => array(
+            'name' => 'M',
+            'title' => 'Medium'
+          ),
+          'L' => array(
+            'name' => 'L',
+            'title' => 'Large'
+          )  
+        ),
+        'description' => '',
+        'widget' => true,
+        'tab' => 'generator',
+        'position' => 'right',
+        'default' => 'M'
       ),
       'style_shadow' => array(
         'name' => 'style_shadow',
@@ -505,9 +552,12 @@ class PhotoTileForInstagramBase {
             'title' => 'Right'
           )            
         ),
+        'hidden-option' => true,
+        'check' => 'hidden_widget_alignment',
         'widget' => true,
         'tab' => 'generator',
         'position' => 'bottom',
+        'since' => '1.2.3',
         'default' => 'center'
       ),    
       'widget_max_width' => array(
@@ -535,6 +585,116 @@ class PhotoTileForInstagramBase {
         'position' => 'bottom',
         'default' => ''
       ), 
+      'general_loader' => array(
+        'name' => 'general_loader',
+        'title' => 'Disable Loading Icon: ',
+        'type' => 'checkbox',
+        'description' => 'Remove the icon that appears while images are loading.',
+        'since' => '1.2.1',
+        'tab' => 'plugin-settings',
+        'position' => 'top',
+        'default' => ''
+      ), 
+      'general_highlight_color' => array(
+        'name' => 'general_highlight_color',
+        'title' => 'Highlight Color:',
+        'type' => 'color',
+        'description' => 'Click to choose link color.',
+        'section' => 'settings',
+        'tab' => 'general',
+        'since' => '1.2.1',
+        'tab' => 'plugin-settings',
+        'position' => 'top',
+        'default' => '#64a2d8'
+      ), 
+      'general_lightbox' => array(
+        'name' => 'general_lightbox',
+        'title' => 'Choose jQuery Lightbox Plugin : ',
+        'type' => 'select',
+        'valid_options' => array(
+          'alpine-fancybox' => array(
+            'name' => 'alpine-fancybox',
+            'title' => 'Fancybox (Safemode)'
+          ),
+          'fancybox' => array(
+            'name' => 'fancybox',
+            'title' => 'Fancybox'
+          ),
+          'colorbox' => array(
+            'name' => 'colorbox',
+            'title' => 'ColorBox'
+          ),
+          'prettyphoto' => array(
+            'name' => 'prettyphoto',
+            'title' => 'prettyPhoto'
+          )      
+        ),
+        'tab' => 'plugin-settings',
+        'position' => 'top',
+        'default' => 'alpine-fancybox'
+      ),
+      'general_lightbox_no_load' => array(
+        'name' => 'general_lightbox_no_load',
+        'title' => 'Prevent Lightbox Loading: ',
+        'type' => 'checkbox',
+        'description' => 'Already using the above lighbox alternative? Prevent this plugin from loading it again.',
+        'since' => '1.2.3',
+        'tab' => 'plugin-settings',
+        'position' => 'top',
+        'default' => ''
+      ), 
+      'general_lightbox_params' => array(
+        'name' => 'general_lightbox_params',
+        'title' => 'Custom Lightbox Parameters:',
+        'type' => 'textarea',
+        'description' => 'Add custom parameters to the lighbox call.',
+        'section' => 'settings',
+        'tab' => 'general',
+        'since' => '1.2.3',
+        'tab' => 'plugin-settings',
+        'position' => 'top',
+        'default' => ''
+      ), 
+      'general_load_header' => array(
+        'name' => 'general_load_header',
+        'title' => 'Always Load Styles and Scripts in Header: ',
+        'type' => 'checkbox',
+        'description' => 'For themes without wp_footer(). Requires that styles and scripts be loaded on every page.',
+        'since' => '1.2.3',
+        'tab' => 'plugin-settings',
+        'position' => 'top',
+        'default' => ''
+      ), 
+      'hidden_display_link' => array(
+        'name' => 'hidden_display_link',
+        'title' => 'Link Below Widget: ',
+        'type' => 'checkbox',
+        'description' => 'Add an option to place a link with custom text below widget display.',
+        'since' => '1.2.3',
+        'tab' => 'plugin-settings',
+        'position' => 'center',
+        'default' => true
+      ), 
+      'hidden_widget_alignment' => array(
+        'name' => 'hidden_widget_alignment',
+        'title' => 'Photo Alignment: ',
+        'type' => 'checkbox',
+        'description' => 'Add an option to align photos to the left, right, or center.',
+        'since' => '1.2.3',
+        'tab' => 'plugin-settings',
+        'position' => 'center',
+        'default' => true
+      ), 
+      'hidden_lightbox_custom_rel' => array(
+        'name' => 'hidden_lightbox_custom_rel',
+        'title' => 'Custom "rel" for Lightbox: ',
+        'type' => 'checkbox',
+        'description' => 'Add an option to set custom "rel" to widget options.',
+        'since' => '1.2.3',
+        'tab' => 'plugin-settings',
+        'position' => 'center',
+        'default' => ''
+      ), 
       'cache_disable' => array(
         'name' => 'cache_disable',
         'title' => 'Disable feed caching: ',
@@ -542,7 +702,7 @@ class PhotoTileForInstagramBase {
         'description' => '',
         'since' => '1.1',
         'tab' => 'plugin-settings',
-        'position' => 'top',
+        'position' => 'bottom',
         'default' => ''
       ), 
       'cache_time' => array(
@@ -554,30 +714,8 @@ class PhotoTileForInstagramBase {
         'description' => "Set the number of hours that a feed will be stored.",
         'since' => '1.1',
         'tab' => 'plugin-settings',
-        'position' => 'top',
+        'position' => 'bottom',
         'default' => '3'
-      ), 
-      'general_loader' => array(
-        'name' => 'general_loader',
-        'title' => 'Disable Loading Icon: ',
-        'type' => 'checkbox',
-        'description' => 'Remove the icon that appears while images are loading.',
-        'since' => '1.1',
-        'tab' => 'plugin-settings',
-        'position' => 'center',
-        'default' => ''
-      ), 
-      'general_highlight_color' => array(
-        'name' => 'general_highlight_color',
-        'title' => 'Highlight Color:',
-        'type' => 'color',
-        'description' => 'Click to choose link color.',
-        'section' => 'settings',
-        'tab' => 'general',
-        'since' => '1.2',
-        'tab' => 'plugin-settings',
-        'position' => 'center',
-        'default' => '#64a2d8'
       ), 
       'client_id' => array(
         'name' => 'client_id',
