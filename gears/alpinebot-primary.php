@@ -16,7 +16,7 @@ class PhotoTileForInstagramBase {
   public $wplink = 'http://wordpress.org/extend/plugins/alpine-photo-tile-for-instagram/';
   public $page = 'AlpineTile: Instagram';
   public $hook = 'APTFINbyTAP_hook';
-  public $plugins = array('flickr','pinterest','tumblr');
+  public $plugins = array('flickr','pinterest','tumblr','picasa-and-google-plus');
 
   public $root = 'AlpinePhotoTiles';
   public $wjs = 'AlpinePhotoTiles_script';
