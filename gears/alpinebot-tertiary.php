@@ -98,7 +98,8 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBasic{
         $results = @unserialize($results);
         if( count($results) ){
           $results['hidden'] .= '<!-- Retrieved from cache -->';
-          return $results;
+          $this->results = $results;
+          return;
         }
       }
     }
@@ -263,7 +264,7 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBasic{
   }
   
   
-  /**
+/**
  *  Get Image Link
  *  
  *  @ Since 1.2.2

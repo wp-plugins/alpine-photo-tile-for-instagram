@@ -665,7 +665,7 @@ class PhotoTileForInstagramBasic extends PhotoTileForInstagramBase{
     if( 'generator' == $currenttab ) { 
       echo '<input name="'. $this->settings.'_'.$currenttab .'[submit-'. $currenttab .']" type="submit" class="button-primary topbutton" value="Generate Shortcode" /><br> ';
       if($short){
-        echo '<div id="'.$this->settings.'-shortcode" style="position:relative;clear:both;margin-bottom:20px;" ><div class="announcement" style="margin:0 0 10px 0;"> Now, copy (Crtl+C) and paste (Crtl+P) the following shortcode into a page or post. </div>';
+        echo '<div id="'.$this->settings.'-shortcode" style="position:relative;clear:both;margin-bottom:20px;" ><div class="announcement" style="margin:0 0 10px 0;"> Now, copy (Crtl+C) and paste (Crtl+V) the following shortcode into a page or post. </div>';
         echo '<div><textarea class="auto_select">'.$short.'</textarea></div></div>';
       }
     }
@@ -1156,7 +1156,7 @@ class PhotoTileForInstagramBasic extends PhotoTileForInstagramBase{
         <div style="max-width:680px;">
           <h1><?php _e('How to get your Instagram Client ID and Client Secret');?> :</h1>
           <h2>(<?php _e("Don't worry. I promise it's EASY");?>!!!)</h2>
-          <p><?php _e("Instagram is quite protective of its users. Before your WordPress website can retrieve images from Instagram, you must authorize your WordPress site to access your Instagram account. This is done by following these 5 simple steps:");?>
+          <p><?php _e("Instagram is quite protective of its users. Before your WordPress website can retrieve images from Instagram, you must authorize your WordPress site to access your Instagram account. This is done by following these 5 simple steps: <br>(Please let me know if these directions become outdated)");?>
           <ol>
             <li>
               <?php _e("Make sure you are logged into Instagram.com and then visit");?> <a href="http://instagram.com/developer" target="_blank">http://instagram.com/developer</a>.
