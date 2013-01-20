@@ -3,7 +3,7 @@
  * Alpine PhotoTile for Instagram: Shortcode
  *
  * @ Since 1.1.1
- * @ Updated 1.2.3
+ * @ Updated 1.2.3.1
  */
  
   function APTFINbyTAP_shortcode_function( $atts ) {
@@ -21,7 +21,7 @@
     $id = rand(100, 1000);
     $bot->wid = $id;
     $bot->options = $options;
-    $bot->photo_retrieval($id, $options);
+    $bot->photo_retrieval();
     
     $bot->enqueue_style_and_script();
     
