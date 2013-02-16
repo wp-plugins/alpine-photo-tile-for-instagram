@@ -293,7 +293,7 @@ class PhotoTileForInstagramBasic extends PhotoTileForInstagramBase{
       ?>
       <label for="<?php echo $fieldid; ?>"><?php echo $optiontitle ?></label>
       <textarea id="<?php echo $fieldid ?>" name="<?php echo $fieldname; ?>" class="AlpinePhotoTiles_textarea" ><?php echo $value; ?></textarea><br>
-      <span class="description"><?php echo esc_textarea( $optiondescription ); ?></span>
+      <span class="description"><?php echo (function_exists('esc_textarea')?esc_textarea( $optiondescription ):$optiondescription); ?></span>
       <?php
     }   
     else if ( 'color' == $fieldtype ) {
@@ -384,7 +384,7 @@ class PhotoTileForInstagramBasic extends PhotoTileForInstagramBase{
       ?>
       <label for="<?php echo $fieldid; ?>"><?php echo $optiontitle ?></label>
       <textarea id="<?php echo $fieldid ?>" name="<?php echo $fieldname; ?>" class="AlpinePhotoTiles_textarea" ><?php echo $value; ?></textarea><br>
-      <span class="description"><?php echo esc_textarea( $optiondescription ); ?></span>
+      <span class="description"><?php echo (function_exists('esc_textarea')?esc_textarea( $optiondescription ):$optiondescription); ?></span>
       <?php
     }   
     else if ( 'color' == $fieldtype ) {

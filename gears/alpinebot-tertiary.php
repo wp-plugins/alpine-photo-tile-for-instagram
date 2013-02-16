@@ -208,6 +208,7 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBasic{
                 $photourl[$i] = $url;
                 $linkurl[$i] = $imageinfo->link;
                 $photocap[$i] = $imageinfo->caption->text;
+                $photocap[$i] = str_replace("'","\'",$photocap[$i]);
                 $originalurl[$i] = $imageinfo->images->standard_resolution->url;
                 $i++;
               }
