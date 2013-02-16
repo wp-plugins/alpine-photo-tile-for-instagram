@@ -1110,12 +1110,14 @@ class PhotoTileForInstagramBasic extends PhotoTileForInstagramBase{
                 echo '<div id="AlpinePhotoTiles-user-list" style="margin-bottom:20px;padding-bottom:20px;overflow:hidden;border-bottom: 1px solid #DDDDDD;">'; 
                 if( $positionsinfo['title'] ){ echo '<h4>'. $positionsinfo['title'].'</h4>'; } 
                 $users = $this->get_instagram_users();
-                if( $users['none']['name'] == 'none' ){
+                if( is_array( $users ) && is_array( $users['none'] ) && $users['none']['name'] == 'none' ){
                   echo '<p id="AlpinePhotoTiles-user-empty">No users available. Add a user by following the instructions below.</p>';
                 }else{
-                  foreach($users as $name=>$info){
-                    echo $this->show_user($info);
-                    //echo '<script type = "text/javascript">'.$this->show_user_js($info).'</script>'; // Not currently needed
+                  if( is_array( $users ) ){
+                    foreach($users as $name=>$info){
+                      echo $this->show_user($info);
+                      //echo '<script type = "text/javascript">'.$this->show_user_js($info).'</script>'; // Not currently needed
+                    }
                   }
                 }
                 echo '</div>';
