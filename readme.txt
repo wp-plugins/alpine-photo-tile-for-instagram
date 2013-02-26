@@ -4,7 +4,7 @@ Donate link: thealpinepress.com
 Tags: photos, instagram, photostream, javascript, jQuery, stylish, pictures, images, widget, sidebar, display, gallery, wall, lightbox, fancybox, colorbox
 Requires at least: 2.8
 Tested up to: 3.5
-Stable tag: 1.2.3.2
+Stable tag: 1.2.3.3
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
