@@ -223,8 +223,8 @@ img.AlpinePhotoTiles-img-nocorners{
 }
 
 .AlpinePhotoTiles-pinterest-container{
-  position:relative;
   display:block;
+  position:relative;
 }
 .AlpinePhotoTiles-pin-it-button{
   display:block;
@@ -238,8 +238,8 @@ img.AlpinePhotoTiles-img-nocorners{
   background-image: url('images/pin-it.png');
   width:43px;
   height:21px;
-  max-height:50%;
-  max-width:50%;
+  max-height:40%;
+  max-width:40%;
   background-size:contain;
   background-position:center;
   background-repeat:no-repeat;
@@ -249,8 +249,8 @@ img.AlpinePhotoTiles-img-nocorners{
   opacity:0;
 }
 .AlpinePhotoTiles-pin-it.small{
-  bottom:5px;
-  right:7px;
+  bottom:7px;
+  right:9px;
 }
 .AlpinePhotoTiles-pin-it:hover{
   background-color:rgba(34, 25, 25, 0.6);

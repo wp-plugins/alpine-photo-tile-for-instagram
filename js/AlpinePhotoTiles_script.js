@@ -2,7 +2,7 @@
  * Alpine PhotoTile : jQuery Tile Display Functions
  * By: Eric Burger, http://thealpinepress.com
  * Version: 1.0.2
- * Updated: January  2012
+ * Updated: January  2013
  * 
  */
 
@@ -18,13 +18,13 @@
       }
     }
     return this.each(function() {  
-      var parent = s(this);
-      var imageList = s(".AlpinePhotoTiles_image_list_class",parent);
-      var images = s('.AlpinePhotoTiles-image',imageList);
-      var allPerms = s('.AlpinePhotoTiles-link',imageList);
-      var width = parent.width();
-
-      var currentRow,img,newDiv,newDivContainer,src,url,height,theClasses,theHeight,theWidth,perm;
+      var parent = s(this), 
+        imageList = s(".AlpinePhotoTiles_image_list_class",parent),
+        images = s('.AlpinePhotoTiles-image',imageList),
+        allPerms = s('.AlpinePhotoTiles-link',imageList),
+        width = parent.width(),
+        currentRow,img,newDiv,newDivContainer,src,url,height,theClasses,theHeight,theWidth,perm,nextHeight,tempW,tempH,
+        imageRow=[],row,currentImage,sumWidth=0,maxHeight=0,pos,normalWidth,normalHeight;
      
       if( 'square' == options.shape && 'windows' == options.style ){
         s.each(images, function(i){
@@ -92,7 +92,7 @@
             
           }else if(i%3 == 2){
             theWidth = (width/2-4-4/2);
-            var nextHeight = theWidth*img.naturalHeight/img.naturalWidth;
+            nextHeight = theWidth*img.naturalHeight/img.naturalWidth;
             nextHeight = (nextHeight?nextHeight:theWidth);
             if(nextHeight && nextHeight<height){
               height = nextHeight;
@@ -135,7 +135,7 @@
       else if( 'wall' == options.style ){
         parent.css({'width':'100%'});
         width = parent.width();
-        var imageRow=[],currentImage,sumWidth=0,maxHeight=0;
+        imageRow=[];sumWidth=0;maxHeight=0;
         theHeight = (width/options.perRow);
         
         s.each(images, function(i){
@@ -144,8 +144,8 @@
           url = 'url("'+src+'")';
           perm = allPerms[i];
 
-          var tempW = (img.naturalWidth?img.naturalWidth:width);
-          var tempH = (img.naturalHeight?img.naturalHeight:width);
+          tempW = (img.naturalWidth?img.naturalWidth:width);
+          tempH = (img.naturalHeight?img.naturalHeight:width);
           
           currentImage = {
             "width":tempW,
@@ -165,9 +165,9 @@
             
             newRow(theHeight , i );
 
-            var pos = 0;
+            pos = 0;
             s.each(imageRow,function(j){
-              var normalWidth = this.width/sumWidth*width;
+              normalWidth = this.width/sumWidth*width;
               
               img = this.img;  
               url = this.url;
@@ -191,7 +191,7 @@
       else if( 'bookshelf' == options.style ){
         parent.css({'width':'100%'});
         width = parent.width();
-        var imageRow=[],currentImage,sumWidth=0,maxHeight=0;
+        imageRow=[];sumWidth=0;maxHeight=0;
 
         s.each(images, function(i){
           img = this;
@@ -199,8 +199,8 @@
           url = 'url("'+src+'")';
           perm = allPerms[i];
 
-          var tempW = (img.naturalWidth?img.naturalWidth:width);
-          var tempH = (img.naturalHeight?img.naturalHeight:width);
+          tempW = (img.naturalWidth?img.naturalWidth:width);
+          tempH = (img.naturalHeight?img.naturalHeight:width);
           
           currentImage = {
             "width":tempW,
@@ -220,10 +220,10 @@
             
             newRow( 10, i );
             currentRow.addClass('AlpinePhotoTiles-bookshelf');
-            var pos = 0;
+            pos = 0;
             s.each(imageRow,function(){
-              var normalWidth = this.width/sumWidth*width;
-              var normalHeight = normalWidth*this.height/this.width;
+              normalWidth = this.width/sumWidth*width;
+              normalHeight = normalWidth*this.height/this.width;
             
               if( normalHeight > maxHeight ){
                 maxHeight = normalHeight;
@@ -253,7 +253,7 @@
       else if( 'rift' == options.style ){
         parent.css({'width':'100%'});
         width = parent.width();
-        var imageRow=[],currentImage,sumWidth=0,maxHeight=0,row=0;
+        imageRow=[];sumWidth=0;maxHeight=0;row=0;
         
         s.each(images, function(i){
           img = this;
@@ -261,8 +261,8 @@
           url = 'url("'+src+'")';
           perm = allPerms[i];
           
-          var tempW = (img.naturalWidth?img.naturalWidth:width);
-          var tempH = (img.naturalHeight?img.naturalHeight:width);
+          tempW = (img.naturalWidth?img.naturalWidth:width);
+          tempH = (img.naturalHeight?img.naturalHeight:width);
           
           currentImage = {
             "width":tempW,
@@ -281,10 +281,10 @@
             }
             newRow( 10, i );
             currentRow.addClass('AlpinePhotoTiles-riftline');
-            var pos = 0;
+            pos = 0;
             s.each(imageRow,function(){
-              var normalWidth = this.width/sumWidth*width;
-              var normalHeight = normalWidth*this.height/this.width;
+              normalWidth = this.width/sumWidth*width;
+              normalHeight = normalWidth*this.height/this.width;
               if( normalHeight > maxHeight ){
                 maxHeight = normalHeight;
                 currentRow.css({'height':normalHeight+"px"});
@@ -327,7 +327,6 @@
           
           if( 0 == i ){
             if( options.galleryHeight ){ // Keep for compatibility
-            console.log( options.galleryHeight );
               galleryHeight = width/options.perRow*options.galleryHeight;
             }else if( options.galRatioHeight && options.galRatioWidth ){
               galleryHeight = width*options.galRatioHeight/options.galRatioWidth;
@@ -387,6 +386,11 @@
           }
           galleryContainer.append(gallery);
           
+          // Prevent Right-Click
+          if( img.oncontextmenu ){
+            gallery.attr("oncontextmenu","return false;");
+          }
+          
         });  
 
         var allThumbs = s('.AlpinePhotoTiles-image-div',parent);
@@ -424,13 +428,17 @@
         }  
       }
       function addDiv(i){
-       if(s.browser.msie && !d.querySelector){
+        if(s.browser.msie && !d.querySelector){
           newDiv = s('<div id="'+parent.attr('id')+'-image-'+i+'" class="AlpinePhotoTiles-image-div" style='+"'"+'background:'+url+' no-repeat center center;'+"'"+'></div>');                
         }else{
           newDiv = s('<div id="'+parent.attr('id')+'-image-'+i+'" class="AlpinePhotoTiles-image-div"></div>');   
           newDiv.css({
             'background-image':url
           });  
+        }
+        // Prevent Right-Click
+        if( img.oncontextmenu ){
+          newDiv.attr("oncontextmenu","return false;");
         }
         
         newDivContainer = s('<div class="AlpinePhotoTiles-image-div-container '+theClasses+'"></div>');
@@ -453,7 +461,7 @@
         
         if(perm){
           if(options.lightbox){
-            newDiv.wrap('<a href="'+perm.href+'" class="AlpinePhotoTiles-link AlpinePhotoTiles-lightbox" target="_blank"></a>');
+            newDiv.wrap('<a href="'+perm.href+'" title="'+perm.title+'" alt="'+perm.title+'"  class="AlpinePhotoTiles-link AlpinePhotoTiles-lightbox" target="_blank"></a>');
             s(perm).removeClass( 'AlpinePhotoTiles-lightbox' );
           }else{
             newDiv.wrap('<a href="'+perm.href+'" class="AlpinePhotoTiles-link" target="_blank"></a>');
@@ -493,7 +501,7 @@
           var media = s(img).attr('data-original');
           media = (media?media:src);
           newDiv.addClass('AlpinePhotoTiles-pinterest-container');
-          var link = s('<div class="AlpinePhotoTiles-pin-it small"><a href="http://pinterest.com/pin/create/button/?media='+media+'&url='+(options.siteURL)+'" class="pin-it-button" count-layout="horizontal" target="_blank"></a></div>');
+          var link = s('<div class="AlpinePhotoTiles-pin-it small" ><a href="http://pinterest.com/pin/create/button/?media='+media+'&url='+(options.siteURL)+'" class="pin-it-button" count-layout="horizontal" target="_blank" style="height:100%;width:100%;display:block;"></a></div>');
           newDiv.append(link);
         }
       }
@@ -519,8 +527,7 @@
 (function( w, s ) {
   s.fn.AlpineAdjustBordersPlugin = function( options ) {
     return this.each(function() {  
-      var parent = s(this);
-      var images = s('img',parent);
+      var parent = s(this),images = s('img',parent);
 
       s.each(images,function(){
         var currentImg = s(this);

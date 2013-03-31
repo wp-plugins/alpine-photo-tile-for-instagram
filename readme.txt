@@ -4,7 +4,7 @@ Donate link: thealpinepress.com
 Tags: photos, instagram, photostream, javascript, jQuery, stylish, pictures, images, widget, sidebar, display, gallery, wall, lightbox, fancybox, colorbox
 Requires at least: 2.8
 Tested up to: 3.5
-Stable tag: 1.2.3.3
+Stable tag: 1.2.5
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -95,3 +95,27 @@ I am a one-man development team and I distribute these plugins for free, so plea
 
  = 1.2.3.1 =
 * Fixed cache retrieval
+* Removed several style options because all instagram images are squares
+
+= 1.2.4 =
+* Restructured plugin objects and reassinged functions
+* Object oriented message, hidden, etc.
+* Added option to disable right-clicking on images
+* Added updateGlobalOptions and removed individual option calls
+* Added donate button
+* Fixed lightbox param option
+
+= 1.2.5 =
+* Added fallback to dynamic style and script loading using jQuery
+* Various small fixes
+* Moved cache location
+* Updated ColorBox plugin
+* Set Object params to private and implemeted set, check, and get function
+* Implemeted do_alpine_method call
+* Created active options and results functions
+
+= TODO =
+* Add caption to display
+* Rebuild jQuery display
+* "Anded" Tag option
+* Check with Contact Form 7
