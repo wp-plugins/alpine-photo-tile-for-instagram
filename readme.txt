@@ -4,7 +4,7 @@ Donate link: thealpinepress.com
 Tags: photos, instagram, photostream, javascript, jQuery, stylish, pictures, images, widget, sidebar, display, gallery, wall, lightbox, fancybox, colorbox
 Requires at least: 2.8
 Tested up to: 3.5
-Stable tag: 1.2.5
+Stable tag: 1.2.5.1
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -117,5 +117,4 @@ I am a one-man development team and I distribute these plugins for free, so plea
 = TODO =
 * Add caption to display
 * Rebuild jQuery display
-* "Anded" Tag option
 * Check with Contact Form 7

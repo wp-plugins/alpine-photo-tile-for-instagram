@@ -464,7 +464,7 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
     $record = array();
     $instagram_tag = $this->check_active_option('instagram_tag') ? $this->get_active_option('instagram_tag') : '';
     //var_dump($_instagram_json);
-    if( empty($_instagram_json) || empty($_instagram_json->data) ){
+    if( empty($_instagram_json) || !isset($_instagram_json->data) || empty($_instagram_json->data) ){
       $this->append_active_result('hidden','<!-- Failed using wp_remote_get and JSON @ '.$request.' -->');
       $this->set_active_result('success',false);
     }else{
@@ -669,12 +669,13 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
                         });
                       }else{
                         var css = "'.($this->get_private('url').'/css/'.$this->get_private('wcss').'.css').'";
+                        var newcss = jQuery("<link rel=\'stylesheet\' href=\'"+css+"\' type=\'text/css\' media=\'screen\' />");
                         jQuery.getScript("'.($this->get_private('url').'/js/'.$this->get_private('wjs').'.js').'", function(){
                           if (document.createStyleSheet){
                               document.createStyleSheet(css);
                           }
                           else {
-                              jQuery("head").append(jQuery("<link rel=\'stylesheet\' href=\'"+css+"\' type=\'text/css\' media=\'screen\' />"));
+                              jQuery("head").append( newcss );
                           }           
                      
                           if(jQuery().AlpineAdjustBordersPlugin ){
@@ -746,12 +747,13 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
                         });
                       }else{
                         var css = "'.($this->get_private('url').'/css/'.$this->get_private('wcss').'.css').'";
+                        var newcss = jQuery("<link rel=\'stylesheet\' href=\'"+css+"\' type=\'text/css\' media=\'screen\' />");
                         jQuery.getScript("'.($this->get_private('url').'/js/'.$this->get_private('wjs').'.js').'", function(){
                           if (document.createStyleSheet){
                               document.createStyleSheet(css);
                           }
                           else {
-                              jQuery("head").append(jQuery("<link rel=\'stylesheet\' href=\'"+css+"\' type=\'text/css\' media=\'screen\' />"));
+                              jQuery("head").append( newcss );
                           }           
                      
                           if(jQuery().AlpineAdjustBordersPlugin ){
@@ -836,12 +838,13 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
               AlpinePhotoTilesPlugin();
             }else{
               var css = "'.($this->get_private('url').'/css/'.$this->get_private('wcss').'.css').'";
+              var newcss = jQuery("<link rel=\'stylesheet\' href=\'"+css+"\' type=\'text/css\' media=\'screen\' />");
               jQuery.getScript("'.($this->get_private('url').'/js/'.$this->get_private('wjs').'.js').'", function(){
                 if (document.createStyleSheet){
-                    document.createStyleSheet(css);
+                  document.createStyleSheet(css);
                 }
                 else {
-                    jQuery("head").append(jQuery("<link rel=\'stylesheet\' href=\'"+css+"\' type=\'text/css\' media=\'screen\' />"));
+                  jQuery("head").append( newcss );
                 }');
     if( $hasLight ){    
     $check = ($lightbox=='fancybox'?'fancybox':($lightbox=='prettyphoto'?'prettyPhoto':($lightbox=='colorbox'?'colorbox':'fancyboxForAlpine')));    
@@ -850,11 +853,12 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
                     // Load Lightbox
                     jQuery.getScript("'.$lightScript.'", function(){
                       css = "'.$lightStyle.'";
+                      newcss = jQuery("<link rel=\'stylesheet\' href=\'"+css+"\' type=\'text/css\' media=\'screen\' />");
                       if (document.createStyleSheet){
-                          document.createStyleSheet(css);
+                        document.createStyleSheet(css);
                       }
                       else {
-                          jQuery("head").append(jQuery("<link rel=\'stylesheet\' href=\'"+css+"\' type=\'text/css\' media=\'screen\' />"));
+                        jQuery("head").append(newcss);
                       }
                       AlpinePhotoTilesPlugin();
                     });

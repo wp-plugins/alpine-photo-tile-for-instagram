@@ -797,11 +797,13 @@ class PhotoTileForInstagramAdmin extends PhotoTileForInstagramAdminSecondary{
     // Not currently needed
   /*  $output .=  '<form id="'.$this->get_private('settings').'-user-'.$name.'" action="" method="post">';
     $output .=  '<input type="hidden" name="hidden" value="Y">';
+    $output .=  '<input type="hidden" name="reauthorize-user" value="Y">';
     $output .=  '<input type="hidden" name="user" value="'.$name.'">';
     $output .=  '<input id="'.$this->get_private('settings').'-submit" name="'.$this->get_private('settings').'_reauthorize[submit-reauthorize]" type="submit" class="button-primary" style="margin-top:15px;float:none;" value="Update User" />';
     $output .=  '</form>';*/
     $output .=  '<form id="'.$this->get_private('settings').'-delete-'.$name.'" action="" method="post">';
     $output .=  '<input type="hidden" name="hidden" value="Y">';
+    $output .=  '<input type="hidden" name="delete-user" value="Y">';
     $output .=  '<input type="hidden" name="user" value="'.$name.'">';
     $output .=  '<input id="'.$this->get_private('settings').'-submit" name="'.$this->get_private('settings').'_delete[submit-delete]" type="submit" class="button-primary" style="margin-top:15px;float:none;" value="Delete User" />';
     $output .=  '</form>';
@@ -828,18 +830,48 @@ class PhotoTileForInstagramAdmin extends PhotoTileForInstagramAdminSecondary{
  */
   function admin_display_add(){ 
   
-    wp_enqueue_script( 'jquery-form' );
-    
     $currenttab = 'add';
     $options = $this->get_all_options();     
     $settings_section = $this->get_private('id') . '_'.$currenttab.'_tab';
     $submitted = ( ( isset($_POST[ "hidden" ]) && ($_POST[ "hidden" ]=="Y") ) ? true : false );
+    
     $redirect = admin_url( 'options-general.php?page='.$this->get_private('settings').'&tab='.$currenttab );
     $success = false;
     $errormessage = null;
     $errortype = null;
       
-    if( isset($_GET['code']) ) {
+      
+    if( isset($_POST['add-user']) ){
+      if( !empty($_POST['client_id']) && !empty($_POST['client_secret']) ){
+        $options = $this->admin_simple_update( $currenttab, $_POST, $options ); // Don't display previously input info
+        ?>
+        <script>
+          var url = 'https://api.instagram.com/oauth/authorize/'
+          + '?redirect_uri=' + encodeURIComponent("<?php echo $redirect; ?>")
+          + '&response_type=code'
+          + '&client_id=<?php echo $_POST['client_id']; ?>'
+          + '&display=touch';
+
+          window.location.replace(url);
+       </script>
+        <?php
+      }else{
+        $errormessage = 'Please enter both a Client ID and Client Secret';
+      }
+    }
+    elseif( isset($_POST['delete-user']) && isset($_POST['user']) ){
+      $delete = true;
+      $user = $_POST['user'];
+      $this->DeleteUser( $user );
+    }
+    elseif( isset($_POST['reauthorize-user']) && isset($_POST['user']) ){
+      $user = $_POST['user'];
+      $this->ReAuthorize( $user ); 
+    }
+    elseif( $submitted && isset($_POST['manual-user-form']) && !empty($_POST['access_token']) && !empty($_POST['user_id']) && !empty($_POST['client_id']) && !empty($_POST['username']) ){
+      $success = $this->AddUser($_POST);
+    }
+    elseif( isset($_GET['code']) ) {
       $code = $_GET['code'];
       $client_id = $this->get_option('client_id');
       $client_secret = $this->get_option('client_secret');
@@ -886,19 +918,6 @@ class PhotoTileForInstagramAdmin extends PhotoTileForInstagramAdminSecondary{
         $errormessage = $error->error_message;
         $errortype = $error->error_type;
       }
-    }  
-  	
-    if( !empty($submitted) && isset($_POST['user']) && isset($_POST[ $this->get_private('settings').'_delete']) && isset($_POST[ $this->get_private('settings').'_delete']['submit-delete']) ){
-      $delete = true;
-      $user = $_POST['user'];
-      $this->DeleteUser( $user );
-    }elseif( !empty($submitted) && isset($_POST['user']) && isset($_POST[ $this->get_private('settings').'_reauthorize']) && isset($_POST[ $this->get_private('settings').'_reauthorize']['submit-reauthorize']) ){
-      $user = $_POST['user'];
-      $this->ReAuthorize( $user ); 
-    }elseif( !empty($submitted) && isset($_POST['user']) && isset($_POST[ $this->get_private('settings').'_add']) && isset($_POST[ $this->get_private('settings').'_add']['submit-add']) ){
-      $options = $this->SimpleUpdate( $currenttab, $_POST, $options ); // Don't display previously input info
-    }elseif( !empty($submitted) && isset($_POST['manual-user-form']) && $_POST['manual-user-form'] == 'Add New User' && !empty($_POST['access_token']) && !empty($_POST['user_id']) && !empty($_POST['client_id']) && !empty($_POST['username']) ){
-      $success = $this->AddUser($_POST);
     }
 
     $defaults = $this->option_defaults();
@@ -932,6 +951,7 @@ class PhotoTileForInstagramAdmin extends PhotoTileForInstagramAdminSecondary{
                   ?>
                   <form id="<?php echo $this->get_private('settings')."-add-user";?>" action="" method="post">
                   <input type="hidden" name="hidden" value="Y">
+                  <input type="hidden" name="add-user" value="Y">
                     <?php 
                   echo '<div class="'. $position .'">'; 
                     if( $positionsinfo['title'] ){ echo '<h4>'. $positionsinfo['title'].'</h4>'; } 
@@ -1006,33 +1026,6 @@ class PhotoTileForInstagramAdmin extends PhotoTileForInstagramAdminSecondary{
           </ol>
         </div>
 
-  
-      <script type = "text/javascript">
-        var url;
-        jQuery(document).ready(function() {
-            jQuery("#<?php echo $this->get_private('settings');  ?>-add-user").ajaxForm({
-                beforeSubmit: function(formData, jqForm, options){
-                  
-                  var form = jqForm[0];
-                  if(form.client_id.value){
-                    var id = form.client_id.value;
-                    id = id.replace(/\s/g, "");
-                    url = 'https://api.instagram.com/oauth/authorize/'
-                    + '?redirect_uri=' + encodeURIComponent("<?php echo $redirect; ?>")
-                    + '&response_type=code'
-                    + '&client_id='+id
-                    + '&display=touch';
-                    return true; 
-                  }
-                  return false;
-                },
-                success: function(responseText){ 
-                  window.location.replace(url);
-                }
-            }); 
-        });
-      </script>
-      
       <div style="margin-top:80px;border-top: 1px solid #DDDDDD;">
         <h1>If the above method does not seem to be working:</h1>
         <p>I have setup a troubleshooting tool at <a href="http://thealpinepress.com/instagram-tool/" target="_blank">the Alpine Press</a> that you can use to manually retrieve the information you need.</p>
