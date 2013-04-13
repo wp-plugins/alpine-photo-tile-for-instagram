@@ -1,8 +1,8 @@
 /*
  * Alpine PhotoTile : jQuery Tile Display Functions
  * By: Eric Burger, http://thealpinepress.com
- * Version: 1.0.2
- * Updated: January  2013
+ * Version: 1.0.3
+ * Updated: April  2013
  * 
  */
 
@@ -12,11 +12,11 @@
     options = s.extend( {}, s.fn.AlpinePhotoTilesPlugin.options, options );
   
     // IE 7 fallback
-    if(s.browser.msie && !d.querySelector){
+    /*if(!d.querySelector){
       if('windows' != options.style){
         options.style = 'rift';
       }
-    }
+    }*/
     return this.each(function() {  
       var parent = s(this), 
         imageList = s(".AlpinePhotoTiles_image_list_class",parent),
