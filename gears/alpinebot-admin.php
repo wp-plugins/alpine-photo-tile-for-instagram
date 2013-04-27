@@ -182,7 +182,7 @@ class PhotoTileForInstagramAdminSecondary extends PhotoTileForInstagramPrimary{
       <p><?php _e("On the 'Shortcode Generator' tab you will find an easy to use interface that will help you create shortcodes. These shortcodes make it simple to insert the PhotoTile plugin into posts and pages.");?></p>
       <p><?php _e("The 'Plugin Settings' tab provides additional back-end options.");?></p>
       <p><?php _e("Finally, I am a one man programming team and so if you notice any errors or places for improvement, please let me know."); ?></p>
-      <p><?php _e('If you liked this plugin, try out some of the other plugins by ') ?><a href="http://thealpinepress.com/category/plugins/" target="_blank">the Alpine Press</a><?php _e(' and please rate us at ') ?><a href="<?php echo $this->get_private('wplink');?>" target="_blank">WordPress.org</a>.</p>
+      <p><?php _e('If you liked this plugin, try out some of the other plugins by ') ?><a href="http://thealpinepress.com/category/plugins/" target="_blank">the Alpine Press</a>.</p>
       <br>
       <h3><?php _e('Try the other free plugins in the Alpine PhotoTile Series:');?></h3>
       <?php 
@@ -733,18 +733,23 @@ class PhotoTileForInstagramAdmin extends PhotoTileForInstagramAdminSecondary{
     update_option( $this->get_private('settings'), $oldoptions);
   }
 /**
- * ReAuthorize User
+ * Update User
  *  
  * @since 1.2.0
  *
  */
-  function ReAuthorize( $user ){
+  function UpdateUser( $data ){
     $oldoptions = $this->get_all_options();
     $currentUsers = $oldoptions['users'];
-    $current = $currentUsers[ $user ];
-    if( !empty($current['client_id']) && !empty($current['client_secret']) ){
-      $oldoptions['client_id'] = $current['client_id'];
-      $oldoptions['client_secret'] = $current['client_secret'];
+
+    if( !empty($data['username']) && !empty($oldoptions['users']) && !empty($oldoptions['users'][$data['username']]) ) {
+      $current = $oldoptions['users'][$data['username']];
+      foreach( $data as $k=>$v ){
+        if( !empty($v) ){
+          $current[$k] = $v;
+        }
+      }
+      $oldoptions['users'][$data['username']] = $current;
       update_option( $this->get_private('settings'), $oldoptions);
     }
   }
@@ -794,12 +799,12 @@ class PhotoTileForInstagramAdmin extends PhotoTileForInstagramAdminSecondary{
     $output .=  '<div><h4>'.$name.'</h4></div>';
     $output .=  '<div><img src="'.$picture.'" style="width:80px;height:80px;"></div>';
     // Not currently needed
-  /*  $output .=  '<form id="'.$this->get_private('settings').'-user-'.$name.'" action="" method="post">';
+    $output .=  '<form id="'.$this->get_private('settings').'-user-'.$name.'" action="" method="post">';
     $output .=  '<input type="hidden" name="hidden" value="Y">';
-    $output .=  '<input type="hidden" name="reauthorize-user" value="Y">';
+    $output .=  '<input type="hidden" name="update-user" value="Y">';
     $output .=  '<input type="hidden" name="user" value="'.$name.'">';
-    $output .=  '<input id="'.$this->get_private('settings').'-submit" name="'.$this->get_private('settings').'_reauthorize[submit-reauthorize]" type="submit" class="button-primary" style="margin-top:15px;float:none;" value="Update User" />';
-    $output .=  '</form>';*/
+    $output .=  '<input id="'.$this->get_private('settings').'-submit" name="'.$this->get_private('settings').'_update[submit-update]" type="submit" class="button-primary" style="margin-top:15px;float:none;" value="Update User" />';
+    $output .=  '</form>';
     $output .=  '<form id="'.$this->get_private('settings').'-delete-'.$name.'" action="" method="post">';
     $output .=  '<input type="hidden" name="hidden" value="Y">';
     $output .=  '<input type="hidden" name="delete-user" value="Y">';
@@ -863,9 +868,39 @@ class PhotoTileForInstagramAdmin extends PhotoTileForInstagramAdminSecondary{
       $user = $_POST['user'];
       $this->DeleteUser( $user );
     }
-    elseif( isset($_POST['reauthorize-user']) && isset($_POST['user']) ){
+    elseif( isset($_POST['update-user']) && isset($_POST['user']) ){
       $user = $_POST['user'];
-      $this->ReAuthorize( $user ); 
+      $users = $this->get_instagram_users();
+      if( !empty($users) && !empty($users[$user]) && !empty($users[$user]['access_token']) && !empty($users[$user]['user_id']) ){
+        $request = 'https://api.instagram.com/v1/users/'.$users[$user]['user_id'].'/?access_token='.$users[$user]['access_token'];
+        $response = wp_remote_get($request,
+          array(
+            'method' => 'GET',
+            'timeout' => 10,
+            'sslverify' => apply_filters('https_local_ssl_verify', false)
+          )
+        );
+
+        if( is_wp_error( $response ) || !isset($response['body']) ) {
+          $errormessage = 'User not updated';
+        }else{
+          $_instagram_json = @json_decode( $response['body'] );
+          if( empty($_instagram_json) || 200 != $_instagram_json->meta->code ){
+            $errormessage = 'User not updated';
+          }elseif( !empty($_instagram_json->data) ){
+            $data = $_instagram_json->data;
+            $post_content = array(
+              'access_token' => $users[$user]['access_token'],
+              'username' => $data->username,
+              'picture' => $data->profile_picture,
+              'fullname' => $data->full_name,
+              'user_id' => $users[$user]['user_id']
+            );
+            $this->UpdateUser( $post_content );
+            $update = true;
+          }
+        }
+      }
     }
     elseif( $submitted && isset($_POST['manual-user-form']) && !empty($_POST['access_token']) && !empty($_POST['user_id']) && !empty($_POST['client_id']) && !empty($_POST['username']) ){
       $success = $this->AddUser($_POST);
@@ -925,6 +960,8 @@ class PhotoTileForInstagramAdmin extends PhotoTileForInstagramAdminSecondary{
     echo '<div class="AlpinePhotoTiles-add">';
           if( !empty($success) ){
             echo '<div class="announcement"> User successfully authorized. </div>';
+          }elseif( !empty($update) ){
+            echo '<div class="announcement"> User ('.$user.') updated. </div>';
           }elseif( !empty($delete) ){
             echo '<div class="announcement"> User ('.$user.') deleted. </div>';
           }elseif( !empty($errormessage) ){
