@@ -670,7 +670,7 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
       });
     }else{
       var css = '".($this->get_private('url').'/css/'.$this->get_private('wcss').'.css')."';
-      var link = jQuery('<link>').attr({'rel':'stylesheet','href':css,'type':'text/css','media':'screen'});
+      var link = jQuery(document.createElement('link')).attr({'rel':'stylesheet','href':css,'type':'text/css','media':'screen'});
       jQuery.getScript('".($this->get_private('url').'/js/'.$this->get_private('wjs').'.js')."', function(){
         if(document.createStyleSheet){
           document.createStyleSheet(css);
@@ -747,7 +747,7 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
       });
     }else{
       var css = '".($this->get_private('url').'/css/'.$this->get_private('wcss').'.css')."';
-      var link = jQuery('<link>').attr({'rel':'stylesheet','href':css,'type':'text/css','media':'screen'});
+      var link = jQuery(document.createElement('link')).attr({'rel':'stylesheet','href':css,'type':'text/css','media':'screen'});
       jQuery.getScript('".($this->get_private('url').'/js/'.$this->get_private('wjs').'.js')."', function(){
         if(document.createStyleSheet){
           document.createStyleSheet(css);
@@ -824,8 +824,8 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
     
     $this->add('<script>');
       if(!$disable){
-        $this->add(
-"jQuery(document).ready(function() {
+        $this->add("
+jQuery(document).ready(function() {
   jQuery('#".$wid."-AlpinePhotoTiles_container').addClass('loading'); 
 });");
       }
@@ -836,7 +836,7 @@ jQuery(window).load(function() {
     AlpinePhotoTilesPlugin();
   }else{
     var css = '".($this->get_private('url').'/css/'.$this->get_private('wcss').'.css')."';
-    var link = jQuery('<link>').attr({'rel':'stylesheet','href':css,'type':'text/css','media':'screen'});
+    var link = jQuery( document.createElement('link') ).attr({'rel':'stylesheet','href':css,'type':'text/css','media':'screen'});
     jQuery.getScript('".($this->get_private('url').'/js/'.$this->get_private('wjs').'.js')."', function(){
       if(document.createStyleSheet){
         document.createStyleSheet(css);
@@ -849,7 +849,7 @@ jQuery(window).load(function() {
       if( !jQuery().".$check." ){ // Load Lightbox
         jQuery.getScript('".$lightScript."', function(){
           css = '".$lightStyle."';
-          link = jQuery('<link>').attr({'rel':'stylesheet','href':css,'type':'text/css','media':'screen'});
+          link = jQuery( document.createElement('link') ).attr({'rel':'stylesheet','href':css,'type':'text/css','media':'screen'});
           if(document.createStyleSheet){
             document.createStyleSheet(css);
           }else{
@@ -1051,7 +1051,7 @@ jQuery(window).load(function() {
   jQuery(window).load(function() {
     if( !jQuery().".$check." ){
       var css = '".$lightStyle."';
-      var link = jQuery('<link>').attr({'rel':'stylesheet','href':css,'type':'text/css','media':'screen'});
+      var link = jQuery(document.createElement('link')).attr({'rel':'stylesheet','href':css,'type':'text/css','media':'screen'});
       jQuery.getScript('".($lightScript)."', function(){
         if(document.createStyleSheet){
           document.createStyleSheet(css);
