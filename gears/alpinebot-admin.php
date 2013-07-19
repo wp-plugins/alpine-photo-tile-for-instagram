@@ -542,7 +542,7 @@ class PhotoTileForInstagramAdminSecondary extends PhotoTileForInstagramPrimary{
  * Options Validate Pseudo-Callback
  *
  * @ Since 1.0.0
- * @ Updated 1.2.3
+ * @ Updated 1.2.6
  */
   function MenuOptionsValidate( $newinput, $oldinput, $optiondetails ) {
       $valid_input = $oldinput;
@@ -606,7 +606,7 @@ class PhotoTileForInstagramAdminSecondary extends PhotoTileForInstagramPrimary{
           }
         }
         // Check if numeric
-        if ( 'numeric' == $sanatize && is_numeric( wp_filter_nohtml_kses( $newinput ) ) ) {
+        elseif ( 'numeric' == $sanatize && is_numeric( wp_filter_nohtml_kses( $newinput ) ) ) {
           // Pass input data through the wp_filter_nohtml_kses filter
           $valid_input = wp_filter_nohtml_kses( $newinput );
           if( isset($optiondetails['min']) && $valid_input<$optiondetails['min']){
@@ -616,7 +616,7 @@ class PhotoTileForInstagramAdminSecondary extends PhotoTileForInstagramPrimary{
             $valid_input = $optiondetails['max'];
           }
         }
-        if ( 'int' == $sanatize && is_numeric( wp_filter_nohtml_kses( $newinput ) ) ) {
+        elseif ( 'int' == $sanatize && is_numeric( wp_filter_nohtml_kses( $newinput ) ) ) {
           // Pass input data through the wp_filter_nohtml_kses filter
           $valid_input = round( wp_filter_nohtml_kses( $newinput ) );
           if( isset($optiondetails['min']) && $valid_input<$optiondetails['min']){
@@ -626,30 +626,34 @@ class PhotoTileForInstagramAdminSecondary extends PhotoTileForInstagramPrimary{
             $valid_input = $optiondetails['max'];
           }
         }
-        if ( 'tag' == $sanatize ) {
+        elseif ( 'tag' == $sanatize ) {
           // Pass input data through the wp_filter_nohtml_kses filter
           $valid_input = wp_filter_nohtml_kses( $newinput );
           $valid_input = str_replace(' ','-',$valid_input);
         }            
         // Validate no-HTML content
-        if ( 'nohtml' == $sanatize ) {
+        elseif ( 'nohtml' == $sanatize ) {
           // Pass input data through the wp_filter_nohtml_kses filter
           $valid_input = wp_filter_nohtml_kses( $newinput );
           $valid_input = str_replace(' ','',$valid_input);
         }
         // Validate HTML content
-        if ( 'html' == $sanatize ) {
+        elseif ( 'html' == $sanatize ) {
           // Pass input data through the wp_filter_kses filter using allowed post tags
           $valid_input = wp_kses_post($newinput );
         }
         // Validate URL address
-        if( 'url' == $sanatize ){
+        elseif( 'url' == $sanatize ){
           $valid_input = esc_url( $newinput );
         }
-        // Validate URL address
-        if( 'css' == $sanatize ){
+        // Validate CSS
+        elseif( 'css' == $sanatize ){
           $valid_input = wp_htmledit_pre( stripslashes( $newinput ) );
-        }      
+        }     
+        // Just strip slashes
+        elseif( 'stripslashes' == $sanatize ){
+          $valid_input = stripslashes( $newinput );
+        }
       }else if( 'wp-textarea' == $type ){
           // Text area filter
           $valid_input = wp_kses_post( force_balance_tags($newinput) );
@@ -663,7 +667,7 @@ class PhotoTileForInstagramAdminSecondary extends PhotoTileForInstagramPrimary{
         }
       }
       return $valid_input;
-  }    
+  } 
 
 }  
 /** ##############################################################################################################################################
@@ -830,7 +834,7 @@ class PhotoTileForInstagramAdmin extends PhotoTileForInstagramAdminSecondary{
  * Display Add User Page
  *  
  * @ Since 1.2.0
- * @ Updated 1.2.3
+ * @ Updated 1.2.6
  */
   function admin_display_add(){ 
   
@@ -880,20 +884,35 @@ class PhotoTileForInstagramAdmin extends PhotoTileForInstagramAdminSecondary{
             'sslverify' => apply_filters('https_local_ssl_verify', false)
           )
         );
-
         if( is_wp_error( $response ) || !isset($response['body']) ) {
-          $errormessage = 'User not updated';
-        }else{
-          $_instagram_json = @json_decode( $response['body'] );
-          if( empty($_instagram_json) || 200 != $_instagram_json->meta->code ){
+          // Try again
+          if( method_exists( $this, 'manual_cURL' ) ){
+            $content = $this->manual_cURL($request);
+          }
+          
+          if( !isset($content) ){
             $errormessage = 'User not updated';
-          }elseif( !empty($_instagram_json->data) ){
-            $data = $_instagram_json->data;
+          }
+        }else{
+          $content = $response['body'];
+        }
+        
+        if( isset( $content ) ){
+          if( function_exists('json_decode') ){
+            $_instagram_json = @json_decode( $content, true );
+          }
+          if( empty($_instagram_json) && method_exists( $this, 'json_decoder' ) ){
+            $_instagram_json = $this->json_decoder($content);
+          }
+          if( empty($_instagram_json) || 200 != $_instagram_json['meta']['code'] ){
+            $errormessage = 'User not updated';
+          }elseif( !empty($_instagram_json['data']) ){
+            $data = $_instagram_json['data'];
             $post_content = array(
               'access_token' => $users[$user]['access_token'],
-              'username' => $data->username,
-              'picture' => $data->profile_picture,
-              'fullname' => $data->full_name,
+              'username' => $data['username'],
+              'picture' => $data['profile_picture'],
+              'fullname' => $data['full_name'],
               'user_id' => $users[$user]['user_id']
             );
             $this->UpdateUser( $post_content );
@@ -909,43 +928,63 @@ class PhotoTileForInstagramAdmin extends PhotoTileForInstagramAdminSecondary{
       $code = $_GET['code'];
       $client_id = $this->get_option('client_id');
       $client_secret = $this->get_option('client_secret');
-      $response = wp_remote_post("https://api.instagram.com/oauth/access_token",
-        array(
-          'body' => array(
+      $url = 'https://api.instagram.com/oauth/access_token';
+      $fields = array(
             'code' => $code,
             'response_type' => 'authorization_code',
             'redirect_uri' => $redirect,
             'client_id' => $client_id,
             'client_secret' => $client_secret,
             'grant_type' => 'authorization_code'
-          ),
+          );
+          
+      $response = wp_remote_post($url,
+        array(
+          'body' => $fields,
           'sslverify' => apply_filters('https_local_ssl_verify', false)
         )
       );
-
+      
       $access_token = null;
       $username = null;
       $image = null;
 
-      if(!is_wp_error($response) && $response['response']['code'] < 400 && $response['response']['code'] >= 200) {
-        $auth = json_decode($response['body']);
+      if( is_wp_error( $response ) || !isset($response['body']) ) {
+        // Try again
+        if( method_exists( $this, 'manual_cURL' ) ){
+          $content = $this->manual_cURL($url,$fields);
+        }
+        if( !isset($content) ){
+          $errormessage = 'User not added';
+        }
+      }else{
+        $content = $response['body'];
+      }
         
-        if(isset($auth->access_token)) {
-          $access_token = $auth->access_token;
-          $user = $auth->user;
+      if( isset($content) ) {
+        if( function_exists('json_decode') ){
+          $auth = @json_decode( $content, true );
+        }
+        if( empty($auth) && method_exists( $this, 'json_decoder' ) ){
+          // Try alternative decode
+          $auth = $this->json_decoder($content);
+        }
+        if( isset($auth['access_token']) ) {
+          $access_token = $auth['access_token'];
+          $user = $auth['user'];
           
           $post_content = array(
             'access_token' => $access_token,
-            'username' => $user->username,
-            'picture' => $user->profile_picture,
-            'fullname' => $user->full_name,
-            'user_id' => $user->id,
+            'username' => $user['username'],
+            'picture' => $user['profile_picture'],
+            'fullname' => $user['full_name'],
+            'user_id' => $user['id'],
             'client_id' => $client_id,
             'client_secret' => $client_secret
           );
           $success = $this->AddUser($post_content);
-          $icon = $this->show_user($post_content);
-          $js = $this->show_user_js($post_content);
+        }else{
+          $errormessage = 'No access token found';
         }
       }elseif( !is_wp_error($response) && $response['response']['code'] >= 400 ) {
         $error = json_decode($response['body']);
@@ -958,63 +997,63 @@ class PhotoTileForInstagramAdmin extends PhotoTileForInstagramAdminSecondary{
     $positions = $this->get_option_positions_by_tab( $currenttab );
     
     echo '<div class="AlpinePhotoTiles-add">';
-          if( !empty($success) ){
-            echo '<div class="announcement"> User successfully authorized. </div>';
-          }elseif( !empty($update) ){
-            echo '<div class="announcement"> User ('.$user.') updated. </div>';
-          }elseif( !empty($delete) ){
-            echo '<div class="announcement"> User ('.$user.') deleted. </div>';
-          }elseif( !empty($errormessage) ){
-            echo '<div class="announcement"> An error occured ('.$errormessage.'). </div>';
-          }
-          if( count($positions) ){
-            foreach( $positions as $position=>$positionsinfo){
-              if( $position == 'top'){
-                echo '<div id="AlpinePhotoTiles-user-list" style="margin-bottom:20px;padding-bottom:20px;overflow:hidden;border-bottom: 1px solid #DDDDDD;">'; 
-                if( $positionsinfo['title'] ){ echo '<h4>'. $positionsinfo['title'].'</h4>'; } 
-                $users = $this->get_instagram_users();
-                if( empty($users) || ( is_array( $users ) && isset($users['none']) && is_array( $users['none'] ) ) ){
-                  echo '<p id="AlpinePhotoTiles-user-empty">No users available. Add a user by following the instructions below.</p>';
-                }elseif( !empty($users) && is_array($users) ){
-                  foreach($users as $name=>$info){
-                    echo $this->show_user($info);
-                    //echo '<script type = "text/javascript">'.$this->show_user_js($info).'</script>'; // Not currently needed
-                  }
+        if( !empty($success) ){
+          echo '<div class="announcement"> User successfully authorized. </div>';
+        }elseif( !empty($update) ){
+          echo '<div class="announcement"> User ('.$user.') updated. </div>';
+        }elseif( !empty($delete) ){
+          echo '<div class="announcement"> User ('.$user.') deleted. </div>';
+        }elseif( !empty($errormessage) ){
+          echo '<div class="announcement"> An error occured ('.$errormessage.'). </div>';
+        }
+        if( count($positions) ){
+          foreach( $positions as $position=>$positionsinfo){
+            if( $position == 'top'){
+              echo '<div id="AlpinePhotoTiles-user-list" style="margin-bottom:20px;padding-bottom:20px;overflow:hidden;border-bottom: 1px solid #DDDDDD;">'; 
+              if( $positionsinfo['title'] ){ echo '<h4>'. $positionsinfo['title'].'</h4>'; } 
+              $users = $this->get_instagram_users();
+              if( empty($users) || ( is_array( $users ) && isset($users['none']) && is_array( $users['none'] ) ) ){
+                echo '<p id="AlpinePhotoTiles-user-empty">No users available. Add a user by following the instructions below.</p>';
+              }elseif( !empty($users) && is_array($users) ){
+                foreach($users as $name=>$info){
+                  echo $this->show_user($info);
+                  //echo '<script type = "text/javascript">'.$this->show_user_js($info).'</script>'; // Not currently needed
                 }
-                echo '</div>';
-              }else{
-                echo '<div id="AlpinePhotoTiles-user-form" style="margin-bottom:20px;padding-bottom:20px;overflow:hidden;border-bottom: 1px solid #DDDDDD;">'; 
-                  ?>
-                  <form id="<?php echo $this->get_private('settings')."-add-user";?>" action="" method="post">
-                  <input type="hidden" name="hidden" value="Y">
-                  <input type="hidden" name="add-user" value="Y">
-                    <?php 
-                  echo '<div class="'. $position .'">'; 
-                    if( $positionsinfo['title'] ){ echo '<h4>'. $positionsinfo['title'].'</h4>'; } 
-                    echo '<table class="form-table">';
-                      echo '<tbody>';
-                        if( count($positionsinfo['options']) ){
-                          foreach( $positionsinfo['options'] as $optionname ){
-                            $option = $defaults[$optionname];
-                            $fieldname = ( $option['name'] );
-                            $fieldid = ( $option['name'] );
-
-                            echo '<tr valign="top"><td>';
-                              $this->AdminDisplayCallback(array() ,$option,$fieldname,$fieldid); // Don't display previously input info
-                            echo '</td></tr>';   
-                                
-                          }
-                        }
-                      echo '</tbody>';
-                    echo '</table>';
-                  echo '</div>';
-                  echo '<input id="'.$this->get_private('settings').'-submit" name="'.$this->get_private('settings').'_'.$currenttab .'[submit-'. $currenttab.']" type="submit" class="button-primary" style="margin-top:15px;" value="Add and Authorize New User" />';
-                  echo '</form>';
-                  echo '<br style="clear:both;">';
-                echo '</div>';
               }
+              echo '</div>';
+            }else{
+              echo '<div id="AlpinePhotoTiles-user-form" style="margin-bottom:20px;padding-bottom:20px;overflow:hidden;border-bottom: 1px solid #DDDDDD;">'; 
+                ?>
+                <form id="<?php echo $this->get_private('settings')."-add-user";?>" action="" method="post">
+                <input type="hidden" name="hidden" value="Y">
+                <input type="hidden" name="add-user" value="Y">
+                  <?php 
+                echo '<div class="'. $position .'">'; 
+                  if( $positionsinfo['title'] ){ echo '<h4>'. $positionsinfo['title'].'</h4>'; } 
+                  echo '<table class="form-table">';
+                    echo '<tbody>';
+                      if( count($positionsinfo['options']) ){
+                        foreach( $positionsinfo['options'] as $optionname ){
+                          $option = $defaults[$optionname];
+                          $fieldname = ( $option['name'] );
+                          $fieldid = ( $option['name'] );
+
+                          echo '<tr valign="top"><td>';
+                            $this->AdminDisplayCallback(array() ,$option,$fieldname,$fieldid); // Don't display previously input info
+                          echo '</td></tr>';   
+                              
+                        }
+                      }
+                    echo '</tbody>';
+                  echo '</table>';
+                echo '</div>';
+                echo '<input id="'.$this->get_private('settings').'-submit" name="'.$this->get_private('settings').'_'.$currenttab .'[submit-'. $currenttab.']" type="submit" class="button-primary" style="margin-top:15px;" value="Add and Authorize New User" />';
+                echo '</form>';
+                echo '<br style="clear:both;">';
+              echo '</div>';
             }
           }
+        }
     echo '</div>'; // close add div
           ?>
         <div style="max-width:680px;">

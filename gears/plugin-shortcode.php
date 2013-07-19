@@ -7,6 +7,7 @@
  */
  
   function APTFINbyTAP_shortcode_function( $atts ) {
+    
     $bot = new PhotoTileForInstagramBot();
 
     $optiondetails = $bot->option_defaults();

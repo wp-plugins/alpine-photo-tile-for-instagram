@@ -13,8 +13,8 @@ class PhotoTileForInstagramPrimary {
   private $dir;
   private $cacheUrl;
   private $cacheDir;
-  private $ver = '1.2.5';
-  private $vers = '1-2-5';
+  private $ver = '1.2.6';
+  private $vers = '1-2-6';
   private $domain = 'APTFINbyTAP_domain';
   private $settings = 'alpine-photo-tile-for-instagram-settings'; // All lowercase
   private $name = 'Alpine PhotoTile for Instagram';
@@ -80,7 +80,7 @@ class PhotoTileForInstagramPrimary {
  * 
  */
   function get_alpine_method($function, $input=array()){
-    echo $function.'() with return called<br>';
+    //echo $function.'() with return called<br>';
     if( method_exists( $this, $function )){
       if( empty($input) ){
         $return = $this->$function();
@@ -127,7 +127,7 @@ class PhotoTileForInstagramPrimary {
     }else{
       return false;
     }
-  }  
+  }
 /**
  * Simple get function
  *  
@@ -340,6 +340,87 @@ class PhotoTileForInstagramPrimary {
     }
     return false;
   }  
+  
+//////////////////////////////////////////////////////////////////////////////////////
+//////////////////////      Custom Server Functions      /////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////
+/**
+ * JSON Decoder: An PHP4 alternative to PHP5 json_decode() function
+ *  
+ * @ Since 1.2.6
+ * 
+ */
+  function json_decoder($json){
+    $comment = false;
+    $out = '$x=';
+
+    for($i=0; $i<strlen($json); $i++){
+      if(!$comment){
+        if( ($json[$i] == '{') || ($json[$i] == '[') ){
+          $out .= ' array(';
+        }elseif( ($json[$i] == '}') || ($json[$i] == ']') ){
+          $out .= ')';
+        }elseif($json[$i] == ':'){
+          $out .= '=>';
+        }else{
+          $out .= $json[$i];
+        }
+      }else{
+        $out .= $json[$i];
+      }
+      
+      if($json[$i] == '"' && $json[($i-1)]!="\\"){
+        $comment = !$comment;
+      }
+    }
+    $out = stripslashes( $out );
+
+    eval($out . ';');
+    return $x;
+  }
+  
+/**
+ * cURL Function
+ *  
+ * @ Since 1.2.6
+ * 
+ */
+  function manual_cURL( $request, $fields = null ){
+    if( function_exists('curl_init') ){
+      $this->append_active_result('hidden','<!-- Try manual_cURL() -->');
+      $options = array(
+          CURLOPT_RETURNTRANSFER => true,     // return web page
+          CURLOPT_HEADER         => false,    // don't return headers
+          CURLOPT_FOLLOWLOCATION => true,     // follow redirects
+          CURLOPT_ENCODING       => "",       // handle all encodings
+          CURLOPT_USERAGENT      => "spider", // who am i
+          CURLOPT_AUTOREFERER    => true,     // set referer on redirect
+          CURLOPT_CONNECTTIMEOUT => 120,      // timeout on connect
+          CURLOPT_TIMEOUT        => 120,      // timeout on response
+          CURLOPT_MAXREDIRS      => 10,       // stop after 10 redirects
+          CURLOPT_SSL_VERIFYPEER => false     // Disabled SSL Cert checks
+      );
+
+      $ch      = curl_init( $request );
+      curl_setopt_array( $ch, $options );
+      if( !empty( $fields ) ){
+        curl_setopt($ch,CURLOPT_POST, count($fields));
+        curl_setopt($ch,CURLOPT_POSTFIELDS, http_build_query($fields) );
+      }
+      $content = curl_exec( $ch );
+      $err     = curl_errno( $ch );
+      $errmsg  = curl_error( $ch );
+      $header  = curl_getinfo( $ch );
+      curl_close( $ch );
+      
+      if( $err ){
+        $this->append_active_result('hidden','<!-- An error occured: Num '.$err.', Message: '.$errmsg.' -->');
+      }
+      if( $content ){
+        return $content;
+      }
+    }
+  }  
 //////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////      Option Functions      /////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////
@@ -519,19 +600,19 @@ class PhotoTileForInstagramPrimary {
         'valid_options' => array(
           'user_recent' => array(
             'name' => 'user_recent',
-            'title' => 'User Recent'
+            'title' => 'User\'s Recent Images'
           ),
           'user_feed' => array(
             'name' => 'user_feed',
-            'title' => 'User Feed'
+            'title' => 'User\'s Feed'
           ),
           'user_liked' => array(
             'name' => 'user_liked',
-            'title' => 'User Liked'
+            'title' => 'User\'s Liked Images'
           ),
           'user_tag' => array(
             'name' => 'user_tag',
-            'title' => 'User Tag'
+            'title' => 'User\'s Images with Tag'
           ),
           'global_popular' => array(
             'name' => 'global_popular',
@@ -1020,7 +1101,7 @@ class PhotoTileForInstagramPrimary {
         'name' => 'general_lightbox_params',
         'title' => 'Custom Lightbox Parameters:',
         'type' => 'textarea',
-        'sanitize' => 'css',
+        'sanitize' => 'stripslashes',
         'description' => 'Add custom parameters to the lighbox call.',
         'section' => 'settings',
         'tab' => 'general',

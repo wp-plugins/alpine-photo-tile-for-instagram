@@ -12,7 +12,7 @@ class Alpine_PhotoTile_for_Instagram extends WP_Widget {
 	function Alpine_PhotoTile_for_Instagram() {
     $this->alpinebot = new PhotoTileForInstagramPrimary();
     $bot = $this->alpinebot;
-		$widget_ops = array('classname' => $bot->get_private('name'), 'description' => __($bot->get_private('wdesc')));
+		$widget_ops = array('classname' => $bot->get_private('id'), 'description' => __($bot->get_private('wdesc')));
 		$control_ops = array('width' => 550, 'height' => 350);
 		$this->WP_Widget($bot->get_private('domain'), __($bot->get_private('name')), $widget_ops, $control_ops);
 	}

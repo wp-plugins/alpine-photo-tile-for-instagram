@@ -349,6 +349,7 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
  *  Function for fetching instagram feed
  *  
  *  @ Since 1.2.1
+ *  @ Updated 1.2.6
  */
   function fetch_instagram_feed($request){
     // No longer write out curl_init and user WP API instead
@@ -360,29 +361,68 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
       )
     );
     $this->append_active_result('hidden','<!-- Request made -->');
+    
+    
     if( is_wp_error( $response ) || !isset($response['body']) ) {
+      $this->append_active_result('hidden','<!-- An error occured -->');
+      if( is_wp_error( $response ) ){
+        $this->append_active_result('hidden','<!-- '.$response->get_error_message().' -->');
+      }elseif( !isset($response['body']) ){
+        $this->append_active_result('hidden','<!-- No body set -->');
+      }
+      // Try again
+      if( method_exists( $this, 'manual_cURL' ) ){
+        $content = $this->manual_cURL($request);
+      }
+      
+      if( !isset($content) ){
+        return false;
+      }
+    }else{
+      $content = $response['body'];
+    }
+    
+    if( function_exists('json_decode') ){
+      $_instagram_json = @json_decode( $content, true );
+    }
+    if( empty($_instagram_json) && method_exists( $this, 'json_decoder' ) ){
+      $this->append_active_result('hidden','<!-- Try json_decoder() -->');
+      $_instagram_json = $this->json_decoder( $content );
+    }
+    if( empty($_instagram_json) || !isset($_instagram_json['meta']['code']) ){
+      $this->append_active_result('hidden','<!-- An error occured: Empty JSON -->');
+      return false;
+    }elseif( 200 != $_instagram_json['meta']['code'] ){
+      $this->append_active_result('hidden','<!-- An error occured: Code '.$_instagram_json['meta']['code'].' -->');
+      if( isset( $_instagram_json['meta']['error_message'] ) ){
+        $this->append_active_result('hidden','<!-- An error occured: Type '.$_instagram_json['meta']['error_type'].', Message: '.$_instagram_json['meta']['error_message'].' -->');
+        $this->append_active_result('message', '<br>- '.$_instagram_json['meta']['error_message'].'');
+      }
       return false;
     }else{
-      $_instagram_json = @json_decode( $response['body'] );
-      if( empty($_instagram_json) || 200 != $_instagram_json->meta->code ){
-        return false;
-      }else{
-        return $_instagram_json;
-      }
+      return $_instagram_json;
     }
-  }
     
+  }
+ 
 /**
  * Alpine PhotoTile for Instagram: Photo Retrieval Function
  * The PHP for retrieving content from Instagram.
  *
  * @ Since 1.0.0
- * @ Updated 1.2.3
+ * @ Updated 1.2.6
  */
   function photo_retrieval(){
     $options = $this->get_private('options');
     $defaults = $this->option_defaults();
     $instagram_uid = isset($options['instagram_user_id'])?$options['instagram_user_id']:'no_uid';
+    if( $instagram_uid == 'none' ){
+      $this->append_active_result('message','- You have not yet added an Instagram account to the plugin. Please return to the plugin\'s widget menu and follow the "Add an Instagram user" link.');
+      return;
+    }elseif( $instagram_uid == 'no_uid' ){
+      $this->append_active_result('message','- No Instagram user was specified.');
+      return;
+    }
     
     $key_input = array(
       'name' => 'instagram',
@@ -404,7 +444,7 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
     $users = $this->get_instagram_users();
     if( empty( $users[ $instagram_uid ] ) || empty( $users[ $instagram_uid ]['access_token'] )){
       $this->append_active_result('hidden','<!-- Could not find user and/or access_token for '.$instagram_uid.' -->');
-      $this->append_active_result('message','Could not find an access token for '.$instagram_uid.'.');
+      $this->append_active_result('message','- Could not find an access token for '.$instagram_uid.'.');
       if( !empty( $users[ $instagram_uid ] ) && is_array( $users[ $instagram_uid ] ) ){
         foreach( $users[ $instagram_uid ] as $key=>$val ){
           $this->hidden .= '<!-- '.$key.' => '.$val.' -->';
@@ -423,8 +463,9 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
       $num = min( 50, $num*4 );
     }
     $request = $this->get_instagram_request( $token, $user_id, $num );
-    
-    if( function_exists('json_decode') && $request ) {
+
+    if( $request ) {
+      $this->append_active_result('hidden','<!-- Using AlpinePT for Instagram v'.$this->get_private('ver').' with JSON-->');
       $this->try_json( $request, $num );
     }
     
@@ -442,9 +483,9 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
       }
     }else{
       if( $this->check_active_result('feed_found') ){
-        $this->append_active_result('message','- Instagram feed was successfully retrieved, but no photos found.');
+        $this->append_active_result('message','<br>- Instagram feed was successfully retrieved, but no photos found.');
       }else{
-        $this->append_active_result('message','- Instagram feed not found.');
+        $this->append_active_result('message','<br>- Instagram feed not found.');
       }
     }
 
@@ -455,7 +496,7 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
  *  Function for making Instagram request with json return format ( API v1 and v2 )
  *  
  *  @ Since 1.2.4
- *  @ Since 1.2.5
+ *  @ Updated 1.2.5
  */  
   function try_json( $request, $num ){
     $_instagram_json = $this->fetch_instagram_feed($request);
@@ -464,42 +505,45 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
     $record = array();
     $instagram_tag = $this->check_active_option('instagram_tag') ? $this->get_active_option('instagram_tag') : '';
     //var_dump($_instagram_json);
-    if( empty($_instagram_json) || !isset($_instagram_json->data) || empty($_instagram_json->data) ){
+    if( empty($_instagram_json) || !isset($_instagram_json['data']) || empty($_instagram_json['data']) ){
       $this->append_active_result('hidden','<!-- Failed using wp_remote_get and JSON @ '.$request.' -->');
       $this->set_active_result('success',false);
+      return;
     }else{
       $photos = array();
       while( !empty($repeat) && count($photos)<$num ){
-        $data = $_instagram_json->data;
+        $data = $_instagram_json['data'];
         foreach( $data as $key=>$imageinfo ){
 
-          $url = isset($imageinfo->images->low_resolution->url)?$imageinfo->images->low_resolution->url:$key;
+          $url = isset($imageinfo['images']['low_resolution']['url'])?$imageinfo['images']['low_resolution']['url']:$key;
           
-          if( 'Th' == $this->get_active_option('instagram_photo_size') && isset($imageinfo->images->thumbnail->url) ){
-            $url = $imageinfo->images->thumbnail->url;
-          }elseif( 'L' == $this->get_active_option('instagram_photo_size') && isset($imageinfo->images->standard_resolution->url) ){
-            $url = $imageinfo->images->standard_resolution->url;
+          if( 'Th' == $this->get_active_option('instagram_photo_size') && isset($imageinfo['images']['thumbnail']['url']) ){
+            $url = $imageinfo['images']['thumbnail']['url'];
+          }elseif( 'L' == $this->get_active_option('instagram_photo_size') && isset($imageinfo['images']['standard_resolution']['url']) ){
+            $url = $imageinfo['images']['standard_resolution']['url'];
           }
           
           if( empty($record[ $url ]) && count($photos)<$num ){
             $record[ $url ] = true;
-            if( 'user_tag' == $this->get_active_option('instagram_source') && ( empty($imageinfo->tags) || (is_array($imageinfo->tags) && !in_array( $instagram_tag, $imageinfo->tags)) ) ){
+            if( 'user_tag' == $this->get_active_option('instagram_source') && ( empty($imageinfo['tags']) || (is_array($imageinfo['tags']) && !in_array( $instagram_tag, $imageinfo['tags'])) ) ){
               // Do nothing;
+            }elseif( 'video' == $imageinfo['type'] ){ // Filter out videos
+              // Do nothing
             }else{
               $the_photo = array();
 
-              $the_photo['image_link'] = (string) isset($imageinfo->link)?$imageinfo->link:'';
-              $the_photo['image_title'] = (string) isset($imageinfo->caption->text)?$imageinfo->caption->text:'';
+              $the_photo['image_link'] = (string) isset($imageinfo['link'])?$imageinfo['link']:'';
+              $the_photo['image_title'] = (string) isset($imageinfo['caption']['text'])?$imageinfo['caption']['text']:'';
               $the_photo['image_title'] = str_replace("'","",$the_photo['image_title']);
               $the_photo['image_caption'] = "";
       
               $the_photo['image_source'] = (string) $url;
-              $the_photo['image_original'] = (string) isset($imageinfo->images->standard_resolution->url)?$imageinfo->images->standard_resolution->url:'';
+              $the_photo['image_original'] = (string) isset($imageinfo['images']['standard_resolution']['url'])?$imageinfo['images']['standard_resolution']['url']:$the_photo['image_source'];
               $photos[] = $the_photo;
             }
           }
         } 
-        $next_url = (isset($_instagram_json->pagination->next_url)) ? $_instagram_json->pagination->next_url : null;
+        $next_url = (isset($_instagram_json['pagination']['next_url'])) ? $_instagram_json['pagination']['next_url'] : null;
         if( count($photos)<$num && !empty($next_url) ){
           $_instagram_json = $this->fetch_instagram_feed($next_url);
         }elseif( count($photos)<$num && 'global_popular' == $this->get_active_option('instagram_source') ){
@@ -526,15 +570,15 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
       if( $this->check_active_option('instagram_display_link') && $this->check_active_option('instagram_display_link_text')) {
         $this->set_active_result('userlink','http://instagram.com/'.$this->get_active_option('instagram_user_id'));
       }
-    }
-    
-    if( $this->check_active_result('photos') ){
-      $this->set_active_result('success',true);
-      $this->append_active_result('hidden','<!-- Success using wp_remote_get() and JSON -->');
-    }else{
-      $this->set_active_result('success',false);
-      $this->set_active_result('feed_found',true);
-      $this->append_active_result('hidden','<!-- No photos found using wp_remote_get() and JSON @ '.$request.' -->');
+      
+      if( $this->check_active_result('photos') ){
+        $this->set_active_result('success',true);
+        $this->append_active_result('hidden','<!-- Success using wp_remote_get() and JSON -->');
+      }else{
+        $this->set_active_result('success',false);
+        $this->set_active_result('feed_found',true);
+        $this->append_active_result('hidden','<!-- No photos found using wp_remote_get() and JSON @ '.$request.' -->');
+      }
     }
   }
   
@@ -560,6 +604,7 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
           $request = 'https://api.instagram.com/v1/users/self/media/liked?access_token='.$token.'&count='.$num.'';
         break;
         case 'user_tag':
+          $this->append_active_result('hidden','<!-- with User_Tag -->');
           $instagram_tag = empty($options['instagram_tag']) ? '' : $options['instagram_tag'];
           $request = 'https://api.instagram.com/v1/users/'.$user_id.'/media/recent/?access_token='.$token.'&count='.$num;
         break;
@@ -973,6 +1018,7 @@ jQuery(window).load(function() {
  *  Get Image Link
  *  
  *  @ Since 1.2.2
+ *  @ Updated 1.2.6
  */
   function get_link($i){
     $src = $this->get_private('src');
@@ -991,7 +1037,7 @@ jQuery(window).load(function() {
       $this->add('<a href="' . $linkurl . '" class="AlpinePhotoTiles-link" target="_blank" title='."'". $phototitle ."'".' alt='."'". $phototitle ."'".'>');
       return true;
     }elseif( 'link' == $link && !empty($url) ){
-      $this->add('<a href="' . $url . '" class="AlpinePhotoTiles-link" target="_blank" title='."'". $phototitle ."'".' alt='."'". $phototitle ."'".'>'); 
+      $this->add('<a href="' . $url . '" class="AlpinePhotoTiles-link" title='."'". $phototitle ."'".' alt='."'". $phototitle ."'".'>'); 
       return true;
     }elseif( 'fancybox' == $link && !empty($originalurl) ){
       $light = $this->get_option( 'general_lightbox' );
