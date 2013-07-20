@@ -125,6 +125,7 @@ I am a one-man development team and I distribute these plugins for free, so plea
 * Add stripslashes text sanitization
 * Changed lightbox parameters option from CSS to stripslashes sanitization
 * Filter out videos
+* Block users
 
 
 = TODO =

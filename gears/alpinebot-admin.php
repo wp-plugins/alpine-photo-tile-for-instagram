@@ -447,7 +447,7 @@ class PhotoTileForInstagramAdminSecondary extends PhotoTileForInstagramPrimary{
  *  Function for displaying forms in the admin page
  *  
  *  @ Since 1.0.0
- *  @ Updated 1.2.5 
+ *  @ Updated 1.2.6
  */
   function AdminDisplayCallback($options,$option,$fieldname,$fieldid){
     $default = (isset($option['default'])?$option['default']:'');
@@ -469,7 +469,7 @@ class PhotoTileForInstagramAdminSecondary extends PhotoTileForInstagramPrimary{
     else if ( 'radio' == $fieldtype ) {
       $valid_options = array();
       $valid_options = $option['valid_options'];
-      ?><label for="<?php echo $fieldid; ?>"><?php echo $optiontitle ?></label><?php
+      ?><div class="title"><label for="<?php echo $fieldid; ?>"><?php echo $optiontitle ?></label></div><?php
       foreach ( $valid_options as $valid_option ) {
         ?>
         <input type="radio" name="<?php echo $fieldname; ?>" <?php checked( $valid_option['name'] == $value ); ?> value="<?php echo $valid_option['name']; ?>" />
@@ -482,7 +482,7 @@ class PhotoTileForInstagramAdminSecondary extends PhotoTileForInstagramPrimary{
       $valid_options = array();
       $valid_options = $option['valid_options']; 
       ?>
-      <label for="<?php echo $fieldid; ?>"><?php echo $optiontitle ?></label>
+      <div class="title"><label for="<?php echo $fieldid; ?>"><?php echo $optiontitle ?></label></div>
         <select id="<?php echo $fieldid ?>" name="<?php echo $fieldname; ?>" >
         <?php 
         foreach ( $valid_options as $valid_option ) {
@@ -497,7 +497,7 @@ class PhotoTileForInstagramAdminSecondary extends PhotoTileForInstagramPrimary{
     } // Output select form field markup
     else if ( 'range' == $fieldtype ) {     
       ?>
-      <label for="<?php echo $fieldid; ?>"><?php echo $optiontitle ?></label>
+      <div class="title"><label for="<?php echo $fieldid; ?>"><?php echo $optiontitle ?></label></div>
         <select id="<?php echo $fieldid ?>" name="<?php echo $fieldname; ?>" >
         <?php 
         for($i = $option['min'];$i <= $option['max']; $i++){
@@ -520,7 +520,7 @@ class PhotoTileForInstagramAdminSecondary extends PhotoTileForInstagramPrimary{
     } 
     else if ( 'textarea' == $fieldtype ) {
       ?>
-      <label for="<?php echo $fieldid; ?>"><?php echo $optiontitle ?></label>
+      <div class="title"><label for="<?php echo $fieldid; ?>"><?php echo $optiontitle ?></label></div>
       <textarea id="<?php echo $fieldid ?>" name="<?php echo $fieldname; ?>" class="AlpinePhotoTiles_textarea" ><?php echo $value; ?></textarea><br>
       <span class="admin-description"><?php echo (function_exists('esc_textarea')?esc_textarea( $optiondescription ):$optiondescription); ?></span>
       <?php

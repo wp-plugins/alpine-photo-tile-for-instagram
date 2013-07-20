@@ -507,7 +507,7 @@ class PhotoTileForInstagramPrimary {
         'center' => array( 'title' => 'Add New User (See Instructions Below)' )
       ),
       'plugin-settings' => array(
-        'top' => array( 'title' => 'Global Style Options', 'description' => 'Below are style settings that will be applied to every instance of the plugin.' ),
+        'top' => array( 'title' => 'Global Options', 'description' => 'Below are settings that will be applied to every instance of the plugin.' ),
         'center' => array( 'title' => 'Hidden Options', 'description' => 'Below are additional options that you can choose to enable by checking the box. <br>Once enabled, the option will appear in the Widget Menu and Shortcode Generator.' ),
         'bottom' => array( 'title' => 'Cache Options', 'description' => 'The plugin is capable of storing the url addresses to the photos in your feed. Please note that the plugin does not store the image files and that if your website has a cache plugin like WP Super Cache or W3 Total Cache, the cache feature of the Alpine PhotoTile will have no effect.')
       )
@@ -1007,7 +1007,7 @@ class PhotoTileForInstagramPrimary {
         'tab' => 'generator',
         'position' => 'bottom',
         'default' => ''
-      ), 
+      ),     
       'general_disable_right_click' => array(
         'name' => 'general_disable_right_click',
         'title' => 'Disable Right-Click: ',
@@ -1110,7 +1110,18 @@ class PhotoTileForInstagramPrimary {
         'position' => 'top',
         'default' => ''
       ), 
-
+      'general_block_users' => array(
+        'name' => 'general_block_users',
+        'title' => 'Blocked Users: ',
+        'description' => 'List of usernames or user IDs to prevent from appearing in the feed (Comma seperated).',
+        'type' => 'textarea',
+        'sanitize' => 'nospaces',
+        'since' => '1.2.6',
+        'tab' => 'plugin-settings',
+        'position' => 'top',
+        'default' => ''
+      ), 
+      
       'hidden_display_link' => array(
         'name' => 'hidden_display_link',
         'title' => 'Link Below Widget: ',

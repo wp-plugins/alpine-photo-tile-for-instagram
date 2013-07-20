@@ -511,6 +511,7 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
       return;
     }else{
       $photos = array();
+      $blocked = $this->check_active_option('general_block_users') ? explode(',',str_replace(' ','',$this->get_active_option('general_block_users'))) : array();
       while( !empty($repeat) && count($photos)<$num ){
         $data = $_instagram_json['data'];
         foreach( $data as $key=>$imageinfo ){
@@ -529,7 +530,11 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
               // Do nothing;
             }elseif( 'video' == $imageinfo['type'] ){ // Filter out videos
               // Do nothing
+            }elseif( !empty($blocked) && !empty($imageinfo['user']) && ((!empty($imageinfo['user']['username'])&&in_array($imageinfo['user']['username'],$blocked))||(!empty($imageinfo['user']['id'])&&in_array($imageinfo['user']['id'],$blocked))) ){
+              // Filter blocked users
+              // Do nothing
             }else{
+              //var_dump( $imageinfo );
               $the_photo = array();
 
               $the_photo['image_link'] = (string) isset($imageinfo['link'])?$imageinfo['link']:'';
