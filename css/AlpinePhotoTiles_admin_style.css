@@ -155,16 +155,18 @@
   .AlpinePhotoTiles-container input[type="submit"].topbutton {
     margin-bottom:20px;
   }
-  .AlpinePhotoTiles-container span.description, .AlpinePhotoTiles-container span.admin-description{
+  .AlpinePhotoTiles-container span.describe, .AlpinePhotoTiles-container span.admin-describe{
     width:100%;
     text-align:center;   
+    font-style:italic;
   }  
-  .AlpinePhotoTiles-container div.admin-description{
+  .AlpinePhotoTiles-container div.admin-describe{
     display:inline-block;
     width:60%;
     text-align:left;
     padding:0 0 0 10px;
     vertical-align:middle;    
+    font-style:italic;
   }  
   
   .AlpinePhotoTiles-container .top{
@@ -214,9 +216,10 @@
     border-top:1px solid #DDD;
     position:relative;
   }    
-  .AlpinePhotoTiles-container .bottom .description{
+  .AlpinePhotoTiles-container .bottom .describe{
     width:100%;
     text-align:left;
+    font-style:italic;
   }
   .AlpinePhotoTiles-container .AlpinePhotoTiles-breakline{
     width:100%;

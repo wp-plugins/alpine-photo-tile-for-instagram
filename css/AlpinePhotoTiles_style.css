@@ -2,7 +2,7 @@
  * Alpine PhotoTile Widget CSS
  *
  * @since 0.0.1
- * @updated 1.2.1
+ * @updated 1.2.6
  */
  
 /* The style of the Display Link below the images */
@@ -144,7 +144,6 @@ img.AlpinePhotoTiles-img-nocorners{
   padding:5px;
 }
 .AlpinePhotoTiles-highlight-div{
-  background: none repeat scroll 0 0 #FFFFFF;
   padding:2px;
 }
 

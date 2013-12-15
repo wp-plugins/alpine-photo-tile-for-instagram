@@ -251,7 +251,7 @@ class PhotoTileForInstagramAdminSecondary extends PhotoTileForInstagramPrimary{
  * Second function for printing options page
  *  
  * @ Since 1.1.0
- * @ Updated 1.2.5
+ * @ Updated 1.2.6.1
  *
  */
   function admin_display_opt_form($options,$currenttab){
@@ -272,7 +272,7 @@ class PhotoTileForInstagramAdminSecondary extends PhotoTileForInstagramPrimary{
         <h3>This tool allows you to create shortcodes for the Alpine PhotoTile plugin.</h3>
         <p>A shortcode is a line of text that tells WordPress how to load a plugin inside the content of a page or post. Rather than explaining how to put together a shortcode, this tool will create the shortcode for you.</p>
       </div>
-      <?php 
+      <?php       
       if( !empty($short) ){
         ?>
         <div id="<?php echo $this->get_private('settings');?>-shortcode" style="position:relative;clear:both;margin-bottom:20px;" ><div class="announcement" style="margin:0 0 10px 0;">
@@ -299,7 +299,7 @@ class PhotoTileForInstagramAdminSecondary extends PhotoTileForInstagramPrimary{
       foreach( $positions as $position=>$positionsinfo){
         echo '<div class="'. $position .'">'; 
           if( !empty($positionsinfo['title']) ){ echo '<h4>'. $positionsinfo['title'].'</h4>'; } 
-          if( !empty($positionsinfo['description']) ){ echo '<div style="margin-bottom:15px;"><span class="description" >'. $positionsinfo['description'].'</span></div>'; } 
+          if( !empty($positionsinfo['description']) ){ echo '<div style="margin-bottom:15px;"><span class="describe" >'. $positionsinfo['description'].'</span></div>'; } 
           echo '<table class="form-table">';
             echo '<tbody>';
               if( !empty($positionsinfo['options']) && count($positionsinfo['options']) ){
@@ -352,11 +352,11 @@ class PhotoTileForInstagramAdminSecondary extends PhotoTileForInstagramPrimary{
 //////////////////////      Menu Display Functions       /////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////  
 /**
-  * Function for displaying forms in the widget page
-  *
-  *  @ Since 1.0.0
-  *  @ Updated 1.2.5
-  */
+ * Function for displaying forms in the widget page
+ *
+ * @ Since 1.0.0
+ * @ Updated 1.2.6.1
+ */
   function MenuDisplayCallback($options,$option,$fieldname,$fieldid){
     $default = (isset($option['default'])?$option['default']:'');
     $optionname = (isset($option['name'])?$option['name']:'');
@@ -370,7 +370,7 @@ class PhotoTileForInstagramAdminSecondary extends PhotoTileForInstagramPrimary{
       ?>
       <input type="checkbox" id="<?php echo $fieldid; ?>" name="<?php echo $fieldname; ?>" value="1" <?php checked( $value ); ?> />
       <label for="<?php echo $fieldid; ?>"><?php echo $optiontitle ?></label>
-      <span class="description"><?php echo $optiondescription; ?></span>
+      <span class="describe"><?php echo $optiondescription; ?></span>
       <?php
     }
     // Output radio button form field markup
@@ -381,7 +381,7 @@ class PhotoTileForInstagramAdminSecondary extends PhotoTileForInstagramPrimary{
       foreach ( $valid_options as $valid_option ) {
         ?>
         <input type="radio" name="<?php echo $fieldname; ?>" <?php checked( $valid_option['name'] == $value ); ?> value="<?php echo $valid_option['name']; ?>" />
-        <span class="description"><?php echo $optiondescription; ?></span>
+        <span class="describe"><?php echo $optiondescription; ?></span>
         <?php
       }
     }
@@ -400,7 +400,7 @@ class PhotoTileForInstagramAdminSecondary extends PhotoTileForInstagramPrimary{
         }
         ?>
         </select>
-        <div class="description"><span class="description"><?php echo $optiondescription; ?></span></div>
+        <div class="describe"><span class="describe"><?php echo $optiondescription; ?></span></div>
       <?php
     } // Output select form field markup
     else if ( 'range' == $fieldtype ) {     
@@ -415,7 +415,7 @@ class PhotoTileForInstagramAdminSecondary extends PhotoTileForInstagramPrimary{
         }
         ?>
         </select>
-        <span class="description"><?php echo $optiondescription; ?></span>
+        <span class="describe"><?php echo $optiondescription; ?></span>
       <?php
     } 
     // Output text input form field markup
@@ -423,31 +423,31 @@ class PhotoTileForInstagramAdminSecondary extends PhotoTileForInstagramPrimary{
       ?>
       <label for="<?php echo $fieldid; ?>"><?php echo $optiontitle ?></label>
       <input type="text" id="<?php echo $fieldid ?>" name="<?php echo $fieldname; ?>" value="<?php echo ( $value ); ?>" />
-      <div class="description"><span class="description"><?php echo $optiondescription; ?></span></div>
+      <div class="describe"><span class="describe"><?php echo $optiondescription; ?></span></div>
       <?php
     } 
     else if ( 'textarea' == $fieldtype ) {
       ?>
       <label for="<?php echo $fieldid; ?>"><?php echo $optiontitle ?></label>
       <textarea id="<?php echo $fieldid ?>" name="<?php echo $fieldname; ?>" class="AlpinePhotoTiles_textarea" ><?php echo $value; ?></textarea><br>
-      <span class="description"><?php echo (function_exists('esc_textarea')?esc_textarea( $optiondescription ):$optiondescription); ?></span>
+      <span class="describe"><?php echo (function_exists('esc_textarea')?esc_textarea( $optiondescription ):$optiondescription); ?></span>
       <?php
     }   
     else if ( 'color' == $fieldtype ) {
       $value = ($value?$value:$default);
       ?>    
       <label for="<?php echo $fieldid ?>">
-      <input type="text" id="<?php echo $fieldid ?>" name="<?php echo $fieldname; ?>" class="AlpinePhotoTiles_color"  value="<?php echo ( $value ); ?>" /><span class="description"><?php echo $optiondescription; ?></span></label>
+      <input type="text" id="<?php echo $fieldid ?>" name="<?php echo $fieldname; ?>" class="AlpinePhotoTiles_color"  value="<?php echo ( $value ); ?>" /><span class="describe"><?php echo $optiondescription; ?></span></label>
       <div id="<?php echo $fieldid; ?>_picker" class="AlpinePhotoTiles_color_picker" ></div>
       <?php
     }
   }
 
 /**
- *  Function for displaying forms in the admin page
+ * Function for displaying forms in the admin page
  *  
- *  @ Since 1.0.0
- *  @ Updated 1.2.6
+ * @ Since 1.0.0
+ * @ Updated 1.2.6.1
  */
   function AdminDisplayCallback($options,$option,$fieldname,$fieldid){
     $default = (isset($option['default'])?$option['default']:'');
@@ -462,7 +462,7 @@ class PhotoTileForInstagramAdminSecondary extends PhotoTileForInstagramPrimary{
       ?>
       <div class="title"><label for="<?php echo $fieldid; ?>"><?php echo $optiontitle ?></label></div>
       <input type="checkbox" id="<?php echo $fieldid; ?>" name="<?php echo $fieldname; ?>" value="1" <?php checked( $value ); ?> />
-      <div class="admin-description" ><?php echo $optiondescription; ?></div>
+      <div class="admin-describe" ><?php echo $optiondescription; ?></div>
       <?php
     }
     // Output radio button form field markup
@@ -473,7 +473,7 @@ class PhotoTileForInstagramAdminSecondary extends PhotoTileForInstagramPrimary{
       foreach ( $valid_options as $valid_option ) {
         ?>
         <input type="radio" name="<?php echo $fieldname; ?>" <?php checked( $valid_option['name'] == $value ); ?> value="<?php echo $valid_option['name']; ?>" />
-        <span class="admin-description"><?php echo $optiondescription; ?></span>
+        <span class="admin-describe"><?php echo $optiondescription; ?></span>
         <?php
       }
     }
@@ -492,7 +492,7 @@ class PhotoTileForInstagramAdminSecondary extends PhotoTileForInstagramPrimary{
         }
         ?>
         </select>
-        <div class="admin-description"><?php echo $optiondescription; ?></div>
+        <div class="admin-describe"><?php echo $optiondescription; ?></div>
       <?php
     } // Output select form field markup
     else if ( 'range' == $fieldtype ) {     
@@ -507,7 +507,7 @@ class PhotoTileForInstagramAdminSecondary extends PhotoTileForInstagramPrimary{
         }
         ?>
         </select>
-        <div class="admin-description"><?php echo $optiondescription; ?></div>
+        <div class="admin-describe"><?php echo $optiondescription; ?></div>
       <?php
     } 
     // Output text input form field markup
@@ -515,21 +515,21 @@ class PhotoTileForInstagramAdminSecondary extends PhotoTileForInstagramPrimary{
       ?>
       <div class="title"><label for="<?php echo $fieldid; ?>"><?php echo $optiontitle ?></label></div>
       <input type="text" id="<?php echo $fieldid ?>" name="<?php echo $fieldname; ?>" value="<?php echo ( $value ); ?>" />
-      <div class="admin-description" style="width:50%;"><?php echo $optiondescription; ?></div>
+      <div class="admin-describe" style="width:50%;"><?php echo $optiondescription; ?></div>
       <?php
     } 
     else if ( 'textarea' == $fieldtype ) {
       ?>
       <div class="title"><label for="<?php echo $fieldid; ?>"><?php echo $optiontitle ?></label></div>
       <textarea id="<?php echo $fieldid ?>" name="<?php echo $fieldname; ?>" class="AlpinePhotoTiles_textarea" ><?php echo $value; ?></textarea><br>
-      <span class="admin-description"><?php echo (function_exists('esc_textarea')?esc_textarea( $optiondescription ):$optiondescription); ?></span>
+      <span class="admin-describe"><?php echo (function_exists('esc_textarea')?esc_textarea( $optiondescription ):$optiondescription); ?></span>
       <?php
     }   
     else if ( 'color' == $fieldtype ) {
       $value = ($value?$value:$default);
       ?>
       <div class="title"><label for="<?php echo $fieldid; ?>"><?php echo $optiontitle ?></label></div>
-      <input type="text" id="<?php echo $fieldid ?>" name="<?php echo $fieldname; ?>" class="AlpinePhotoTiles_color"  value="<?php echo ( $value ); ?>" /><div class="admin-description" style="width:40%;"><?php echo $optiondescription; ?></div></label>
+      <input type="text" id="<?php echo $fieldid ?>" name="<?php echo $fieldname; ?>" class="AlpinePhotoTiles_color"  value="<?php echo ( $value ); ?>" /><div class="admin-describe" style="width:40%;"><?php echo $optiondescription; ?></div></label>
       <div id="<?php echo $fieldid; ?>_picker" class="AlpinePhotoTiles_color_picker" ></div>
       <?php
     }

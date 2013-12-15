@@ -300,6 +300,7 @@ class PhotoTileForInstagramPrimary {
  * Simply get function for JS files
  *  
  * @ Since 1.2.5
+ * @ Updated 1.2.6.1
  * 
  */
   function get_script($string){
@@ -310,9 +311,9 @@ class PhotoTileForInstagramPrimary {
     }elseif( 'fancybox' == $string ){
       return $this->url.'/js/fancybox/jquery.fancybox-1.3.4.pack.js?ver=1.3.4';
     }elseif( 'prettyphoto' == $string ){
-      return $this->url.'/js/prettyPhoto/js/jquery.prettyPhoto.js?ver=3.1.4';
+      return $this->url.'/js/prettyPhoto/js/jquery.prettyPhoto.js?ver=3.1.5';
     }elseif( 'colorbox' == $string ){
-      return $this->url.'/js/colorbox/jquery.colorbox-min.js?ver=1.4.5';	
+      return $this->url.'/js/colorbox/jquery.colorbox-min.js?ver=1.4.33';	
     }elseif( 'alpine-fancybox' == $string ){
       return $this->url.'/js/fancybox-alpine-safemode/jquery.fancyboxForAlpine-1.3.4.pack.js?ver=1.3.4';
     }
@@ -322,6 +323,7 @@ class PhotoTileForInstagramPrimary {
  * Simply get function for CSS files
  *  
  * @ Since 1.2.5
+ * @ Update 1.2.6.1
  * 
  */
   function get_style($string){
@@ -332,15 +334,14 @@ class PhotoTileForInstagramPrimary {
     }elseif( 'fancybox' == $string ){
       return $this->url.'/js/fancybox/jquery.fancybox-1.3.4.css?ver=1.3.4';
     }elseif( 'prettyphoto' == $string ){
-      return $this->url.'/js/prettyPhoto/css/prettyPhoto.css?ver=3.1.4';
+      return $this->url.'/js/prettyPhoto/css/prettyPhoto.css?ver=3.1.5';
     }elseif( 'colorbox' == $string ){
-      return $this->url.'/js/colorbox/colorbox.css?ver=1.3.21';	
+      return $this->url.'/js/colorbox/colorbox.css?ver=1.4.33';	
     }elseif( 'alpine-fancybox' == $string ){
       return $this->url.'/js/fancybox-alpine-safemode/jquery.fancyboxForAlpine-1.3.4.css?ver=1.3.4';
     }
     return false;
   }  
-  
 //////////////////////////////////////////////////////////////////////////////////////
 //////////////////////      Custom Server Functions      /////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////
@@ -565,7 +566,7 @@ class PhotoTileForInstagramPrimary {
  * Option Parameters and Defaults
  *  
  * @ Since 1.0.0
- * @ Updated 1.2.3
+ * @ Updated 1.2.6.1
  */
   function option_defaults(){
     $options = array(
@@ -786,7 +787,7 @@ class PhotoTileForInstagramPrimary {
             'title' => 'Gallery'
           )           
         ),
-        'description' => '',
+         'description' => 'If nothing displays, try Vertical or Cascade. Also, try clicking the box for "Load Styles and Scripts in Header" on the <a href="options-general.php?page='.$this->get_private('settings').'&tab=plugin-settings" target="_blank">settings page</a>.',
         'parent' => 'AlpinePhotoTiles-parent',
         'trigger' => 'style_option',
         'widget' => true,
@@ -890,7 +891,7 @@ class PhotoTileForInstagramPrimary {
         'sanitize' => 'int',
         'min' => '1',
         'max' => '30',
-        'description' => 'Maximum of 30, due to Instagram <a href="http://instagram.com/about/legal/terms/api/" target="_blank">Terms of Use</a>.',
+        'description' => 'Maximum of 30, due to <br>Instagram <a href="http://instagram.com/about/legal/terms/api/" target="_blank">Terms of Use</a>.',
         'widget' => true,
         'tab' => 'generator',
         'position' => 'right',

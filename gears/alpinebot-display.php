@@ -410,7 +410,7 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
  * The PHP for retrieving content from Instagram.
  *
  * @ Since 1.0.0
- * @ Updated 1.2.6
+ * @ Updated 1.2.6.1
  */
   function photo_retrieval(){
     $options = $this->get_private('options');
@@ -452,8 +452,17 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
       }
       return;
     }
+    
     $token = $users[ $instagram_uid ]['access_token'];
     $user_id = $users[ $instagram_uid ]['user_id'];
+    
+    $blocked = $this->check_active_option('general_block_users') ? explode(',',str_replace(' ','',$this->get_active_option('general_block_users'))) : array();
+    if( !empty($blocked) && (in_array($instagram_uid,$blocked)||in_array($user_id,$blocked)) ){
+      $this->append_active_result('hidden','<!-- User '.$instagram_uid.' is blocked -->');
+      $this->append_active_result('message','- User '.$instagram_uid.' is blocked.');
+      return;
+    }
+    
     $num = $this->get_active_option('instagram_photo_number');
     if( $this->check_active_option('photo_feed_offset') ){
       $off = $this->get_active_option('photo_feed_offset');
@@ -514,6 +523,7 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
       $blocked = $this->check_active_option('general_block_users') ? explode(',',str_replace(' ','',$this->get_active_option('general_block_users'))) : array();
       while( !empty($repeat) && count($photos)<$num ){
         $data = $_instagram_json['data'];
+        //var_dump( $data );
         foreach( $data as $key=>$imageinfo ){
 
           $url = isset($imageinfo['images']['low_resolution']['url'])?$imageinfo['images']['low_resolution']['url']:$key;
@@ -674,7 +684,7 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
  *  Function for printing vertical style
  *  
  *  @ Since 0.0.1
- *  @ Updated 1.2.5
+ *  @ Updated 1.2.6.1
  */
   function display_vertical(){
     $this->set_private('out',''); // Clear any output;
@@ -713,7 +723,7 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
     if( !empty($opts['style_shadow']) || !empty($opts['style_border']) || !empty($opts['style_highlight'])  ){
       $this->add("
 <script>
-  jQuery(window).load(function() {
+  jQuery(window).on('load',function() {
     if( jQuery().AlpineAdjustBordersPlugin ){
       jQuery('#".$this->get_private('wid')."-vertical-parent').AlpineAdjustBordersPlugin({
         highlight:'".$highlight."'
@@ -742,7 +752,7 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
  *  Function for printing cascade style
  *  
  *  @ Since 0.0.1
- *  @ Updated 1.2.5
+ *  @ Updated 1.2.6.1
  */
   function display_cascade(){
     $this->set_private('out',''); // Clear any output;
@@ -790,8 +800,8 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
     if( !empty($opts['style_shadow']) || !empty($opts['style_border']) || !empty($opts['style_highlight'])  ){
       $this->add("
 <script>
-  jQuery(window).load(function() {
-    if(jQuery().AlpineAdjustBordersPlugin ){
+  jQuery(window).on('load',function() {
+    if( jQuery().AlpineAdjustBordersPlugin ){
       jQuery('#".$this->get_private('wid')."-cascade-parent').AlpineAdjustBordersPlugin({
         highlight:'".$highlight."'
       });
@@ -804,7 +814,7 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
         }else{
           jQuery('head').append(link);
         }
-        if(jQuery().AlpineAdjustBordersPlugin ){
+        if( jQuery().AlpineAdjustBordersPlugin ){
           jQuery('#".$this->get_private('wid')."-cascade-parent').AlpineAdjustBordersPlugin({
             highlight:'".$highlight."'
           });
@@ -820,7 +830,7 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
  *  Function for printing and initializing JS styles
  *  
  *  @ Since 0.0.1
- *  @ Updated 1.2.5
+ *  @ Updated 1.2.6.1
  */
   function display_hidden(){
     $this->set_private('out',''); // Clear any output;
@@ -874,19 +884,19 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
     
     $this->add('<script>');
       if(!$disable){
-        $this->add("
-jQuery(document).ready(function() {
+        $this->add(
+"jQuery(document).ready(function() {
   jQuery('#".$wid."-AlpinePhotoTiles_container').addClass('loading'); 
 });");
       }
 $this->add("
-jQuery(window).load(function() {
+jQuery(window).on('load',function() {
   jQuery('#".$wid."-AlpinePhotoTiles_container').removeClass('loading');
   if( jQuery().AlpinePhotoTilesPlugin ){
     AlpinePhotoTilesPlugin();
   }else{
     var css = '".($this->get_private('url').'/css/'.$this->get_private('wcss').'.css')."';
-    var link = jQuery( document.createElement('link') ).attr({'rel':'stylesheet','href':css,'type':'text/css','media':'screen'});
+    var link = jQuery(document.createElement('link')).attr({'rel':'stylesheet','href':css,'type':'text/css','media':'screen'});
     jQuery.getScript('".($this->get_private('url').'/js/'.$this->get_private('wjs').'.js')."', function(){
       if(document.createStyleSheet){
         document.createStyleSheet(css);
@@ -899,7 +909,7 @@ jQuery(window).load(function() {
       if( !jQuery().".$check." ){ // Load Lightbox
         jQuery.getScript('".$lightScript."', function(){
           css = '".$lightStyle."';
-          link = jQuery( document.createElement('link') ).attr({'rel':'stylesheet','href':css,'type':'text/css','media':'screen'});
+          link = jQuery(document.createElement('link')).attr({'rel':'stylesheet','href':css,'type':'text/css','media':'screen'});
           if(document.createStyleSheet){
             document.createStyleSheet(css);
           }else{
@@ -938,7 +948,7 @@ jQuery(window).load(function() {
   }
 }); //Close load
 </script>");      
-  }  
+  }
 /**
  *  Update photo number count
  *  
