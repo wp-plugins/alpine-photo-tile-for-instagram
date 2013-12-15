@@ -29,7 +29,7 @@ presentation that I hope you will like. A full description and demonstration is 
 
 **Quick Start Guide:**
 
-1. After installing the plugin on your WordPress site, make sure it is activated by logging into your admin area and going to Plugins in the left menu.
+1. After installing the Alpine PhotoTile for Instagram plugin on your WordPress site, make sure it is activated by logging into your admin area and going to Plugins in the left menu.
 2. Before using the plugin, you must authorize your WordPress website to access your Instagram account. This can be done by going to Settings->AlpineTile: Instagram->Add Instagram User and following the directions on the page.
 3. To add the plugin to a sidebar, go to Appearance->Widgets in the left menu.
 4. Find the rectangle labeled Alpine PhotoTile for Instagram. Click and drag the rectangle to one of the sidebar containers on the right.
@@ -46,19 +46,23 @@ presentation that I hope you will like. A full description and demonstration is 
 
 == Frequently Asked Questions ==
 
+**I’m having trouble adding an Instagram user and I keep getting an error message. Can you help?**
+
+There are a number of reasons that the plugin might be unable to retrieve your Instagram user information. The most common problems I have seen are due to the settings on the server that is hosting your WordPress website. To try and deal with these issues, I have created the [Instagram Tool (http://thealpinepress.com/instagram-tool/ "Instagram Tool ") to allow you to manually retrieve the information you need and to enter it into the plugin on the bottom of the Add Instagram User page.
+
 **I'm getting the message "Instagram feed was successfully retrieved, but no photos found". What does that mean?**
 
-This message simply means that while no distinguishable errors occurred, the plugin found your feed to be empty.
+This message simply means that while no distinguishable errors occurred, the plugin found your  Instagram feed to be empty.
 
 **Can I insert the plugin in posts or pages? Is there a shortcode function?**
 
-Yes, you can display photos in posts or pages using what is called a shortcode. Rather than explaining how to setup the shortcode, I have created a method of generating the shortcode. Check out the Shortcode Generator on the plugin's settings page (Settings->AlpineTile: Instagram->Shortcode Generator).
+Yes, you can display Instagram photos in posts or pages using what is called a shortcode. Rather than explaining how to setup the shortcode, I have created a method of generating the shortcode. Check out the Shortcode Generator on the plugin's settings page (Settings->AlpineTile: Instagram->Shortcode Generator).
 
 **Why doesn't the widget show my most recent photos?**
 
 By default, the plugin caches or stores the Instagram feed for three hours (see Caching above). If the new photos have still not appeared after this time, it is possible that Instagram is responsible for the delay.
 
-**How many photos can I display?**
+**How many Instagram photos can I display?**
 
 The plugin can retrieve and display up to 100 photos.
 
@@ -124,8 +128,8 @@ I am a one-man development team and I distribute these plugins for free, so plea
 * Added manual_cURL function and edited relevant admin and display functions
 * Add stripslashes text sanitization
 * Changed lightbox parameters option from CSS to stripslashes sanitization
-* Filter out videos
-* Block users
+* Filter out Instagram videos
+* Block Instagram users
 
 = 1.2.6.1  =
 * Check compatibility with WP 3.8
