@@ -48,7 +48,7 @@ presentation that I hope you will like. A full description and demonstration is 
 
 **I'm having trouble adding an Instagram user and I keep getting an error message. Can you help?**
 
-There are a number of reasons that the plugin might be unable to retrieve your Instagram user information. The most common problems I have seen are due to the settings on the server that is hosting your WordPress website. To try and deal with these issues, I have created the [Instagram Tool (http://thealpinepress.com/instagram-tool/ "Instagram Tool ") to allow you to manually retrieve the information you need and to enter it into the plugin on the bottom of the Add Instagram User page.
+There are a number of reasons that the plugin might be unable to retrieve your Instagram user information. The most common problems I have seen are due to the settings on the server that is hosting your WordPress website. To try and deal with these issues, I have created the [Instagram Tool](http://thealpinepress.com/instagram-tool/ "Instagram Tool") to allow you to manually retrieve the information you need and to enter it into the plugin on the bottom of the Add Instagram User page.
 
 **I'm getting the message "Instagram feed was successfully retrieved, but no photos found". What does that mean?**
 
