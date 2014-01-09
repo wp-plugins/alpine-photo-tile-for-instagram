@@ -13,7 +13,7 @@ Stylish and compact plugin for displaying Instagram images in a sidebar, post, o
 == Description == 
 Retrieve photos from a particular Instagram user or tag and display them on your WordPress site using the Alpine PhotoTile for Instagram. 
 The photos can be linked to the your Instagram page, a specific URL, or to a Lightbox slideshow. 
-Also, the Shortcode Generator makes it easy to insert the widget into posts without learning any of the code. 
+Also, the Shortcode Generator makes it easy to insert the Instagram widget into posts without learning any of the code. 
 This lightweight but powerful widget takes advantage of WordPress's built in JQuery scripts to create a sleek 
 presentation that I hope you will like. A full description and demonstration is available at 
 [the Alpine Press](http://thealpinepress.com/alpine-phototile-for-instagram/ "Plugin Demo").
@@ -23,15 +23,15 @@ presentation that I hope you will like. A full description and demonstration is 
 * Display Instagram images in a sidebar, post, or page
 * Multiple styles to allow for customization
 * Lighbox feature for interactive slideshow (Fancybox, prettyBox, or ColorBox)
-* Simple instructions
+* Simple instructions for adding Instagram users and customizing features
 * Widget & shortcode options
-* Feed caching/storage for improved page loading
+* Instagram feed caching/storage for improved page loading
 
 **Quick Start Guide:**
 
 1. After installing the Alpine PhotoTile for Instagram plugin on your WordPress site, make sure it is activated by logging into your admin area and going to Plugins in the left menu.
-2. Before using the plugin, you must authorize your WordPress website to access your Instagram account. This can be done by going to Settings->AlpineTile: Instagram->Add Instagram User and following the directions on the page.
-3. To add the plugin to a sidebar, go to Appearance->Widgets in the left menu.
+2. Before using the plugin, you must authorize your WordPress website to access your Instagram account by adding an Instagram user. This can be done by going to Settings->AlpineTile: Instagram->Add Instagram User and following the directions on the page.
+3. To add the Instagram plugin to a sidebar, go to Appearance->Widgets in the left menu.
 4. Find the rectangle labeled Alpine PhotoTile for Instagram. Click and drag the rectangle to one of the sidebar containers on the right.
 5. Once you drop the rectangle in a sidebar area, it should open to reveal a menu of options. The only required information for the plugin to work is an Instagram Username. Select an available ID and click save in the right bottom corner of the menu.
 6. Open another page/window in your web browser and navigate to your WordPress site to see how the sidebar looks with the Alpine PhotoTile for Instagram included.
@@ -48,23 +48,27 @@ presentation that I hope you will like. A full description and demonstration is 
 
 **I'm having trouble adding an Instagram user and I keep getting an error message. Can you help?**
 
-There are a number of reasons that the plugin might be unable to retrieve your Instagram user information. The most common problems I have seen are due to the settings on the server that is hosting your WordPress website. To try and deal with these issues, I have created the [Instagram Tool](http://thealpinepress.com/instagram-tool/ "Instagram Tool") to allow you to manually retrieve the information you need and to enter it into the plugin on the bottom of the Add Instagram User page.
+There are a number of reasons that the plugin might be unable to retrieve your Instagram user information. The most common problems I have seen are due to the settings on the server that is hosting your WordPress website. To try and deal with these issues, I have created the [Instagram Tool](http://thealpinepress.com/instagram-tool/ "Instagram Tool") and hosted it on my website. The Instagram tools allows you to manually retrieve the Instagram information you need and to enter it into the plugin on the bottom of the Add Instagram User page.
 
 **I'm getting the message "Instagram feed was successfully retrieved, but no photos found". What does that mean?**
 
 This message simply means that while no distinguishable errors occurred, the plugin found your  Instagram feed to be empty.
 
-**Can I insert the plugin in posts or pages? Is there a shortcode function?**
+**Can I insert the Instagram plugin in posts or pages? Is there a shortcode function?**
 
-Yes, you can display Instagram photos in posts or pages using what is called a shortcode. Rather than explaining how to setup the shortcode, I have created a method of generating the shortcode. Check out the Shortcode Generator on the plugin's settings page (Settings->AlpineTile: Instagram->Shortcode Generator).
+Yes, you can display Instagram photos in posts or pages using what is called a shortcode. Rather than explaining how to setup the shortcode, I have created a method of generating the shortcode for the Instagram plugin. Check out the Shortcode Generator on the Instagram plugin's settings page (Settings->AlpineTile: Instagram->Shortcode Generator).
 
-**Why doesn't the widget show my most recent photos?**
+**Why doesn't the widget show my most recent Instagram photos?**
 
-By default, the plugin caches or stores the Instagram feed for three hours (see Caching above). If the new photos have still not appeared after this time, it is possible that Instagram is responsible for the delay.
+By default, the Instagram plugin caches or stores the Instagram feed for three hours (see Caching above). If the new Instagram photos have still not appeared after this time, it is possible that Instagram is responsible for the delay.
 
 **How many Instagram photos can I display?**
 
-The plugin can retrieve and display up to 100 photos.
+The plugin can retrieve and display up to Instagram 100 photos.
+
+**Why does it take so long for the Instagram plugin to load?**
+
+The Instagram plugin actually takes less than a second to load. The reason you may see the loading icon for several seconds is because the Instagram plugin is programmed to wait until all the images and the rest of the webpage are done loading before displaying anything. The intent is for the Instagram plugin to avoid slowing down your website by waiting patiently for everything else to finish loading. If you are still looking to speed up your website’s loading time, selecting smaller Instagram photo sizes should always help.
 
 If you have any more questions, please leave a message at [the Alpine Press](http://thealpinepress.com/alpine-phototile-for-instagram/ "Plugin Demo").
 I am a one-man development team and I distribute these plugins for free, so please be patient with me.
@@ -76,10 +80,10 @@ I am a one-man development team and I distribute these plugins for free, so plea
 * Rebuilt plugin structure into OBJECT
 * Combined all Alpine Photo Tiles scripts and styles into identical files
 * Improved IE 7 compatibility
-* Added custom image link options
+* Added custom Instagram image link options
 * Added Fancybox jQuery option
 * Fixed galleryHeight bug
-* Implemented fetch with wp_remote_get()
+* Implemented Instagram fetch with wp_remote_get()
 
 = 1.2.1 =
 * Rebuilt admin div structure
@@ -104,7 +108,7 @@ I am a one-man development team and I distribute these plugins for free, so plea
 = 1.2.4 =
 * Restructured plugin objects and reassinged functions
 * Object oriented message, hidden, etc.
-* Added option to disable right-clicking on images
+* Added option to disable right-clicking on Instagram images
 * Added updateGlobalOptions and removed individual option calls
 * Added donate button
 * Fixed lightbox param option
@@ -112,7 +116,7 @@ I am a one-man development team and I distribute these plugins for free, so plea
 = 1.2.5 =
 * Added fallback to dynamic style and script loading using jQuery
 * Various small fixes
-* Moved cache location
+* Moved Instagram cache location
 * Updated ColorBox plugin
 * Set Object params to private and implemeted set, check, and get function
 * Implemeted do_alpine_method call
@@ -144,6 +148,6 @@ I am a one-man development team and I distribute these plugins for free, so plea
 
 = TODO =
 * Change to FancyBox 2
-* Add caption to display
+* Add Instagram caption to display
 * Rebuild jQuery display
 * Check with Contact Form 7
