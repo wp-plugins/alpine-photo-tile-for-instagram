@@ -696,28 +696,40 @@ class PhotoTileForInstagramAdmin extends PhotoTileForInstagramAdminSecondary{
  * Add User
  *  
  * @ Since 1.2.0
- * @ Updated 1.2.4
+ * @ Updated 1.2.6.2
  */
   function AddUser( $post_content ){
     /* $post_content = array(
-        'access_token' => $access_token,
-        'username' => $user->username,
-        'picture' => $user->profile_picture,
-        'fullname' => $user->full_name,
-        'client_id' => $client_id,
-        'client_secret' => $client_secret
-      );*/
-    if( !empty($post_content['access_token']) && !empty($post_content['username']) && !empty($post_content['user_id']) ){
-      $user = $post_content['username'];
+          'access_token' => $access_token,
+          'username' => $user->username,
+          'picture' => $user->profile_picture,
+          'fullname' => $user->full_name,
+          'client_id' => $client_id,
+          'client_secret' => $client_secret
+        );*/
+    if( isset($post_content['access_token']) && !empty($post_content['access_token']) && isset($post_content['username']) && !empty($post_content['username']) && isset($post_content['user_id']) && !empty($post_content['user_id']) ){
+      // All necessary data is accounted for
+      
+      // Empty array to store users
+      $currentUsers = array();
+
+      $username = $post_content['username'];
       $oldoptions = $this->get_all_options();
-      $currentUsers = $oldoptions['users'];
-      //if( empty($currentUsers[ $user ]) || ($currentUsers[ $user ]['access_token'] != $post_content['access_token']) ){
-        $post_content['name'] = $user;
-        $post_content['title'] = $user;
-        $currentUsers[ $user ] = $post_content;
-        $oldoptions['users'] = $currentUsers;
-        update_option( $this->get_private('settings'), $oldoptions);
-      //}
+     
+      if( isset($oldoptions['users']) && !empty($oldoptions['users']) ){
+        // Check current record of users
+        $currentUsers = $oldoptions['users'];
+      }
+      
+      $post_content['name'] = $username;
+      $post_content['title'] = $username;
+      // Add user to users array
+      $currentUsers[ $username ] = $post_content;
+      
+      // Re-assign users array
+      $oldoptions['users'] = $currentUsers;
+      update_option( $this->get_private('settings'), $oldoptions );
+
     }
     return true;
   } 
@@ -1057,7 +1069,7 @@ class PhotoTileForInstagramAdmin extends PhotoTileForInstagramAdminSecondary{
     echo '</div>'; // close add div
           ?>
         <div style="max-width:680px;">
-          <h1><?php _e('How to get your Instagram Client ID and Client Secret');?> :</h1>
+          <h1><?php _e('How to get your Instagram Client ID and Secret');?> :</h1>
           <h2>(<?php _e("Don't worry. I promise it's EASY");?>!!!)</h2>
           <p><?php _e("Instagram is quite protective of its users. Before your WordPress website can retrieve images from Instagram, you must authorize your WordPress site to access your Instagram account. This is done by following these 5 simple steps: <br>(Please <a href=".$this->get_private('info'). ">let me know</a> if these directions become outdated)");?>
           <ol>

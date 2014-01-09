@@ -56,6 +56,7 @@ class PhotoTileForInstagramPrimary {
     
     $this->cacheUrl = $this->url . '/cache';
     $this->cacheDir = $this->dir . '/cache';
+    //delete_option( $this->settings );
   }
 /**
  * Prevent errors by avoiding direct calls to functions
@@ -441,16 +442,21 @@ class PhotoTileForInstagramPrimary {
  *  Simple function to array of all option settings
  *  
  *  @ Since 1.2.0
- *  @ Updated 1.2.5
+ *  @ Updated 1.2.6.2
  */
   function get_all_options(){
     $options = get_option( $this->settings );
     $defaults = $this->option_defaults(); 
     foreach( $defaults as $option_string => $details ){
-      if( !isset($options[$option_string]) && !empty($defaults[$option_string]) && isset($defaults[$option_string]['default']) ){
-        $options[$option_string] = $defaults[$option_string]['default'];
-      }elseif( !isset($options[$option_string]) && !empty($defaults[$option_string]) && !isset($defaults[$option_string]['default']) ){
-        $options[$option_string] = '';
+      if( !isset($options[$option_string])  ){
+        // Options array is not set
+        if( isset($defaults[$option_string]) && !empty($defaults[$option_string]) && isset($defaults[$option_string]['default']) ){
+          // Defaults array is set, not empty, and default is set
+          $options[$option_string] = $defaults[$option_string]['default'];
+        }else{
+          // Defaults array is not set or default value is not set
+          $options[$option_string] = "";
+        }
       }
     }
     update_option( $this->settings, $options ); //Unnecessary since options will soon be updated if this fuction was called
@@ -460,15 +466,16 @@ class PhotoTileForInstagramPrimary {
  *  Correctly set and save the option's default setting
  *  
  *  @ Since 1.2.0
+ *  @ Updated 1.2.6.2
  */
   function set_default_option( $options, $option_string ){
     $default_options = $this->option_defaults();
-    if( !empty($default_options[$option_string]) && isset($default_options[$option_string]['default']) ){
+    if( isset($default_options[$option_string]) && !empty($default_options[$option_string]) && isset($default_options[$option_string]['default']) ){
       $options[$option_string] = $default_options[$option_string]['default'];
       update_option( $this->settings, $options );
       return $options[$option_string];
     }else{
-      return '';
+      return "";
     }
   }
 //////////////////////////////////////////////////////////////////////////////////////
@@ -579,7 +586,7 @@ class PhotoTileForInstagramPrimary {
         'widget' => true,
         'tab' => '',
         'position' => 'top',
-        'default' => ''
+        'default' => ""
       ),
       'instagram_user_id' => array(
         'name' => 'instagram_user_id',
@@ -591,7 +598,7 @@ class PhotoTileForInstagramPrimary {
         'widget' => true,
         'tab' => 'generator',
         'position' => 'left',
-        'default' => ''
+        'default' => ""
       ),      
       'instagram_source' => array(
         'name' => 'instagram_source',
@@ -645,7 +652,7 @@ class PhotoTileForInstagramPrimary {
         'widget' => true,
         'tab' => 'generator',
         'position' => 'left',            
-        'default' => ''
+        'default' => ""
       ),       
       
       'instagram_image_link_option' => array(
@@ -671,7 +678,7 @@ class PhotoTileForInstagramPrimary {
             'title' => 'Use Lightbox'
           )               
         ),
-        'description' => '*Privacy settings may prevent linking to Instagram page.',
+        'description' => '*Privacy settings may prevent <br>linking to Instagram page.',
         'widget' => true,
         'tab' => 'generator',
         'position' => 'left',
@@ -695,7 +702,7 @@ class PhotoTileForInstagramPrimary {
         'tab' => 'generator',
         'position' => 'left',
         'since' => '1.2.3',
-        'default' => ''
+        'default' => ""
       ),        
       'custom_link_url' => array(
         'name' => 'custom_link_url',
@@ -710,7 +717,7 @@ class PhotoTileForInstagramPrimary {
         'tab' => 'generator',
         'position' => 'left',
         'since' => '1.2.3',
-        'default' => ''
+        'default' => ""
       ),
       'photo_feed_shuffle' => array(
         'name' => 'photo_feed_shuffle',
@@ -724,7 +731,7 @@ class PhotoTileForInstagramPrimary {
         'tab' => 'generator',
         'position' => 'left',
         'since' => '1.2.4',
-        'default' => ''
+        'default' => ""
       ),   
       'instagram_display_link' => array(
         'name' => 'instagram_display_link',
@@ -740,7 +747,7 @@ class PhotoTileForInstagramPrimary {
         'tab' => 'generator',
         'position' => 'left',
         'since' => '1.2.3',
-        'default' => ''
+        'default' => ""
       ),    
       'instagram_display_link_text' => array(
         'name' => 'instagram_display_link_text',
@@ -922,7 +929,7 @@ class PhotoTileForInstagramPrimary {
         'widget' => true,
         'tab' => 'generator',
         'position' => 'right',
-        'default' => ''
+        'default' => ""
       ),   
       'style_border' => array(
         'name' => 'style_border',
@@ -933,7 +940,7 @@ class PhotoTileForInstagramPrimary {
         'widget' => true,
         'tab' => 'generator',
         'position' => 'right',
-        'default' => ''
+        'default' => ""
       ),   
       'style_highlight' => array(
         'name' => 'style_highlight',
@@ -944,7 +951,7 @@ class PhotoTileForInstagramPrimary {
         'widget' => true,
         'tab' => 'generator',
         'position' => 'right',
-        'default' => ''
+        'default' => ""
       ),
       'style_curve_corners' => array(
         'name' => 'style_curve_corners',
@@ -955,7 +962,7 @@ class PhotoTileForInstagramPrimary {
         'widget' => true,
         'tab' => 'generator',
         'position' => 'right',
-        'default' => ''
+        'default' => ""
       ),          
       'widget_alignment' => array(
         'name' => 'widget_alignment',
@@ -1007,7 +1014,7 @@ class PhotoTileForInstagramPrimary {
         'widget' => true,
         'tab' => 'generator',
         'position' => 'bottom',
-        'default' => ''
+        'default' => ""
       ),     
       'general_disable_right_click' => array(
         'name' => 'general_disable_right_click',
@@ -1017,7 +1024,7 @@ class PhotoTileForInstagramPrimary {
         'since' => '1.2.4',
         'tab' => 'plugin-settings',
         'position' => 'top',
-        'default' => ''
+        'default' => ""
       ),
       'general_loader' => array(
         'name' => 'general_loader',
@@ -1027,7 +1034,7 @@ class PhotoTileForInstagramPrimary {
         'since' => '1.2.1',
         'tab' => 'plugin-settings',
         'position' => 'top',
-        'default' => ''
+        'default' => ""
       ), 
       'general_highlight_color' => array(
         'name' => 'general_highlight_color',
@@ -1049,7 +1056,7 @@ class PhotoTileForInstagramPrimary {
         'since' => '1.2.1',
         'tab' => 'plugin-settings',
         'position' => 'top',
-        'default' => ''
+        'default' => ""
       ),       
       'general_load_header' => array(
         'name' => 'general_load_header',
@@ -1059,7 +1066,7 @@ class PhotoTileForInstagramPrimary {
         'since' => '1.2.5',
         'tab' => 'plugin-settings',
         'position' => 'top',
-        'default' => ''
+        'default' => ""
       ),       
       'general_lightbox_no_load' => array(
         'name' => 'general_lightbox_no_load',
@@ -1069,7 +1076,7 @@ class PhotoTileForInstagramPrimary {
         'tab' => 'plugin-settings',
         'position' => 'top',
         'since' => '1.2.3',
-        'default' => ''
+        'default' => ""
       ),      
       'general_lightbox' => array(
         'name' => 'general_lightbox',
@@ -1109,7 +1116,7 @@ class PhotoTileForInstagramPrimary {
         'since' => '1.2.3',
         'tab' => 'plugin-settings',
         'position' => 'top',
-        'default' => ''
+        'default' => ""
       ), 
       'general_block_users' => array(
         'name' => 'general_block_users',
@@ -1120,7 +1127,7 @@ class PhotoTileForInstagramPrimary {
         'since' => '1.2.6',
         'tab' => 'plugin-settings',
         'position' => 'top',
-        'default' => ''
+        'default' => ""
       ), 
       
       'hidden_display_link' => array(
@@ -1131,7 +1138,7 @@ class PhotoTileForInstagramPrimary {
         'since' => '1.2.3',
         'tab' => 'plugin-settings',
         'position' => 'center',
-        'default' => ''
+        'default' => ""
       ), 
       'hidden_widget_alignment' => array(
         'name' => 'hidden_widget_alignment',
@@ -1151,7 +1158,7 @@ class PhotoTileForInstagramPrimary {
         'since' => '1.2.3',
         'tab' => 'plugin-settings',
         'position' => 'center',
-        'default' => ''
+        'default' => ""
       ), 
       'hidden_photo_feed_offset' => array(
         'name' => 'hidden_photo_feed_offset',
@@ -1161,7 +1168,7 @@ class PhotoTileForInstagramPrimary {
         'since' => '1.2.3',
         'tab' => 'plugin-settings',
         'position' => 'center',
-        'default' => ''
+        'default' => ""
       ), 
       'hidden_photo_feed_shuffle' => array(
         'name' => 'hidden_photo_feed_shuffle',
@@ -1171,7 +1178,7 @@ class PhotoTileForInstagramPrimary {
         'since' => '1.2.4',
         'tab' => 'plugin-settings',
         'position' => 'center',
-        'default' => ''
+        'default' => ""
       ), 
       'cache_disable' => array(
         'name' => 'cache_disable',
@@ -1181,7 +1188,7 @@ class PhotoTileForInstagramPrimary {
         'since' => '1.1',
         'tab' => 'plugin-settings',
         'position' => 'bottom',
-        'default' => ''
+        'default' => ""
       ), 
       'cache_time' => array(
         'name' => 'cache_time',
@@ -1204,7 +1211,7 @@ class PhotoTileForInstagramPrimary {
         'description' => '',
         'tab' => 'add',
         'position' => 'center',
-        'default' => ''
+        'default' => ""
       ),  
       'client_secret' => array(
         'name' => 'client_secret',
@@ -1214,7 +1221,7 @@ class PhotoTileForInstagramPrimary {
         'description' => '',
         'tab' => 'add',
         'position' => 'center',
-        'default' => ''
+        'default' => ""
       )
       
     );
