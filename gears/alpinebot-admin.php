@@ -831,6 +831,33 @@ class PhotoTileForInstagramAdmin extends PhotoTileForInstagramAdminSecondary{
     return $output;
   }
 /**
+ * Remove Emoji Filter
+ *  
+ * @ Since 1.2.6.2
+ */
+  function removeEmoji($text) {
+
+    $clean_text = "";
+    
+    // Match Emoticons
+    $regexEmoticons = '/[\x{1F600}-\x{1F64F}]/u';
+    $clean_text = preg_replace($regexEmoticons, '', $text);
+
+    // Match Miscellaneous Symbols and Pictographs
+    $regexSymbols = '/[\x{1F300}-\x{1F5FF}]/u';
+    $clean_text = preg_replace($regexSymbols, '', $clean_text);
+
+    // Match Transport And Map Symbols
+    $regexTransport = '/[\x{1F680}-\x{1F6FF}]/u';
+    $clean_text = preg_replace($regexTransport, '', $clean_text);
+
+     // Match JS Emoticons (Find 1 '\' followed by 1 'u' followed by 4 characters (0 to 9 or a to f)
+    $regexEmoticons = '/\\\\{1}u{1}[a-f0-9]{4}/';
+    $clean_text = preg_replace($regexEmoticons, '', $clean_text);
+    
+    return $clean_text;
+  }
+/**
  * Show User Javascript
  *  
  * @ Since 1.2.0
@@ -846,7 +873,7 @@ class PhotoTileForInstagramAdmin extends PhotoTileForInstagramAdminSecondary{
  * Display Add User Page
  *  
  * @ Since 1.2.0
- * @ Updated 1.2.6
+ * @ Updated 1.2.6.2
  */
   function admin_display_add(){ 
   
@@ -880,11 +907,13 @@ class PhotoTileForInstagramAdmin extends PhotoTileForInstagramAdminSecondary{
       }
     }
     elseif( isset($_POST['delete-user']) && isset($_POST['user']) ){
+      // Delete User button was pressed
       $delete = true;
       $user = $_POST['user'];
       $this->DeleteUser( $user );
     }
     elseif( isset($_POST['update-user']) && isset($_POST['user']) ){
+      // Update User button was pressed
       $user = $_POST['user'];
       $users = $this->get_instagram_users();
       if( !empty($users) && !empty($users[$user]) && !empty($users[$user]['access_token']) && !empty($users[$user]['user_id']) ){
@@ -910,6 +939,9 @@ class PhotoTileForInstagramAdmin extends PhotoTileForInstagramAdminSecondary{
         }
         
         if( isset( $content ) ){
+          // Before decoding JSON, remove Emoji characters from content
+          $content = $this->removeEmoji($content);
+        
           if( function_exists('json_decode') ){
             $_instagram_json = @json_decode( $content, true );
           }
@@ -937,6 +969,7 @@ class PhotoTileForInstagramAdmin extends PhotoTileForInstagramAdminSecondary{
       $success = $this->AddUser($_POST);
     }
     elseif( isset($_GET['code']) ) {
+      // Callback has been received from Instagram
       $code = $_GET['code'];
       $client_id = $this->get_option('client_id');
       $client_secret = $this->get_option('client_secret');
@@ -974,6 +1007,9 @@ class PhotoTileForInstagramAdmin extends PhotoTileForInstagramAdminSecondary{
       }
         
       if( isset($content) ) {
+        // Before decoding JSON, remove Emoji characters from content
+        $content = $this->removeEmoji($content);
+
         if( function_exists('json_decode') ){
           $auth = @json_decode( $content, true );
         }
@@ -981,6 +1017,7 @@ class PhotoTileForInstagramAdmin extends PhotoTileForInstagramAdminSecondary{
           // Try alternative decode
           $auth = $this->json_decoder($content);
         }
+        // If decoded correctly, should now have access token
         if( isset($auth['access_token']) ) {
           $access_token = $auth['access_token'];
           $user = $auth['user'];

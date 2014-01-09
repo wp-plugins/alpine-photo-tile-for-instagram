@@ -139,7 +139,8 @@ I am a one-man development team and I distribute these plugins for free, so plea
 
 = 1.2.6.2  =
 * Change to option functions ( added isset() )
-* Change to AddUser() function
+* Rewrote AddUser() function
+* Add Emoji filter to Add Instagram User page
 
 = TODO =
 * Change to FancyBox 2
