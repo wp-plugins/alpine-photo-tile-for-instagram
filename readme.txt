@@ -39,7 +39,7 @@ presentation that I hope you will like. A full description and demonstration is 
 
 == Installation ==
 
-=Instagram Plugin Installation=
+= Instagram Plugin Installation =
 
 1. Go to the Plugins->Add New section of the Admin Panel.
 2. Either search for `Alpine PhotoTile for Instagram` or upload `alpine-photo-tile-for-instagram` folder using the upload tool.
@@ -56,6 +56,7 @@ presentation that I hope you will like. A full description and demonstration is 
 10. The "Instagram Developer" page will shown a Client ID and Client Secret. Enter the Client ID and Client Secret into the form and click "Add and Authorize New User". You will then be directed to an Instagram page where you can finish the authorization. 
 
 **Using the Instagram Widget**
+
 11. Use the widget like any other widget. Go to Appearance->Widgets in the left menu. Find the rectangle labeled "Alpine PhotoTile for Instagram". Click and drag the rectangle to one of the sidebar containers on the right.
 12. Customize Alpine PhotoTile for Instagram plugin based on your preference.
 
