@@ -30,8 +30,8 @@ presentation that I hope you will like. A full description and demonstration is 
 **Quick Start Guide:**
 
 1. After installing the Alpine PhotoTile for Instagram plugin on your WordPress site, make sure it is activated by logging into your admin area and going to Plugins in the left menu.
-2. Before using the plugin, you must authorize your WordPress website to access your Instagram account by adding an Instagram user. This can be done by going to Settings->AlpineTile: Instagram->Add Instagram User and following the directions on the page.
-3. To add the Instagram plugin to a sidebar, go to Appearance->Widgets in the left menu.
+2. Before using the plugin, you must authorize your WordPress website to access your Instagram account by adding an Instagram user. This can be done by going to *Settings->AlpineTile: Instagram->Add Instagram User* and following the directions on the page.
+3. To add the Instagram plugin to a sidebar, go to *Appearance->Widgets* in the left menu.
 4. Find the rectangle labeled Alpine PhotoTile for Instagram. Click and drag the rectangle to one of the sidebar containers on the right.
 5. Once you drop the rectangle in a sidebar area, it should open to reveal a menu of options. The only required information for the plugin to work is an Instagram Username. Select an available ID and click save in the right bottom corner of the menu.
 6. Open another page/window in your web browser and navigate to your WordPress site to see how the sidebar looks with the Alpine PhotoTile for Instagram included.
@@ -39,30 +39,30 @@ presentation that I hope you will like. A full description and demonstration is 
 
 == Installation ==
 
-= Instagram Plugin Installation =
+**Instagram Plugin Installation**
 
-1. Go to the Plugins->Add New section of the Admin Panel.
-2. Either search for `Alpine PhotoTile for Instagram` or upload `alpine-photo-tile-for-instagram` folder using the upload tool.
-3. Go to the Plugins->Installed Plugins and activate the "Alpine PhotoTile for Instagram" plugin.
+1. Go to the *Plugins->Add New* section of the Admin Panel.
+2. Either search for "Alpine PhotoTile for Instagram" or upload the `alpine-photo-tile-for-instagram` folder using the upload tool.
+3. Go to the *Plugins->Installed Plugins* and activate the "Alpine PhotoTile for Instagram" plugin.
 
 **Add an Instagram User**
 
-4. Instagram is quite protective of its users. Before your WordPress website can retrieve images from Instagram, you must authorize your WordPress site to access your Instagram account. On the Plugins->Installed Plugins page, click on "Add User" under "Alpine PhotoTile for Instagram". You will be directed to one of the Instagram plugin's "Add Instagram User" page.
+4. Instagram is quite protective of its users. Before your WordPress website can retrieve images from Instagram, you must authorize your WordPress site to access your Instagram account. On the *Plugins->Installed Plugins* page, click on "Add User" under "Alpine PhotoTile for Instagram". You will be directed to one of the Instagram plugin's "Add Instagram User" page.
 5. Follow the directions on the "Add Instagram User" page to add and save a user to the Instagram plugin. I have included the directions here for reference:
-6. Before starting, go to Instagram.com and make sure you are logged into the account you wish to add. Once you are logged into Instagram, visit the [Instagram Developer](http://instagram.com/developer/ "Instagram Developer") page.
-7. Once on the Instagram website, click on the "Manage Clients" link. If this is the first time you are adding an Instagram app or plugin, Instagram will ask you a few questions. You can enter these responses, click "Sign Up", and then click "Manage Clients" again.
+6. Before starting, go to *Instagram.com* and make sure you are logged into the account you wish to add. Once you are logged into Instagram, visit the [Instagram Developer](http://instagram.com/developer/ "Instagram Developer") page.
+7. Once on the Instagram website, click on the "Manage Clients" link. If this is the first time you are adding an Instagram app or plugin, Instagram will ask you a few questions. Enter the answers, click "Sign Up", and then click "Manage Clients" again.
 8. Register your WordPress site by click the "Register a New Client" button.
 9. Fill in the "Register new OAuth Client" form with the infomation shown on the "Alpine PhotoTile for Instagram" plugin's "Add Instagram User" and click "Register":
 10. The "Instagram Developer" page will shown a Client ID and Client Secret. Enter the Client ID and Client Secret into the form and click "Add and Authorize New User". You will then be directed to an Instagram page where you can finish the authorization. 
 
 **Using the Instagram Widget**
 
-11. Use the widget like any other widget. Go to Appearance->Widgets in the left menu. Find the rectangle labeled "Alpine PhotoTile for Instagram". Click and drag the rectangle to one of the sidebar containers on the right.
+11. Use the widget like any other widget. Go to *Appearance->Widgets* in the left menu. Find the rectangle labeled "Alpine PhotoTile for Instagram". Click and drag the rectangle to one of the sidebar containers on the right.
 12. Customize Alpine PhotoTile for Instagram plugin based on your preference.
 
 **Using the Instagram Shortcode**
 
-13. A shortcode is a line of texted used for loading plugins within WordPress pages or posts. Rather than explaining how to setup the shortcode, I have added a tool to the Alpine PhotoTile for Instagram plugin that generates the shortcode for you. Visit the "Shortcode Generator" on the Instagram plugin's settings page (Settings->AlpineTile: Instagram->Shortcode Generator).
+13. A shortcode is a line of texted used for loading plugins within WordPress pages or posts. Rather than explaining how to setup the shortcode, I have added a tool to the Alpine PhotoTile for Instagram plugin that generates the shortcode for you. Visit the "Shortcode Generator" on the Instagram plugin's settings page (*Settings->AlpineTile: Instagram->Shortcode Generator*).
 
 == Frequently Asked Questions ==
 
@@ -76,7 +76,7 @@ This message simply means that while no distinguishable errors occurred, the plu
 
 **Can I insert the Instagram plugin in posts or pages? Is there a shortcode function?**
 
-Yes, you can display Instagram photos in posts or pages using what is called a shortcode. Rather than explaining how to setup the shortcode, I have added a tool to the Alpine PhotoTile for Instagram plugin that generates the shortcode for you. Visit the "Shortcode Generator" on the Instagram plugin's settings page (Settings->AlpineTile: Instagram->Shortcode Generator).
+Yes, you can display Instagram photos in posts or pages using what is called a shortcode. Rather than explaining how to setup the shortcode, I have added a tool to the Alpine PhotoTile for Instagram plugin that generates the shortcode for you. Visit the "Shortcode Generator" on the Instagram plugin's settings page (*Settings->AlpineTile: Instagram->Shortcode Generator*).
 
 **Why doesn't the widget show my most recent Instagram photos?**
 
