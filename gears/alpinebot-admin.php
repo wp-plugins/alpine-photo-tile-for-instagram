@@ -873,7 +873,7 @@ class PhotoTileForInstagramAdmin extends PhotoTileForInstagramAdminSecondary{
  * Display Add User Page
  *  
  * @ Since 1.2.0
- * @ Updated 1.2.6.2
+ * @ Updated 1.2.6.3
  */
   function admin_display_add(){ 
   
@@ -1071,7 +1071,17 @@ class PhotoTileForInstagramAdmin extends PhotoTileForInstagramAdminSecondary{
               }
               echo '</div>';
             }else{
-              echo '<div id="AlpinePhotoTiles-user-form" style="margin-bottom:20px;padding-bottom:20px;overflow:hidden;border-bottom: 1px solid #DDDDDD;">'; 
+            
+              echo '<div style="max-width:680px;">';
+              // Display Message about adding users
+              $this->admin_display_add_message();
+              // Show directions for Add User Method One
+              $this->admin_display_method_one($redirect);
+              echo '</div>';
+                      
+                      
+              // Display Form
+              echo '<div id="AlpinePhotoTiles-user-form" style="overflow:hidden;margin-top:20px;padding:20px;border: 1px solid #DDDDDD;">'; 
                 ?>
                 <form id="<?php echo $this->get_private('settings')."-add-user";?>" action="" method="post">
                 <input type="hidden" name="hidden" value="Y">
@@ -1104,25 +1114,34 @@ class PhotoTileForInstagramAdmin extends PhotoTileForInstagramAdminSecondary{
           }
         }
     echo '</div>'; // close add div
-          ?>
-        <div style="max-width:680px;">
-          <h1><?php _e('How to get your Instagram Client ID and Secret');?> :</h1>
-          <h2>(<?php _e("Don't worry. I promise it's EASY");?>!!!)</h2>
-          <p><?php _e("Instagram is quite protective of its users. Before your WordPress website can retrieve images from Instagram, you must authorize your WordPress site to access your Instagram account. This is done by following these 5 simple steps: <br>(Please <a href=".$this->get_private('info'). ">let me know</a> if these directions become outdated)");?>
+
+    $this->admin_display_method_two();
+  }
+  
+  
+/**
+ * Display Add User Method One
+ *  
+ * @ Since 1.2.6.3
+ */
+  function admin_display_method_one($redirect){ 
+    ?>
+      <div style="margin-top:40px;padding-top:10px;border-top: 1px solid #DDDDDD;">
+          <h2><?php _e("Method One (Try this first)");?>:</h2>
           <ol>
             <li>
-              <?php _e('Before starting, go to Instagram.com and make sure you are logged into the account you wish to add. Once you are logged in, visit');?> <a href="http://instagram.com/developer" target="_blank">http://instagram.com/developer</a>.
+              <?php _e('Before starting, go to Instagram.com and make sure you are logged into the Instagram account you wish to add. Once you are logged in, visit');?> <a href="http://instagram.com/developer" target="_blank">http://instagram.com/developer</a>.
             </li>
             <li>
               <?php _e('Click on the "Manage Clients" link, as shown below.');?>
               <p><img src="<?php echo $this->get_private('url');?>/css/images/manage-clients.png"/></p>
               <p><?php _e('If this is the first time you are adding an app or plugin, Instagram will ask you a few questions. You can enter these responses, click "Sign Up", and then click "Manage Clients" again:');?></p>
               <dt><strong><?php _e('Your website:');?></strong></dt>
-              <dd><em><?php _e('Enter your website url');?></em></dd>
+              <dd><em style="color:#2ea2cc;"><?php _e('Enter your website url');?></em></dd>
               <dt><strong><?php _e('Phone number:');?></strong></dt>
-              <dd><em><?php _e('Enter your phone number (They have never called me...)');?></em></dd>
+              <dd><em style="color:#2ea2cc;"><?php _e('Enter your phone number (They have never called me...)');?></em></dd>
               <dt><strong><?php _e('What do you want to build with the API?');?></strong></dt>
-              <dd><em><?php _e('A plugin for my WordPress website.');?></em></dd>
+              <dd><?php _e('A plugin for my WordPress website.');?></dd>
               <p><img src="<?php echo $this->get_private('url');?>/css/images/sign-up.png"/></p>
             </li>
             <li>
@@ -1131,31 +1150,48 @@ class PhotoTileForInstagramAdmin extends PhotoTileForInstagramAdminSecondary{
             </li>
             <li>
               <p><?php _e('Fill in the "Register new OAuth Client" form with the following infomation and click "Register":');?></p>
-              <dl>
-                <dt><strong><?php _e('Application name');?></strong></dt>
-                <dd><p><?php _e('Enter the name of your WordPress website');?></p></dd>
-                <dt><strong><?php _e('Description');?></strong></dt>
-                <dd><p><?php echo $this->get_private('name');?> WordPress plugin</p></dd>
-                <dt><strong><?php _e('Website');?></strong></dt>
-                <dd><p><?php _e('Enter your website url');?></p></dd>
-                <dt><strong><?php _e('OAuth redirect_url');?></strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**<?php _e('This must be copied exactly as shown below');?>**</dt>
-                
-                <dd><p style="color:red;"><?php echo $redirect; ?></p></dd>
-              </dl>
+              <dt><strong><?php _e('Application name');?></strong></dt>
+              <dd><em style="color:#2ea2cc;"><?php _e('Enter the name of your WordPress website');?></em></dd>
+              <dt><strong><?php _e('Description');?></strong></dt>
+              <dd><?php echo $this->get_private('name');?> WordPress plugin</dd>
+              <dt><strong><?php _e('Website');?></strong></dt>
+              <dd><em style="color:#2ea2cc;"><?php _e('Enter your website url');?></em></dd>
+              <dt><strong><?php _e('OAuth redirect_url');?></strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**<?php _e('This must be copied exactly as shown below');?>**</dt>
+              
+              <dd><span style="color:red;"><?php echo $redirect; ?></span></dd>
+
               <p><img src="<?php echo $this->get_private('url');?>/css/images/register.png"/></p>
             </li>
             <li>
-              <?php _e('Enter the Client ID and Client Secret into the form above and click "Add and Authorize New User". You will then be directed to an Instagram page where you can finish the authorization. I hope you enjoy the plugin.');?>
+              <?php _e('You have just created a new Instagram client. Enter the Client ID and Client Secret into the "Add New User" form below and click "Add and Authorize New User". You will then be directed to an Instagram page where you can finish the authorization. I hope you enjoy the Alpine PhotoTile plugin!');?>
             </li>
           </ol>
-        </div>
+      </div>
+     <?php
+  }
+  
+/**
+ * Display Add User Method Two
+ *  
+ * @ Since 1.2.6.3
+ */
+  function admin_display_method_two(){ 
+       ?>
 
-      <div style="margin-top:80px;border-top: 1px solid #DDDDDD;">
-        <h1>If the above method does not seem to be working:</h1>
-        <p>I have setup a troubleshooting tool at <a href="http://thealpinepress.com/instagram-tool/" target="_blank">the Alpine Press</a> that you can use to manually retrieve the information you need.</p>
-        <p>Once this is done, fill out and submit the form below.</p>
-        
-         <div id="AlpinePhotoTiles-manual-user-form" style="overflow:hidden;">
+      <div style="margin-top:80px;padding-top:10px;border-top: 1px solid #DDDDDD;">
+        <h2><?php _e("Method Two (If Method One is not working)");?>:</h2>
+        <p>Your Internet browser or the server that your WordPress site is hosted on may cause Method One to fail. Therefore, in Method Two you will use a tool hosted at theAlpinePress.com to retrieve the information you need and then manually submit it to the plugin using the form below.</p>
+          <ol>
+            <li>
+              <?php _e('Follow directions 1 through 6 at');?> <a href="http://thealpinepress.com/instagram-tool/" target="_blank">the Alpine Press</a> <?php _e('to register another Instagram client and to retrieve your Instagram user information. Do not skip any of the steps.');?>
+            </li>
+            <li>
+              <?php _e('Once this is done, your Instagram information will be displayed in a green box. Fill out the "Manually Add New User" form below and click "Store User Information".');?> 
+            </li>
+          </ol>
+
+         <div id="AlpinePhotoTiles-manual-user-form" style="overflow:hidden;padding:20px;border: 1px solid #DDDDDD;">
+            <h4>Manually Add New User</h4>
             <form id="alpine-photo-tile-for-instagram-settings-add-user" method="post" action="">
               <input type="hidden" value="Y" name="hidden">
                 <div class="center">
@@ -1169,7 +1205,7 @@ class PhotoTileForInstagramAdmin extends PhotoTileForInstagramAdminSecondary{
                           <div class="title">
                           <label for="<?php echo $name;?>"><?php echo $title;?> : </label>
                           </div>
-                          <input id="<?php echo $name;?>" type="text" value="" name="<?php echo $name;?>">
+                          <input id="<?php echo $name;?>" type="text" value="" name="<?php echo $name;?>" style="width:400px">
                         </td>
                         </tr>
 
@@ -1177,14 +1213,26 @@ class PhotoTileForInstagramAdmin extends PhotoTileForInstagramAdminSecondary{
                     </tbody>
                   </table>
                 </div>
-              <input id="manual-form-submit" class="button-primary" type="submit" value="Add New User" style="margin-top:15px;" name="manual-user-form">
+              <input id="manual-form-submit" class="button-primary" type="submit" value="Store User Information" style="margin-top:15px;" name="manual-user-form">
             </form>
           <br style="clear:both;">
         </div>
 
       </div>
     <?php
-
+  }
+  
+/**
+ * Display Add User Message
+ *  
+ * @ Since 1.2.6.3
+ */
+  function admin_display_add_message(){ 
+    ?>   
+      <h1><?php _e('How to add an Instagram User');?>:</h1>
+      <h3>(<?php _e("Don't worry. I promise it's EASY");?>!!!)</h3>
+      <p><?php _e("Below are two different methods for adding users to the Alpine PhotoTile for Instagram plugin. Try Method One first. If it does not work, try Method Two. Please <a href='http://wordpress.org/support/plugin/alpine-photo-tile-for-instagram'>let me know</a> if these directions become outdated.");?>
+    <?php      
   }
 }
 

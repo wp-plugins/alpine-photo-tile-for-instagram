@@ -501,7 +501,7 @@ class PhotoTileForInstagramPrimary {
  * Option positions for settings pages
  *  
  * @ Since 1.2.0
- * @ Updated 1.2.5
+ * @ Updated 1.2.6.3
  */
   function admin_option_positions(){
     $positions = array(
@@ -512,7 +512,7 @@ class PhotoTileForInstagramPrimary {
       ),
       'add' => array(
         'top' => array( 'title' => 'Available Users' ),
-        'center' => array( 'title' => 'Add New User (See Instructions Below)' )
+        'center' => array( 'title' => 'Add New User' )
       ),
       'plugin-settings' => array(
         'top' => array( 'title' => 'Global Options', 'description' => 'Below are settings that will be applied to every instance of the plugin.' ),
