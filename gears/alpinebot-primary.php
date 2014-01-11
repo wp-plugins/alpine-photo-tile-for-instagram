@@ -423,6 +423,33 @@ class PhotoTileForInstagramPrimary {
       }
     }
   }  
+/**
+ * Remove Emoji Filter
+ *  
+ * @ Since 1.2.6.2
+ */
+  function removeEmoji($text) {
+
+    $clean_text = "";
+    
+    // Match Emoticons
+    $regexEmoticons = '/[\x{1F600}-\x{1F64F}]/u';
+    $clean_text = preg_replace($regexEmoticons, '', $text);
+
+    // Match Miscellaneous Symbols and Pictographs
+    $regexSymbols = '/[\x{1F300}-\x{1F5FF}]/u';
+    $clean_text = preg_replace($regexSymbols, '', $clean_text);
+
+    // Match Transport And Map Symbols
+    $regexTransport = '/[\x{1F680}-\x{1F6FF}]/u';
+    $clean_text = preg_replace($regexTransport, '', $clean_text);
+
+     // Match JS Emoticons (Find 1 '\' followed by 1 'u' followed by 4 characters (0 to 9 or a to f)
+    $regexEmoticons = '/\\\\{1}u{1}[a-f0-9]{4}/';
+    $clean_text = preg_replace($regexEmoticons, '', $clean_text);
+    
+    return $clean_text;
+  }
 //////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////      Option Functions      /////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////

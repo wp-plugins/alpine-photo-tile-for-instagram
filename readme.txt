@@ -88,7 +88,7 @@ The plugin can retrieve and display up to Instagram 100 photos.
 
 **Why does it take so long for the Instagram plugin to load?**
 
-The Instagram plugin actually takes less than a second to load. The reason you may see the loading icon for several seconds is because the Instagram plugin is programmed to wait until all the images and the rest of the webpage are done loading before displaying anything. The intent is for the Instagram plugin to avoid slowing down your website by waiting patiently for everything else to finish loading. If you are still looking to speed up your website’s loading time, selecting smaller Instagram photo sizes should always help.
+The Instagram plugin actually takes less than a second to load. The reason you may see the loading icon for several seconds is because the Instagram plugin is programmed to wait until all the images and the rest of the webpage are done loading before displaying anything. The intent is for the Instagram plugin to avoid slowing down your website by waiting patiently for everything else to finish loading. If you are still looking to speed up your website's loading time, selecting smaller Instagram photo sizes should always help.
 
 If you have any more questions, please leave a message at [the Alpine Press](http://thealpinepress.com/alpine-phototile-for-instagram/ "Plugin Demo").
 I am a one-man development team and I distribute these plugins for free, so please be patient with me.
@@ -168,6 +168,7 @@ I am a one-man development team and I distribute these plugins for free, so plea
 
 = 1.2.6.3 =
 * Reorganized "Add Instagram User" page
+* Add Emoji filter and <, >, &, " and ' encoding to photo titles
 
 = TODO =
 * Change to FancyBox 2

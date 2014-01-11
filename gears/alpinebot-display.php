@@ -505,7 +505,7 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
  *  Function for making Instagram request with json return format ( API v1 and v2 )
  *  
  *  @ Since 1.2.4
- *  @ Updated 1.2.5
+ *  @ Updated 1.2.6.3
  */  
   function try_json( $request, $num ){
     $_instagram_json = $this->fetch_instagram_feed($request);
@@ -549,7 +549,10 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
 
               $the_photo['image_link'] = (string) isset($imageinfo['link'])?$imageinfo['link']:'';
               $the_photo['image_title'] = (string) isset($imageinfo['caption']['text'])?$imageinfo['caption']['text']:'';
-              $the_photo['image_title'] = str_replace("'","",$the_photo['image_title']);
+              //$the_photo['image_title']  = strip_tags( $the_photo['image_title'] );  // Strip HTML
+              $the_photo['image_title'] = $this->removeEmoji( $the_photo['image_title']  );
+              $the_photo['image_title'] = @esc_attr( $the_photo['image_title']  ); // Encodes <, >, &, " and ' characters
+              $the_photo['image_title'] = @str_replace('"','',@str_replace("'",'',$the_photo['image_title']));  // Not necessary, but just to be safe.
               $the_photo['image_caption'] = "";
       
               $the_photo['image_source'] = (string) $url;
@@ -1033,7 +1036,7 @@ jQuery(window).on('load',function() {
  *  Get Image Link
  *  
  *  @ Since 1.2.2
- *  @ Updated 1.2.6
+ *  @ Updated 1.2.7
  */
   function get_link($i){
     $src = $this->get_private('src');
@@ -1046,17 +1049,17 @@ jQuery(window).on('load',function() {
     $originalurl = $this->get_photo_info($i,'image_original');
 
     if( 'original' == $link && !empty($photourl) ){
-      $this->add('<a href="' . $photourl . '" class="AlpinePhotoTiles-link" target="_blank" title='."'". $phototitle ."'".' alt='."'". $phototitle ."'".'>');
+      $this->add('<a href="' . $photourl . '" class="AlpinePhotoTiles-link" target="_blank" title=" '. $phototitle .' " alt=" '. $phototitle .' ">');
       return true;
     }elseif( ($src == $link || '1' == $link) && !empty($linkurl) ){
-      $this->add('<a href="' . $linkurl . '" class="AlpinePhotoTiles-link" target="_blank" title='."'". $phototitle ."'".' alt='."'". $phototitle ."'".'>');
+      $this->add('<a href="' . $linkurl . '" class="AlpinePhotoTiles-link" target="_blank" title=" '. $phototitle .' " alt=" '. $phototitle .' ">');
       return true;
     }elseif( 'link' == $link && !empty($url) ){
-      $this->add('<a href="' . $url . '" class="AlpinePhotoTiles-link" title='."'". $phototitle ."'".' alt='."'". $phototitle ."'".'>'); 
+      $this->add('<a href="' . $url . '" class="AlpinePhotoTiles-link" title=" '. $phototitle .' " alt=" '. $phototitle .' ">'); 
       return true;
     }elseif( 'fancybox' == $link && !empty($originalurl) ){
       $light = $this->get_option( 'general_lightbox' );
-      $this->add('<a href="' . $originalurl . '" class="AlpinePhotoTiles-link AlpinePhotoTiles-lightbox" title='."'". $phototitle ."'".' alt='."'". $phototitle ."'".'>'); 
+      $this->add('<a href="' . $originalurl . '" class="AlpinePhotoTiles-link AlpinePhotoTiles-lightbox" title=" '. $phototitle .' " alt=" '. $phototitle .' ">'); 
       return true;
     }  
     return false;    
