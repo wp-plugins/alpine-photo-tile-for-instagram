@@ -14,7 +14,7 @@ class PhotoTileForInstagramPrimary {
   private $cacheUrl;
   private $cacheDir;
   private $ver = '1.2.6';
-  private $vers = '1-2-6';
+  private $vers = '1-2-6-3';
   private $domain = 'APTFINbyTAP_domain';
   private $settings = 'alpine-photo-tile-for-instagram-settings'; // All lowercase
   private $name = 'Alpine PhotoTile for Instagram';

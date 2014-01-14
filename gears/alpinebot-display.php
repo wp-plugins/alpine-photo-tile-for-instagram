@@ -548,11 +548,14 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
               $the_photo = array();
 
               $the_photo['image_link'] = (string) isset($imageinfo['link'])?$imageinfo['link']:'';
+              
               $the_photo['image_title'] = (string) isset($imageinfo['caption']['text'])?$imageinfo['caption']['text']:'';
-              //$the_photo['image_title']  = strip_tags( $the_photo['image_title'] );  // Strip HTML
+              $the_photo['image_title'] = @wp_strip_all_tags( $the_photo['image_title'] , true );
+              $the_photo['image_title'] = @strip_tags( $the_photo['image_title'] );  // Strip HTML
               $the_photo['image_title'] = $this->removeEmoji( $the_photo['image_title']  );
               $the_photo['image_title'] = @esc_attr( $the_photo['image_title']  ); // Encodes <, >, &, " and ' characters
               $the_photo['image_title'] = @str_replace('"','',@str_replace("'",'',$the_photo['image_title']));  // Not necessary, but just to be safe.
+              
               $the_photo['image_caption'] = "";
       
               $the_photo['image_source'] = (string) $url;
@@ -1043,7 +1046,7 @@ jQuery(window).on('load',function() {
     $link = $this->get_active_option($src.'_image_link_option');
     $url = $this->get_active_option('custom_link_url');
 
-    $phototitle = $this->get_photo_info($i,'image_title');
+    $phototitle = $this->get_photo_info($i,'image_title');              
     $photourl = $this->get_photo_info($i,'image_source');
     $linkurl = $this->get_photo_info($i,'image_link');
     $originalurl = $this->get_photo_info($i,'image_original');
