@@ -721,19 +721,21 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
     $this->add('</div>'); // Close container
     $this->add('<div class="AlpinePhotoTiles_breakline"></div>');
     
+    // Add Lightbox call (if necessary)
+    $this->add_lightbox_call();
+    
     $parentID = $wid."-vertical-parent";
     $borderCall = $this->get_borders_call( $parentID );
-    $lightboxCall = $this->add_lightbox_call();
 
     if( !empty($opts['style_shadow']) || !empty($opts['style_border']) || !empty($opts['style_highlight'])  ){
       $this->add("
 <script>  
   // Check for on() ( jQuery 1.7+ )
   if( jQuery.isFunction( jQuery(window).on ) ){
-    jQuery(window).on('load', function(){".$borderCall." ".$lightboxCall."}); // Close on()
+    jQuery(window).on('load', function(){".$borderCall."}); // Close on()
   }else{
     // Otherwise, use bind()
-    jQuery(window).bind('load', function(){".$borderCall." ".$lightboxCall."}); // Close bind()
+    jQuery(window).bind('load', function(){".$borderCall."}); // Close bind()
   }
 </script>");  
     }
@@ -782,19 +784,21 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
     $this->add('</div>');
     $this->add('<div class="AlpinePhotoTiles_breakline"></div>');
     
+    // Add Lightbox call (if necessary)
+    $this->add_lightbox_call();
+    
     $parentID = $wid."-cascade-parent";
     $borderCall = $this->get_borders_call( $parentID );
-    $lightboxCall = $this->add_lightbox_call();
 
     if( !empty($opts['style_shadow']) || !empty($opts['style_border']) || !empty($opts['style_highlight'])  ){
       $this->add("
 <script>
   // Check for on() ( jQuery 1.7+ )
   if( jQuery.isFunction( jQuery(window).on ) ){
-    jQuery(window).on('load', function(){".$borderCall." ".$lightboxCall."}); // Close on()
+    jQuery(window).on('load', function(){".$borderCall."}); // Close on()
   }else{
     // Otherwise, use bind()
-    jQuery(window).bind('load', function(){".$borderCall." ".$lightboxCall."}); // Close bind()
+    jQuery(window).bind('load', function(){".$borderCall."}); // Close bind()
   }
 </script>");  
     }
@@ -1137,13 +1141,12 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
   }
   
 /**
- *  Setup Lightbox call and return string
+ *  Setup Lightbox call
  *  
  *  @ Since 1.2.3
  *  @ Updated 1.2.6.5
  */
   function add_lightbox_call(){
-    $return = "";
     $src = $this->get_private('src');
     $lightbox = $this->get_option('general_lightbox');
     $prevent = $this->get_option('general_lightbox_no_load');
@@ -1153,7 +1156,7 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
       $lightStyle = $this->get_style( $lightbox );
       if( !empty($lightScript) && !empty($lightStyle) ){
         $lightCall = $this->get_lightbox_call();
-        $return = "
+        $lightboxSetup = "
       if( !jQuery().".$check." ){
         var css = '".$lightStyle."';
         var link = jQuery(document.createElement('link')).attr({'rel':'stylesheet','href':css,'type':'text/css','media':'screen'});
@@ -1169,9 +1172,18 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
         ".$lightCall."
       }
     ";
+        $this->add("
+  <script>
+  // Check for on() ( jQuery 1.7+ )
+  if( jQuery.isFunction( jQuery(window).on ) ){
+    jQuery(window).on('load', function(){".$lightboxSetup."}); // Close on()
+  }else{
+    // Otherwise, use bind()
+    jQuery(window).bind('load', function(){".$lightboxSetup."}); // Close bind()
+  }
+  </script>"); 
       }
-    } 
-    return $return;
+    }
   }
   
 /**
