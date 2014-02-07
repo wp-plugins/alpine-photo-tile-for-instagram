@@ -349,11 +349,11 @@
 
 .fancyboxForAlpine-ie .fancyboxForAlpine-bg { background: transparent !important; }
 
-.fancyboxForAlpine-ie #fancyboxForAlpine-bg-n { filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='fancyboxForAlpine/fancy_shadow_n.png', sizingMethod='scale'); }
-.fancyboxForAlpine-ie #fancyboxForAlpine-bg-ne { filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='fancyboxForAlpine/fancy_shadow_ne.png', sizingMethod='scale'); }
-.fancyboxForAlpine-ie #fancyboxForAlpine-bg-e { filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='fancyboxForAlpine/fancy_shadow_e.png', sizingMethod='scale'); }
-.fancyboxForAlpine-ie #fancyboxForAlpine-bg-se { filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='fancyboxForAlpine/fancy_shadow_se.png', sizingMethod='scale'); }
-.fancyboxForAlpine-ie #fancyboxForAlpine-bg-s { filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='fancyboxForAlpine/fancy_shadow_s.png', sizingMethod='scale'); }
-.fancyboxForAlpine-ie #fancyboxForAlpine-bg-sw { filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='fancyboxForAlpine/fancy_shadow_sw.png', sizingMethod='scale'); }
-.fancyboxForAlpine-ie #fancyboxForAlpine-bg-w { filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='fancyboxForAlpine/fancy_shadow_w.png', sizingMethod='scale'); }
-.fancyboxForAlpine-ie #fancyboxForAlpine-bg-nw { filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='fancyboxForAlpine/fancy_shadow_nw.png', sizingMethod='scale'); }
+.fancyboxForAlpine-ie #fancyboxForAlpine-bg-n { filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='fancybox-alpine-safemode/fancy_shadow_n.png', sizingMethod='scale'); }
+.fancyboxForAlpine-ie #fancyboxForAlpine-bg-ne { filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='fancybox-alpine-safemode/fancy_shadow_ne.png', sizingMethod='scale'); }
+.fancyboxForAlpine-ie #fancyboxForAlpine-bg-e { filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='fancybox-alpine-safemode/fancy_shadow_e.png', sizingMethod='scale'); }
+.fancyboxForAlpine-ie #fancyboxForAlpine-bg-se { filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='fancybox-alpine-safemode/fancy_shadow_se.png', sizingMethod='scale'); }
+.fancyboxForAlpine-ie #fancyboxForAlpine-bg-s { filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='fancybox-alpine-safemode/fancy_shadow_s.png', sizingMethod='scale'); }
+.fancyboxForAlpine-ie #fancyboxForAlpine-bg-sw { filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='fancybox-alpine-safemode/fancy_shadow_sw.png', sizingMethod='scale'); }
+.fancyboxForAlpine-ie #fancyboxForAlpine-bg-w { filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='fancybox-alpine-safemode/fancy_shadow_w.png', sizingMethod='scale'); }
+.fancyboxForAlpine-ie #fancyboxForAlpine-bg-nw { filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='fancybox-alpine-safemode/fancy_shadow_nw.png', sizingMethod='scale'); }
