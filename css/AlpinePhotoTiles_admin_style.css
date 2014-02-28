@@ -1,0 +1,230 @@
+/**
+ * Alpine PhotoTile Admin CSS
+ *
+ * @since 0.0.1
+ * @updated 1.2.4
+ */
+  .AlpinePhotoTiles-title{
+    width:100%;
+    display:block;
+    padding:0;
+    line-height:2.6em;
+    position:relative;
+  }
+  .AlpinePhotoTiles-menu{
+    padding-bottom: 30px;
+  }
+  .AlpinePhotoTiles-title .icon-alpine{
+    background-image:url('images/Pine-Trees.png');
+    box-shadow: 0 0 2px #999999;
+    border-radius: 3px 3px 3px 3px;
+    background-position:center;
+    background-size:cover;
+    background-repeat:no-repeat;
+  }
+
+  .AlpinePhotoTiles-container {
+    position:relative;
+    display:block;
+    margin:0;
+    padding:0;
+    overflow:hidden;
+    max-width:700px;
+    padding-left:3%;
+  }
+  .AlpinePhotoTiles-container h1{
+    font-size: 2em;
+    line-height: 1.5em;
+  }
+  .AlpinePhotoTiles-container h4{
+    font-size: 1.17em;
+    margin: 0 0 1em 0;
+  }
+  .AlpinePhotoTiles-container h3{
+    font-size: 1.1em;
+    margin: 0 0 1em 0;
+  }
+  .AlpinePhotoTiles-container .image-icon{
+    box-shadow: 3px 3px 3px rgba(34, 25, 25, 0.6);
+    border-radius: 3px 3px 3px 3px;
+    margin: 4px 12px 12px 4px;
+
+  }
+  .AlpinePhotoTiles-container .image-icon:hover{
+    box-shadow: 7px 7px 3px rgba(34, 25, 25, 0.6);
+    margin: 0px 16px 16px 0px;
+
+  }
+  .AlpinePhotoTiles-container .help-link{
+    width:100%;
+    clear:both;
+    padding:5px 0;
+    margin: 10px 0 0 0;
+  }
+  .AlpinePhotoTiles-container .AlpinePhotoTiles-plugin-settings .title, .AlpinePhotoTiles-container .AlpinePhotoTiles-add .title{
+    width:25%;
+    max-width: 180px;
+    min-width: 100px;
+    display:inline-block;
+    margin: 0 10px 0 0;
+    font-size:1.1em;
+    vertical-align:middle;
+  }
+  .AlpinePhotoTiles-container .announcement{
+    padding:5px 10px;
+    margin-top:15px;
+    display:inline-block;
+    position:relative;
+    background-color:#FFFFE0;
+    border:1px solid #E6DB55;
+    border-radius: 2px 2px 2px 2px;
+  }
+  .AlpinePhotoTiles-plugin-settings .announcement, .AlpinePhotoTiles-add .announcement{
+    margin:0 0 15px 0;
+  }
+  .AlpinePhotoTiles-container .auto_select{
+    width:100%;
+    max-width:680px;
+    background:#E0E0E0;
+    padding:10px;
+    height:80px;
+  }
+  .AlpinePhotoTiles-container .user-icon{
+    /* PhotoTile 500px and Instagram Only */
+    position:relative;
+    float:left;
+    box-shadow: 1px 1px 3px rgba(34, 25, 25, 0.4);
+    border-radius: 3px 3px 3px 3px;
+    margin:2px 14px 2px 4px;
+    padding:5px;
+    text-align:center;
+  }
+
+  .AlpinePhotoTiles-preview{
+    width:100%;
+    padding:0 0 15px 0;
+    margin-bottom:10px;
+    position:relative;
+  }
+  .AlpinePhotoTiles-preview textarea{
+    max-width:95%;
+    margin-bottom:15px;
+    height:70px;
+  }
+  .AlpinePhotoTiles-preview div{
+    max-width:100%;
+  }
+
+
+  .AlpinePhotoTiles-container .AlpinePhotoTiles-plugin-settings  input[type="text"]{
+    width:100px;
+  }
+  .AlpinePhotoTiles-container .AlpinePhotoTiles-add  input[type="text"]{
+    width:300px;
+  }
+  .AlpinePhotoTiles-container .form-table{
+    margin:0;
+  }
+  .AlpinePhotoTiles-container .form-table th{
+    width:40%;
+    padding:10px 0;
+  }
+  .AlpinePhotoTiles-container .form-table td{
+    padding:5px 0;
+  }
+  .AlpinePhotoTiles-container option{
+    margin:5px;
+  }
+  .AlpinePhotoTiles-container label{
+    margin-right:5px;
+  } 
+  .AlpinePhotoTiles-container  textarea{
+    width:95%;
+  }
+  .AlpinePhotoTiles-container input[type="text"]{
+    width:50%;
+  }
+  .AlpinePhotoTiles-container input[type="checkbox"]{
+    vertical-align:middle;
+  }
+  .AlpinePhotoTiles-container input[type="submit"]{
+    float:left;
+    position:relative;
+    clear:left;
+  }
+  .AlpinePhotoTiles-container input[type="submit"].topbutton {
+    margin-bottom:20px;
+  }
+  .AlpinePhotoTiles-container span.describe, .AlpinePhotoTiles-container span.admin-describe{
+    width:100%;
+    text-align:center;   
+    font-style:italic;
+  }  
+  .AlpinePhotoTiles-container div.admin-describe{
+    display:inline-block;
+    width:60%;
+    text-align:left;
+    padding:0 0 0 10px;
+    vertical-align:middle;    
+    font-style:italic;
+  }  
+  
+  .AlpinePhotoTiles-container .top{
+    clear:both;
+    float:left;
+    width:100%;
+    padding:0 0 15px 0;
+    margin-bottom:10px;
+    border-bottom:1px solid #DDD;
+    position:relative;
+  }  
+  .AlpinePhotoTiles-container .center{
+    clear:both;
+    position:relative;
+    width:100%;
+  }  
+  .AlpinePhotoTiles-container .right, .AlpinePhotoTiles-container .left{
+    width:48%;
+    position:relative;
+  }
+  .AlpinePhotoTiles-container .right{
+    float:right;
+    clear:right;
+  }
+  .AlpinePhotoTiles-container .left{
+    float:left;
+    clear:left;
+  }  
+  .AlpinePhotoTiles-container .left input[type="text"]{
+    width:95%;
+  }
+  .AlpinePhotoTiles-container .right input[type="text"] {
+    width:30%;
+  }  
+  .AlpinePhotoTiles-container .bottom input[type="text"]{
+    width:20%;
+  }
+  .AlpinePhotoTiles-container .bottom{
+    float:left;
+    clear:both;
+    display:block;
+    width:100%;
+    height:auto;
+    padding:15px 0 10px 0;
+    margin-top:10px;
+    margin-bottom:10px;
+    border-top:1px solid #DDD;
+    position:relative;
+  }    
+  .AlpinePhotoTiles-container .bottom .describe{
+    width:100%;
+    text-align:left;
+    font-style:italic;
+  }
+  .AlpinePhotoTiles-container .AlpinePhotoTiles-breakline{
+    width:100%;
+    position:relative;
+    clear:both;
+    height:1px;
+  }
+
