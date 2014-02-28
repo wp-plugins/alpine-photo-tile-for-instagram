@@ -729,7 +729,7 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
 
     if( !empty($opts['style_shadow']) || !empty($opts['style_border']) || !empty($opts['style_highlight'])  ){
       $this->add("
-<script>  
+<script type='text/javascript'><!--//--><![CDATA[//><!--  
   // Check for on() ( jQuery 1.7+ )
   if( jQuery.isFunction( jQuery(window).on ) ){
     jQuery(window).on('load', function(){".$borderCall."}); // Close on()
@@ -737,7 +737,7 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
     // Otherwise, use bind()
     jQuery(window).bind('load', function(){".$borderCall."}); // Close bind()
   }
-</script>");  
+//--><!]]></script>");  
     }
   }  
 /**
@@ -792,7 +792,7 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
 
     if( !empty($opts['style_shadow']) || !empty($opts['style_border']) || !empty($opts['style_highlight'])  ){
       $this->add("
-<script>
+<script type='text/javascript'><!--//--><![CDATA[//><!--
   // Check for on() ( jQuery 1.7+ )
   if( jQuery.isFunction( jQuery(window).on ) ){
     jQuery(window).on('load', function(){".$borderCall."}); // Close on()
@@ -800,7 +800,7 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
     // Otherwise, use bind()
     jQuery(window).bind('load', function(){".$borderCall."}); // Close bind()
   }
-</script>");  
+//--><!]]></script>");  
     }
   }
 /**
@@ -892,7 +892,7 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
       }
     }
     
-    $this->add('<script>');
+    $this->add("<script type='text/javascript'><!--//--><![CDATA[//><!--");
       if(!$disable){
         $this->add(
     "
@@ -913,7 +913,7 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
       // Otherwise, use bind()
       jQuery(window).bind('load', function(){".$pluginCall."});
     }
-</script>");    
+//--><!]]></script>");
  
   }
 /**
@@ -1173,7 +1173,7 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
       }
     ";
         $this->add("
-  <script>
+  <script type='text/javascript'><!--//--><![CDATA[//><!--
   // Check for on() ( jQuery 1.7+ )
   if( jQuery.isFunction( jQuery(window).on ) ){
     jQuery(window).on('load', function(){".$lightboxSetup."}); // Close on()
@@ -1181,7 +1181,7 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
     // Otherwise, use bind()
     jQuery(window).bind('load', function(){".$lightboxSetup."}); // Close bind()
   }
-  </script>"); 
+  //--><!]]></script>"); 
       }
     }
   }
