@@ -247,11 +247,11 @@ class PhotoTileForInstagramPrimary {
  * Register styles and scripts
  *  
  * @ Since 1.2.3
- * @ Updated 1.2.5
+ * @ Updated 1.2.6.6
  *
  */
   function register_style_and_script(){
-    wp_register_script($this->get_private('wjs'),$this->get_script('widget'),'',$this->get_private('ver'));
+    wp_register_script($this->get_private('wjs'),$this->get_script('widget'),array( 'jquery' ),$this->get_private('ver'));
     wp_register_style($this->get_private('wcss'),$this->get_style('widget'),'',$this->get_private('ver'));  
    
     $lightbox = $this->get_option('general_lightbox');
@@ -261,7 +261,7 @@ class PhotoTileForInstagramPrimary {
     $css = $this->get_style( $lightbox );
     
     if( !empty( $script ) && !empty( $css ) && empty($prevent) ){
-      wp_register_script( $lightbox, $script, '', '', true );
+      wp_register_script( $lightbox, $script, array( 'jquery' ), '', true );
       wp_register_style( $lightbox.'-stylesheet', $css, false, '', 'screen' );
     }
     

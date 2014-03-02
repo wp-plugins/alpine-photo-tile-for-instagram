@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=eric%
 Tags: photos, instagram, photostream, javascript, jQuery, stylish, pictures, images, widget, sidebar, display, gallery, wall, lightbox, fancybox, colorbox
 Requires at least: 2.8
 Tested up to: 3.8
-Stable tag: 1.2.6.5
+Stable tag: 1.2.6.6
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -171,8 +171,13 @@ I am a one-man development team and I distribute these plugins for free, so plea
 * jQuery backwards compatibility ( .bind() function for jQuery v1.6.3 and less )
 * Rewrote js functions
 
+= 1.2.6.6 =
+* Add <!--//--><![CDATA[//><!-- to JavaScript
+* Reduced ReadMe
+* Add addEventListener and attachEvent calls to JS loading (for jQuery in footer)
+
 = TODO =
 * Change to FancyBox 2
-* Add Instagram caption to display
+* Add caption to display
 * Rebuild jQuery display
 * Check with Contact Form 7
