@@ -859,6 +859,7 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
     $opts = $this->get_private('options');
     $wid = $this->get_private('wid');
     $src = $this->get_private('src');
+    $ssl = $this->get_option( 'general_images_ssl' );
     
     $this->add('<div id="'.$wid.'-AlpinePhotoTiles_container" class="AlpinePhotoTiles_container_class">');     
       // Align photos
@@ -874,6 +875,9 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
             // Load original image size
             $original = $this->get_photo_info($i,'image_original');
             if( isset($opts['style_option']) && "gallery" == $opts['style_option'] && !empty( $original ) ){
+              if( $ssl ){
+                $original = str_replace("http:", "https:", $original, $temp = 1);
+              }
               $this->add('<img class="AlpinePhotoTiles-original-image" src="' . $original . '" />');
             }
           }
@@ -1080,13 +1084,17 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
  *  Add Image Function
  *  
  *  @ Since 1.2.2
- *  @ Updated 1.2.4
+ *  @ Updated 1.2.6.6
  ** Possible change: place original image as 'alt' and load image as needed
  */
   function add_image($i,$css="",$pin=false){
     $light = $this->get_option( 'general_lightbox' );
     $title = $this->get_photo_info($i,'image_title');
     $src = $this->get_photo_info($i,'image_source');
+    $ssl = $this->get_option( 'general_images_ssl' );
+    if( $ssl ){
+      $src = str_replace("http:", "https:", $src, $temp = 1);
+    }
     $shadow = ($this->check_active_option('style_shadow')?'AlpinePhotoTiles-img-shadow':'AlpinePhotoTiles-img-noshadow');
     $border = ($this->check_active_option('style_border')?'AlpinePhotoTiles-img-border':'AlpinePhotoTiles-img-noborder');
     $curves = ($this->check_active_option('style_curve_corners')?'AlpinePhotoTiles-img-corners':'AlpinePhotoTiles-img-nocorners');
@@ -1106,6 +1114,9 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
     
     if( $pin ){ 
       $original = $this->get_photo_info($i,'image_original');
+      if( $ssl ){
+        $original = str_replace("http:", "https:", $original, $temp = 1);
+      }
       $this->add('<a href="http://pinterest.com/pin/create/button/?media='.$original.'&url='.get_option( 'siteurl' ).'" class="AlpinePhotoTiles-pin-it-button" count-layout="horizontal" target="_blank">');
       $this->add('<div class="AlpinePhotoTiles-pin-it"></div></a>');
       $this->add('</div>'); 
@@ -1115,7 +1126,7 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
  *  Get Image Link
  *  
  *  @ Since 1.2.2
- *  @ Updated 1.2.6.5
+ *  @ Updated 1.2.6.6
  */
   function get_link($i){
     $src = $this->get_private('src');
@@ -1126,7 +1137,11 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
     $photourl = $this->get_photo_info($i,'image_source');
     $linkurl = $this->get_photo_info($i,'image_link');
     $originalurl = $this->get_photo_info($i,'image_original');
-
+    $ssl = $this->get_option( 'general_images_ssl' );
+    if( $ssl ){
+      $photourl = str_replace("http:", "https:", $photourl, $temp = 1);
+      $originalurl = str_replace("http:", "https:", $originalurl, $temp = 1);
+    }
     if( 'original' == $link && !empty($photourl) ){
       $this->add('<a href="' . $photourl . '" class="AlpinePhotoTiles-link" target="_blank" title=" '. $phototitle .' " alt=" '. $phototitle .' ">');
       return true;

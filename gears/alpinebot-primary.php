@@ -1084,7 +1084,17 @@ class PhotoTileForInstagramPrimary {
         'tab' => 'plugin-settings',
         'position' => 'top',
         'default' => ""
-      ),       
+      ), 
+      'general_images_ssl' => array(
+        'name' => 'general_images_ssl',
+        'title' => 'Load Images with SSL: ',
+        'type' => 'checkbox',
+        'description' => 'Use https:// in the image link instead of http://.',
+        'since' => '1.2.1',
+        'tab' => 'plugin-settings',
+        'position' => 'top',
+        'default' => ""
+      ),      
       'general_load_header' => array(
         'name' => 'general_load_header',
         'title' => 'Load Styles and <br>Scripts in Header: ',

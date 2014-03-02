@@ -175,6 +175,7 @@ I am a one-man development team and I distribute these plugins for free, so plea
 * Add <!--//--><![CDATA[//><!-- to JavaScript
 * Reduced ReadMe
 * Add addEventListener and attachEvent calls to JS loading (for jQuery in footer)
+* Add SSL option
 
 = TODO =
 * Change to FancyBox 2
