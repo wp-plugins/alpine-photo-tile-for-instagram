@@ -728,8 +728,7 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
     $borderCall = $this->get_borders_call( $parentID );
 
     if( !empty($opts['style_shadow']) || !empty($opts['style_border']) || !empty($opts['style_highlight'])  ){
-      $this->add("
-<script type='text/javascript'><!--//--><![CDATA[//><!--".$borderCall."//--><!]]></script>");  
+      $this->add("<script type='text/javascript'><!--//--><![CDATA[//><!--".$borderCall."//--><!]]> </script>");  
     }
   }  
 /**
@@ -783,8 +782,7 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
     $borderCall = $this->get_borders_call( $parentID );
 
     if( !empty($opts['style_shadow']) || !empty($opts['style_border']) || !empty($opts['style_highlight'])  ){
-      $this->add("
-<script type='text/javascript'><!--//--><![CDATA[//><!--".$borderCall."//--><!]]></script>");  
+      $this->add("<script type='text/javascript'><!--//--><![CDATA[//><!--".$borderCall."//--><!]]> </script>");  
     }
   }
 /**
@@ -797,53 +795,41 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
     $highlight = $this->get_option("general_highlight_color");
     $highlight = (!empty($highlight)?$highlight:'#64a2d8');
     
-    $return = "
-    // Use self invoking function expression
-    (function() {      
-      // Wait for window to load. Them start plugin.
-      var alpinePluginLoadingFunction = function(method){
-        // Check for jQuery and on() ( jQuery 1.7+ )
-        if( window.jQuery && jQuery.isFunction( jQuery(window).on ) ){
-          jQuery(window).on('load', method);
-        // Check for jQuery and bind()
-        }else if( window.jQuery ){ 
-          jQuery(window).bind('load', method);
-        // Check for addEventListener
-        }else if( window.addEventListener ){
-          window.addEventListener('load', method, false);
-        // Check for attachEvent
-        }else if ( window.attachEvent ){
-          window.attachEvent('on' + 'load', method);
-        }
-      }
-      alpinePluginLoadingFunction( function(){
-        if( window.jQuery ){
-          if( jQuery().AlpineAdjustBordersPlugin ){
-            jQuery('#".$parentID."').AlpineAdjustBordersPlugin({
-              highlight:'".$highlight."'
-            });
-          }else{
-            var css = '".($this->get_private('url').'/css/'.$this->get_private('wcss').'.css')."';
-            var link = jQuery(document.createElement('link')).attr({'rel':'stylesheet','href':css,'type':'text/css','media':'screen'});
-            jQuery.getScript('".($this->get_private('url').'/js/'.$this->get_private('wjs').'.js')."', function(){
-              if(document.createStyleSheet){
-                document.createStyleSheet(css);
-              }else{
-                jQuery('head').append(link);
-              }
-              if( jQuery().AlpineAdjustBordersPlugin ){
-                jQuery('#".$parentID."').AlpineAdjustBordersPlugin({
-                  highlight:'".$highlight."'
-                });
-              }
-            }); // Close getScript
-          }
-        }else{
-          console.log('Alpine plugin failed because jQuery never loaded');
-        }
-      });
-    })();
-    ";
+    $return = "// Use self invoking function expression
+		(function() {// Wait for window to load. Them start plugin.
+			var alpinePluginLoadingFunction = function(method){
+				// Check for jQuery and on() ( jQuery 1.7+ )
+				if( window.jQuery && jQuery.isFunction( jQuery(window).on ) ){jQuery(window).on('load', method);
+				// Check for jQuery and bind()
+				}else if( window.jQuery ){ jQuery(window).bind('load', method);
+				// Check for addEventListener
+				}else if( window.addEventListener ){window.addEventListener('load', method, false);
+				// Check for attachEvent
+				}else if ( window.attachEvent ){window.attachEvent('on' + 'load', method);}
+		}
+			alpinePluginLoadingFunction( function(){
+				if( window.jQuery ){
+					if( jQuery().AlpineAdjustBordersPlugin ){
+						jQuery('#".$parentID."').AlpineAdjustBordersPlugin({highlight:'".$highlight."'});
+					}else{
+						var css = '".($this->get_private('url').'/css/'.$this->get_private('wcss').'.css')."';
+						var link = jQuery(document.createElement('link')).attr({'rel':'stylesheet','href':css,'type':'text/css','media':'screen'});
+						jQuery.getScript('".($this->get_private('url').'/js/'.$this->get_private('wjs').'.js')."', function(){
+							if(document.createStyleSheet){
+								document.createStyleSheet(css);
+							}else{
+								jQuery('head').append(link);
+							}
+							if( jQuery().AlpineAdjustBordersPlugin ){
+								jQuery('#".$parentID."').AlpineAdjustBordersPlugin({
+									highlight:'".$highlight."'
+								});
+							}
+						}); // Close getScript
+					}
+				}else{console.log('Alpine plugin failed because jQuery never loaded');}
+			});
+		})();";
     return $return;
   }
 /**
@@ -898,6 +884,9 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
     $hasLight = false;
     $lightScript = '';
     $lightStyle = '';
+    if( !empty($prevent) ){
+      $this->add("<!-- Lightbox prevented from loading -->");
+    }
     if( empty($prevent) && isset($opts[$this->get_private('src').'_image_link_option']) && $opts[$src.'_image_link_option'] == 'fancybox' ){
       $lightScript = $this->get_script( $lightbox );
       $lightStyle = $this->get_style( $lightbox );
@@ -909,99 +898,79 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
     $this->add("<script type='text/javascript'><!--//--><![CDATA[//><!--");
       if(!$disable){
         $this->add(
-    "
-    // Check for jQuery
-    // Note: window.jQuery same as typeof jQuery !== 'undefined'
-    if( window.jQuery ){
-      jQuery(document).ready(function() {
-        jQuery('#".$wid."-AlpinePhotoTiles_container').addClass('loading'); 
-      });
-    }
-    ");
-    
+		"// Check for jQuery
+		// Note: window.jQuery same as typeof jQuery !== 'undefined'
+		if( window.jQuery ){
+			jQuery(document).ready(function() {
+				jQuery('#".$wid."-AlpinePhotoTiles_container').addClass('loading'); 
+			});
+		}");
       }
   
     $pluginCall = $this->get_loading_call($opts,$wid,$src,$lightbox,$hasLight,$lightScript,$lightStyle);
     
-    $this->add("
-    // Use self invoking function expression
-    (function() {      
-      // Wait for window to load. Them start plugin.
-      var alpinePluginLoadingFunction = function(method){
-        // Check for jQuery and on() ( jQuery 1.7+ )
-        if( window.jQuery && jQuery.isFunction( jQuery(window).on ) ){
-          jQuery(window).on('load', method);
-        // Check for jQuery and bind()
-        }else if( window.jQuery ){ 
-          jQuery(window).bind('load', method);
-        // Check for addEventListener
-        }else if( window.addEventListener ){
-          window.addEventListener('load', method, false);
-        // Check for attachEvent
-        }else if ( window.attachEvent ){
-          window.attachEvent('on' + 'load', method);
-        }
-      };
-      alpinePluginLoadingFunction( function(){
-        if( window.jQuery ){
-          ".$pluginCall."
-        }else{
-          console.log('Alpine plugin failed because jQuery never loaded');
-        }
-      });
-    })();
-
-//--><!]]></script>");
- 
-  }
+    $this->add("// Use self invoking function expression
+		(function() {      
+			// Wait for window to load. Them start plugin.
+			var alpinePluginLoadingFunction = function(method){
+				// Check for jQuery and on() ( jQuery 1.7+ )
+				if( window.jQuery && jQuery.isFunction( jQuery(window).on ) ){
+					jQuery(window).on('load', method);
+				// Check for jQuery and bind()
+				}else if( window.jQuery ){ 
+					jQuery(window).bind('load', method);
+				// Check for addEventListener
+				}else if( window.addEventListener ){
+					window.addEventListener('load', method, false);
+				// Check for attachEvent
+				}else if ( window.attachEvent ){
+					window.attachEvent('on' + 'load', method);
+				}
+			};
+			alpinePluginLoadingFunction( function(){
+				if( window.jQuery ){".$pluginCall."}else{ console.log('Alpine plugin failed because jQuery never loaded'); }
+			});
+		})();//--><!]]> </script>");
+	}
 /**
  *  Get jQuery loading string
  *  
  *  @ Since 1.2.6.5
  */
   function get_loading_call($opts,$wid,$src,$lightbox,$hasLight,$lightScript,$lightStyle){
-    $return = "
-        jQuery('#".$wid."-AlpinePhotoTiles_container').removeClass('loading');
-        
-        var alpineLoadPlugin = function(){".$this->get_plugin_call($opts,$wid,$src,$hasLight)."}
-        
-        // Load Alpine Plugin
-        if( jQuery().AlpinePhotoTilesPlugin ){
-          alpineLoadPlugin();
-        }else{ // Load Alpine Script and Style
-          var css = '".($this->get_private('url').'/css/'.$this->get_private('wcss').'.css')."';
-          var link = jQuery(document.createElement('link')).attr({'rel':'stylesheet','href':css,'type':'text/css','media':'screen'});
-          jQuery.getScript('".($this->get_private('url').'/js/'.$this->get_private('wjs').'.js')."', function(){
-            if(document.createStyleSheet){
-              document.createStyleSheet(css);
-            }else{
-              jQuery('head').append(link);
-            }";
-          if( $hasLight ){    
-          $check = ($lightbox=='fancybox'?'fancybox':($lightbox=='prettyphoto'?'prettyPhoto':($lightbox=='colorbox'?'colorbox':'fancyboxForAlpine')));    
-          $return .="
-            if( !jQuery().".$check." ){ // Load Lightbox
-              jQuery.getScript('".$lightScript."', function(){
-                css = '".$lightStyle."';
-                link = jQuery(document.createElement('link')).attr({'rel':'stylesheet','href':css,'type':'text/css','media':'screen'});
-                if(document.createStyleSheet){
-                  document.createStyleSheet(css);
-                }else{
-                  jQuery('head').append(link);
-                }
-                alpineLoadPlugin();
-              }); // Close getScript
-            }else{
-              alpineLoadPlugin();
-            }";
-          }else{
-            $return .= "
-            alpineLoadPlugin();";
-          }
-            $return .= "
-          }); // Close getScript
-        }
-      ";
+    $return = "jQuery('#".$wid."-AlpinePhotoTiles_container').removeClass('loading');
+				var alpineLoadPlugin = function(){".$this->get_plugin_call($opts,$wid,$src,$hasLight)."}
+				// Load Alpine Plugin
+				if( jQuery().AlpinePhotoTilesPlugin ){
+					alpineLoadPlugin();
+				}else{ // Load Alpine Script and Style
+					var css = '".($this->get_private('url').'/css/'.$this->get_private('wcss').'.css')."';
+					var link = jQuery(document.createElement('link')).attr({'rel':'stylesheet','href':css,'type':'text/css','media':'screen'});
+					jQuery.getScript('".($this->get_private('url').'/js/'.$this->get_private('wjs').'.js')."', function(){
+						if(document.createStyleSheet){
+							document.createStyleSheet(css);
+						}else{
+							jQuery('head').append(link);
+						}";
+				if( $hasLight ){    
+					$check = ($lightbox=='fancybox'?'fancybox':($lightbox=='prettyphoto'?'prettyPhoto':($lightbox=='colorbox'?'colorbox':'fancyboxForAlpine')));    
+					$return .="if( !jQuery().".$check." ){ // Load Lightbox
+							jQuery.getScript('".$lightScript."', function(){
+								css = '".$lightStyle."';
+								link = jQuery(document.createElement('link')).attr({'rel':'stylesheet','href':css,'type':'text/css','media':'screen'});
+								if(document.createStyleSheet){
+									document.createStyleSheet(css);
+								}else{
+									jQuery('head').append(link);
+								}
+								alpineLoadPlugin();
+							}); // Close getScript
+						}else{alpineLoadPlugin();}";
+					}else{
+						$return .= "alpineLoadPlugin();";
+					}
+						$return .= "}); // Close getScript
+				}";
     return $return;
   }
 /**
@@ -1012,26 +981,24 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
   function get_plugin_call($opts,$wid,$src,$hasLight){
     $highlight = $this->get_option("general_highlight_color");
     $highlight = (!empty($highlight)?$highlight:'#64a2d8');
-    $return = "
-          jQuery('#".$wid."-hidden-parent').AlpinePhotoTilesPlugin({
-            id:'".$wid."',
-            style:'".(isset($opts['style_option'])?$opts['style_option']:'windows')."',
-            shape:'".(isset($opts['style_shape'])?$opts['style_shape']:'square')."',
-            perRow:".(isset($opts['style_photo_per_row'])?$opts['style_photo_per_row']:'3').",
-            imageBorder:".(!empty($opts['style_border'])?'1':'0').",
-            imageShadow:".(!empty($opts['style_shadow'])?'1':'0').",
-            imageCurve:".(!empty($opts['style_curve_corners'])?'1':'0').",
-            imageHighlight:".(!empty($opts['style_highlight'])?'1':'0').",
-            lightbox:".((isset($opts[$src.'_image_link_option']) && $opts[$src.'_image_link_option'] == 'fancybox')?'1':'0').",
-            galleryHeight:".(isset($opts['style_gallery_height'])?$opts['style_gallery_height']:'0').", // Keep for Compatibility
-            galRatioWidth:".(isset($opts['style_gallery_ratio_width'])?$opts['style_gallery_ratio_width']:'800').",
-            galRatioHeight:".(isset($opts['style_gallery_ratio_height'])?$opts['style_gallery_ratio_height']:'600').",
-            highlight:'".$highlight."',
-            pinIt:".(!empty($opts['pinterest_pin_it_button'])?'1':'0').",
-            siteURL:'".get_option( 'siteurl' )."',
-            callback: ".(!empty($hasLight)?'function(){'.$this->get_lightbox_call().'}':"''")."
-          });
-        ";
+    $return = "jQuery('#".$wid."-hidden-parent').AlpinePhotoTilesPlugin({
+						id:'".$wid."',
+						style:'".(isset($opts['style_option'])?$opts['style_option']:'windows')."',
+						shape:'".(isset($opts['style_shape'])?$opts['style_shape']:'square')."',
+						perRow:".(isset($opts['style_photo_per_row'])?$opts['style_photo_per_row']:'3').",
+						imageBorder:".(!empty($opts['style_border'])?'1':'0').",
+						imageShadow:".(!empty($opts['style_shadow'])?'1':'0').",
+						imageCurve:".(!empty($opts['style_curve_corners'])?'1':'0').",
+						imageHighlight:".(!empty($opts['style_highlight'])?'1':'0').",
+						lightbox:".((isset($opts[$src.'_image_link_option']) && $opts[$src.'_image_link_option'] == 'fancybox')?'1':'0').",
+						galleryHeight:".(isset($opts['style_gallery_height'])?$opts['style_gallery_height']:'0').", // Keep for Compatibility
+						galRatioWidth:".(isset($opts['style_gallery_ratio_width'])?$opts['style_gallery_ratio_width']:'800').",
+						galRatioHeight:".(isset($opts['style_gallery_ratio_height'])?$opts['style_gallery_ratio_height']:'600').",
+						highlight:'".$highlight."',
+						pinIt:".(!empty($opts['pinterest_pin_it_button'])?'1':'0').",
+						siteURL:'".get_option( 'siteurl' )."',
+						callback: ".(!empty($hasLight)?'function(){'.$this->get_lightbox_call().'}':"''")."
+					});";
     return $return;
   }
  
@@ -1200,56 +1167,48 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
     $lightbox = $this->get_option('general_lightbox');
     $prevent = $this->get_option('general_lightbox_no_load');
     $check = ($lightbox=='fancybox'?'fancybox':($lightbox=='prettyphoto'?'prettyPhoto':($lightbox=='colorbox'?'colorbox':'fancyboxForAlpine')));
-    if( empty($prevent) && $this->check_active_option($src.'_image_link_option') && $this->get_active_option($src.'_image_link_option') == 'fancybox' ){
-      $lightScript = $this->get_script( $lightbox );
-      $lightStyle = $this->get_style( $lightbox );
-      if( !empty($lightScript) && !empty($lightStyle) ){
-        $lightCall = $this->get_lightbox_call();
-        $lightboxSetup = "
-      if( !jQuery().".$check." ){
-        var css = '".$lightStyle."';
-        var link = jQuery(document.createElement('link')).attr({'rel':'stylesheet','href':css,'type':'text/css','media':'screen'});
-        jQuery.getScript('".($lightScript)."', function(){
-          if(document.createStyleSheet){
-            document.createStyleSheet(css);
-          }else{
-            jQuery('head').append(link);
-          }
-          ".$lightCall."
-        }); // Close getScript
-      }else{
-        ".$lightCall."
-      }
-    ";
-        $this->add("
-  <script type='text/javascript'><!--//--><![CDATA[//><!--
-    // Use self invoking function expression
-    (function() {      
-      // Wait for window to load. Them start plugin.
-      var alpinePluginLoadingFunction = function(method){
-        // Check for jQuery and on() ( jQuery 1.7+ )
-        if( window.jQuery && jQuery.isFunction( jQuery(window).on ) ){
-          jQuery(window).on('load', method);
-        // Check for jQuery and bind()
-        }else if( window.jQuery ){ 
-          jQuery(window).bind('load', method);
-        // Check for addEventListener
-        }else if( window.addEventListener ){
-          window.addEventListener('load', method, false);
-        // Check for attachEvent
-        }else if ( window.attachEvent ){
-          window.attachEvent('on' + 'load', method);
-        }
-      }
-      alpinePluginLoadingFunction( function(){
-        if( window.jQuery ){
-          ".$lightboxSetup."
-        }else{
-          console.log('Alpine plugin failed because jQuery never loaded');
-        }
-      });
-    })();
-  //--><!]]></script>"); 
+    if( !empty($prevent) ){
+      $this->add("<!-- Lightbox prevented from loading -->");
+    }
+		if( empty($prevent) && $this->check_active_option($src.'_image_link_option') && $this->get_active_option($src.'_image_link_option') == 'fancybox' ){
+			$lightScript = $this->get_script( $lightbox );
+			$lightStyle = $this->get_style( $lightbox );
+			if( !empty($lightScript) && !empty($lightStyle) ){
+				$lightCall = $this->get_lightbox_call();
+				$lightboxSetup = "
+			if( !jQuery().".$check." ){
+				var css = '".$lightStyle."';
+				var link = jQuery(document.createElement('link')).attr({'rel':'stylesheet','href':css,'type':'text/css','media':'screen'});
+				jQuery.getScript('".($lightScript)."', function(){
+					if(document.createStyleSheet){
+						document.createStyleSheet(css);
+					}else{
+						jQuery('head').append(link);
+					}".$lightCall."}); // Close getScript
+			}else{".$lightCall."}";
+				$this->add("<script type='text/javascript'><!--//--><![CDATA[//><!--
+		// Use self invoking function expression
+		(function() {      
+			// Wait for window to load. Them start plugin.
+			var alpinePluginLoadingFunction = function(method){
+				// Check for jQuery and on() ( jQuery 1.7+ )
+				if( window.jQuery && jQuery.isFunction( jQuery(window).on ) ){
+					jQuery(window).on('load', method);
+				// Check for jQuery and bind()
+				}else if( window.jQuery ){ 
+					jQuery(window).bind('load', method);
+				// Check for addEventListener
+				}else if( window.addEventListener ){
+					window.addEventListener('load', method, false);
+				// Check for attachEvent
+				}else if ( window.attachEvent ){
+					window.attachEvent('on' + 'load', method);
+				}
+			}
+			alpinePluginLoadingFunction( function(){
+				if( window.jQuery ){".$lightboxSetup."}else{console.log('Alpine plugin failed because jQuery never loaded');}
+			});
+		})();//--><!]]></script>"); 
       }
     }
   }
