@@ -386,8 +386,8 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
       $_instagram_json = @json_decode( $content, true );
     }
     if( empty($_instagram_json) && method_exists( $this, 'json_decoder' ) ){
-      $this->append_active_result('hidden','<!-- Try json_decoder() -->');
-      $_instagram_json = $this->json_decoder( $content );
+      //$this->append_active_result('hidden','<!-- Try json_decoder() -->');
+      //$_instagram_json = $this->json_decoder( $content );
     }
     if( empty($_instagram_json) || !isset($_instagram_json['meta']['code']) ){
       $this->append_active_result('hidden','<!-- An error occured: Empty JSON -->');
