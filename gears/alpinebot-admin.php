@@ -1244,8 +1244,30 @@ class PhotoTileForInstagramAdmin extends PhotoTileForInstagramAdminSecondary{
 					echo '<tr valign="top"><td class="unlinked "><div class="title">';
 					if ( function_exists('curl_init') ){
 						echo '<b>Check:</b> <span style="color:green">curl_init function found</span>.';
+						// Try connecting to Instagram.com
+						$request = 'http://instagram.com/';
+						$response = wp_remote_get($request,
+							array(
+								'method' => 'GET',
+								'timeout' => 10,
+								'sslverify' => apply_filters('https_local_ssl_verify', false)
+							)
+						);
+						if( is_wp_error( $response ) ){
+							echo '<br><b>Check:</b> <span style="color:red">Plugin failed to connect to Instagram.com.</span>';
+							echo '<br><b>WordPress Error Message:</b> '.$response->get_error_message().'.';
+						}else{
+							if( isset( $response['response'] ) && isset( $response['response']['code'] ) && isset( $response['response']['message'] )){
+								if( $response['response']['code'] == 200 ){
+									echo '<br><b>Check:</b> <span style="color:green">Plugin successfully connected to Instagram.com.</span>';
+								}else{
+									echo '<br><b>Check:</b> <span style="color:red">Plugin failed to connect to Instagram.com.</span>';
+									echo '<br><b>Code:</b> '.$response['response']['code'].', <b>Message:</b> '.$response['response']['message'].'.';
+								}
+							}
+						}
 					}else{
-						echo '<p><b>Check:</b> <span style="color:red">curl_init function not found</span>. To connect to Instagram.com, your server needs to have the cURL extension enabled. Unfortunately, this extension was not found on your server.</p>';
+						echo '<p><b>Check:</b> <span style="color:red">curl_init function not found.</span> To connect to Instagram.com, your server needs to have the cURL extension enabled. Unfortunately, this extension was not found on your server.</p>';
 						echo '<p><b>Recommendation(s):</b></p>';
 						echo '<ol>';
 							echo '<li>Contact your web host. They may need to simply enable a PHP extension or open a port.</li>';
@@ -1254,7 +1276,13 @@ class PhotoTileForInstagramAdmin extends PhotoTileForInstagramAdminSecondary{
 					// JSON Decode
 					echo '<tr valign="top"><td class="unlinked "><div class="title">';
 					if ( function_exists('json_decode') ){
-						echo '<b>Check:</b> <span style="color:green">json_decode function found</span>.';
+						echo '<b>Check:</b> <span style="color:green">json_decode function found.</span>';
+						$m = json_decode('{"code":1}', true);
+						if( !empty( $m ) && isset($m['code']) && $m['code'] == 1 ){
+							echo '<br><b>Check:</b> <span style="color:green">Sample JSON successfully decoded and parsed.</span>';
+						}else{
+							echo '<br><b>Check:</b> <span style="color:red">Server failed to decode sample JSON.</span>';
+						}
 					}else{
 						echo '<p><b>Check:</b> <span style="color:red">json_decode function not found</span>. Instagram feeds are in a format known as JSON. Servers with PHP 5.2.0+ have a JSON extension that allows the server to quickly interpret the JSON feed. Unfortunately, this function was not found on your server.</p>';
 						echo '<p><b>Recommendation(s):</b></p>';
