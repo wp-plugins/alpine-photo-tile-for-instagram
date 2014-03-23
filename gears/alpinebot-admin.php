@@ -122,6 +122,8 @@ class PhotoTileForInstagramAdminSecondary extends PhotoTileForInstagramPrimary{
  */
   function admin_generate_shortcode( $options, $optiondetails ){
     $short = '['.$this->get_private('short');
+		$id = rand(100, 1000);
+		$short .= ' id='.$id;
     $trigger = '';
     foreach( $options as $key=>$value ){
       if($value && isset($optiondetails[$key]['short'])){
@@ -175,12 +177,13 @@ class PhotoTileForInstagramAdminSecondary extends PhotoTileForInstagramPrimary{
  */
   function admin_display_general(){ 
     ?>
-      <h3><?php _e("Thank you for downloading the "); echo $this->get_private('name'); _e(", a WordPress plugin by the Alpine Press.");?></h3>
+      <h3><?php _e("Thank you for downloading the "); echo $this->get_private('name'); _e(", <br>a WordPress plugin by the Alpine Press.");?></h3>
       <?php if( $this->check_private('termsofservice') ) {
         echo '<p>'.$this->get_private('termsofservice').'</p>';
       }?>
       <p><?php _e("On the 'Shortcode Generator' tab you will find an easy to use interface that will help you create shortcodes. These shortcodes make it simple to insert the PhotoTile plugin into posts and pages.");?></p>
       <p><?php _e("The 'Plugin Settings' tab provides additional back-end options.");?></p>
+			<p><?php _e("The 'Plugin Tools' tab allows you to check for required PHP extensions on your server and to test the performance of the plugin (with step-by-step timestamps and messages).");?></p>
       <p><?php _e("Finally, I am a one man programming team and so if you notice any errors or places for improvement, please let me know."); ?></p>
       <p><?php _e('If you liked this plugin, try out some of the other plugins by ') ?><a href="http://thealpinepress.com/category/plugins/" target="_blank">the Alpine Press</a>.</p>
       <br>
@@ -217,7 +220,7 @@ class PhotoTileForInstagramAdminSecondary extends PhotoTileForInstagramPrimary{
  * First function for printing options page
  *  
  * @ Since 1.1.0
- * @ Updated 1.2.4
+ * @ Updated 1.2.7
  *
  */
   function admin_setup_options_form($currenttab){
@@ -231,6 +234,9 @@ class PhotoTileForInstagramAdminSecondary extends PhotoTileForInstagramPrimary{
 
     $buttom = (isset($_POST[$this->get_private('settings').'_'.$currenttab]['submit-'.$currenttab])?$_POST[$this->get_private('settings').'_'.$currenttab]['submit-'.$currenttab]:'');
     if( $buttom == 'Delete Current Cache' ){
+			//
+			// DELETE CACHE BUTTON HAS BEEN DISABLED ON USER-SIDE
+			//
       $bot = new PhotoTileForInstagramBot();
       $bot->clearAllCache();
       echo '<div class="announcement">'.__("Cache Cleared").'</div>';
@@ -251,7 +257,7 @@ class PhotoTileForInstagramAdminSecondary extends PhotoTileForInstagramPrimary{
  * Second function for printing options page
  *  
  * @ Since 1.1.0
- * @ Updated 1.2.6.1
+ * @ Updated 1.2.7
  *
  */
   function admin_display_opt_form($options,$currenttab){
@@ -265,7 +271,8 @@ class PhotoTileForInstagramAdminSecondary extends PhotoTileForInstagramPrimary{
       if( $submitted && isset($_POST['shortcode']) && $preview ){
         $short = str_replace('\"','"',$_POST['shortcode']);
       }elseif( $submitted ){
-        $short = $this->admin_generate_shortcode( $_POST, $defaults );
+				// Use filtered $options, not unflitered $_POST
+        $short = $this->admin_generate_shortcode( $options, $defaults );
       }
       ?>
       <div>
@@ -276,7 +283,7 @@ class PhotoTileForInstagramAdminSecondary extends PhotoTileForInstagramPrimary{
       if( !empty($short) ){
         ?>
         <div id="<?php echo $this->get_private('settings');?>-shortcode" style="position:relative;clear:both;margin-bottom:20px;" ><div class="announcement" style="margin:0 0 10px 0;">
-          Now, copy (Crtl+C) and paste (Crtl+V) the following shortcode into a page or post. Or preview using the button below.</div>
+          Now, copy (Crtl+C) and paste (Crtl+V) the following shortcode into a page or post. <br>Or preview using the button below.</div>
           <div class="AlpinePhotoTiles-preview" style="border-bottom: 1px solid #DDDDDD;">
             <input type="hidden" name="hidden" value="Y">
             <textarea id="shortcode" class="auto_select" name="shortcode" style="margin-bottom:20px;"><?php echo $short;?></textarea>
@@ -344,7 +351,7 @@ class PhotoTileForInstagramAdminSecondary extends PhotoTileForInstagramPrimary{
       echo '<input name="'.$this->get_private('settings').'_'.$currenttab .'[submit-'. $currenttab.']" type="submit" class="button-primary" value="Generate Shortcode" />';
     }elseif( 'plugin-settings' == $currenttab ){
       echo '<input name="'.$this->get_private('settings').'_'.$currenttab .'[submit-'. $currenttab.']" type="submit" class="button-primary" value="Save Settings" />';
-      echo '<input name="'.$this->get_private('settings').'_'.$currenttab .'[submit-'. $currenttab.']" type="submit" class="button-primary" style="margin-top:15px;" value="Delete Current Cache" />';
+      //echo '<input name="'.$this->get_private('settings').'_'.$currenttab .'[submit-'. $currenttab.']" type="submit" class="button-primary" style="margin-top:15px;" value="Delete Current Cache" />';
     }
   }
     
@@ -788,6 +795,8 @@ class PhotoTileForInstagramAdmin extends PhotoTileForInstagramAdminSecondary{
             $this->admin_display_general();
           }elseif( 'add' == $currenttab ){
             $this->admin_display_add();
+          }elseif( 'plugin-tools' == $currenttab ){
+            $this->admin_display_tools();
           }else{
             $this->admin_setup_options_form($currenttab);
           }
@@ -846,7 +855,7 @@ class PhotoTileForInstagramAdmin extends PhotoTileForInstagramAdminSecondary{
  * Display Add User Page
  *  
  * @ Since 1.2.0
- * @ Updated 1.2.6.3
+ * @ Updated 1.2.7
  */
   function admin_display_add(){ 
   
@@ -917,10 +926,10 @@ class PhotoTileForInstagramAdmin extends PhotoTileForInstagramAdminSecondary{
         
           if( function_exists('json_decode') ){
             $_instagram_json = @json_decode( $content, true );
+          }elseif( function_exists('alpine_json_decode') ){
+            $_instagram_json = @alpine_json_decode( $content, true );
           }
-          if( empty($_instagram_json) && method_exists( $this, 'json_decoder' ) ){
-            $_instagram_json = $this->json_decoder($content);
-          }
+					
           if( empty($_instagram_json) || 200 != $_instagram_json['meta']['code'] ){
             $errormessage = 'User not updated';
           }elseif( !empty($_instagram_json['data']) ){
@@ -983,13 +992,12 @@ class PhotoTileForInstagramAdmin extends PhotoTileForInstagramAdminSecondary{
         // Before decoding JSON, remove Emoji characters from content
         $content = $this->removeEmoji($content);
 
-        if( function_exists('json_decode') ){
-          $auth = @json_decode( $content, true );
-        }
-        if( empty($auth) && method_exists( $this, 'json_decoder' ) ){
-          // Try alternative decode
-          $auth = $this->json_decoder($content);
-        }
+				if( function_exists('json_decode') ){
+					$auth = @json_decode( $content, true );
+				}elseif( function_exists('alpine_json_decode') ){
+					$auth = @alpine_json_decode( $content, true );
+				}
+					
         // If decoded correctly, should now have access token
         if( isset($auth['access_token']) ) {
           $access_token = $auth['access_token'];
@@ -1009,7 +1017,12 @@ class PhotoTileForInstagramAdmin extends PhotoTileForInstagramAdminSecondary{
           $errormessage = 'No access token found';
         }
       }elseif( !is_wp_error($response) && $response['response']['code'] >= 400 ) {
-        $error = json_decode($response['body']);
+        $error = '';
+				if( function_exists('json_decode') ){
+					$error = @json_decode( $response['body'], true );
+				}elseif( function_exists('alpine_json_decode') ){
+					$error = @alpine_json_decode( $response['body'], true );
+				}
         $errormessage = $error->error_message;
         $errortype = $error->error_type;
       }
@@ -1150,7 +1163,6 @@ class PhotoTileForInstagramAdmin extends PhotoTileForInstagramAdminSecondary{
  */
   function admin_display_method_two(){ 
        ?>
-
       <div style="margin-top:80px;padding-top:10px;border-top: 1px solid #DDDDDD;">
         <h2><?php _e("Method Two (If Method One is not working)");?>:</h2>
         <p>Your Internet browser or the server that your WordPress site is hosted on may cause Method One to fail. Therefore, in Method Two you will use a tool hosted at theAlpinePress.com to retrieve the information you need and then manually submit it to the plugin using the form below.</p>
@@ -1207,7 +1219,123 @@ class PhotoTileForInstagramAdmin extends PhotoTileForInstagramAdminSecondary{
       <p><?php _e("Below are two different methods for adding users to the Alpine PhotoTile for Instagram plugin. Try Method One first. If it does not work, try Method Two. Please <a href='http://wordpress.org/support/plugin/alpine-photo-tile-for-instagram'>let me know</a> if these directions become outdated.");?>
     <?php      
   }
+
+
+/**
+ * Display Tools Page
+ *  
+ * @ Since 1.2.7
+ */
+  function admin_display_tools(){ 
+		echo '<div class="top">'; 
+			echo '<h4>System Check</h4>';
+			echo '<div style="margin-bottom:15px;"><span class="describe" >Check the settings and extensions on your web server.</span></div>'; 
+			echo '<table class="form-table">';
+				echo '<tbody>';
+					// PHP Version
+					echo '<tr valign="top"><td class="unlinked "><div class="title">';
+					if ( function_exists('phpversion') ){
+						echo '<b>Current PHP version of your server:</b> '. phpversion();
+					}else{
+						echo '<b>Current PHP version of your server:</b> < 4';
+					}
+					echo '</div></td></tr>';
+					// cURL
+					echo '<tr valign="top"><td class="unlinked "><div class="title">';
+					if ( function_exists('curl_init') ){
+						echo '<b>Check:</b> <span style="color:green">curl_init function found</span>.';
+					}else{
+						echo '<p><b>Check:</b> <span style="color:red">curl_init function not found</span>. To connect to Instagram.com, your server needs to have the cURL extension enabled. Unfortunately, this extension was not found on your server.</p>';
+						echo '<p><b>Recommendation(s):</b></p>';
+						echo '<ol>';
+							echo '<li>Contact your web host. They may need to simply enable a PHP extension or open a port.</li>';
+						echo '</ol>';
+					}
+					// JSON Decode
+					echo '<tr valign="top"><td class="unlinked "><div class="title">';
+					if ( function_exists('json_decode') ){
+						echo '<b>Check:</b> <span style="color:green">json_decode function found</span>.';
+					}else{
+						echo '<p><b>Check:</b> <span style="color:red">json_decode function not found</span>. Instagram feeds are in a format known as JSON. Servers with PHP 5.2.0+ have a JSON extension that allows the server to quickly interpret the JSON feed. Unfortunately, this function was not found on your server.</p>';
+						echo '<p><b>Recommendation(s):</b></p>';
+						echo '<ol>';
+							echo '<li>Contact your web host. A good hosting provider should be using an updated version of PHP with JSON extensions enabled.</li>';
+							echo '<li>The Alpine plugin includes a backup function that can interpret JSON, but it is <b>very slow</b>. You can expect loading times of 20+ seconds. Therefore, I recommended visiting the Plugin Settings page and setting the cache time to between 24 and 48 hours.</li>';
+						echo '</ol>';
+						//echo '<div class="announcement"> PHP Server is missing . </div>';
+					}
+					echo '</div></td></tr>';
+					// Rec
+					echo '<tr valign="top"><td class="unlinked "><div class="title">';
+						echo '<p>If you are looking for a new/better web host, I recommend the following sites. (Full disclosure: I use these sites, am in their affiliate programs, and get paid a commision if you sign up using these links):</p>';
+						echo '<ul>';
+							echo '<li style="list-style-type:disc;margin-left:3em;"><a href="http://www.bluehost.com/track/thealpinepress" target="_blank">BlueHost</a> is one of the most popular hosting options on the Internet. They are also the most recommended hosting service by WordPress. BlueHost makes it quick and easy to install WordPress and I use them to host theAlpinePress.com.</li>';
+							echo '<li style="list-style-type:disc;margin-left:3em;"><a href="https://www.fatcow.com/join/index.bml?AffID=645572&amp;LinkName=alpineinstagram" target="_blank">FatCow</a> is a nice, cheap option. I have noticed that the servers go down a few times a year, but since I pay around $4 a month to host 3 WordPress sites (ElectricTreeHouse.com, Rebuild-US.net, and KylinUntitled.com), I am okay with it.</li>';
+						echo '</ul>';
+						
+					echo '</div></td></tr>';
+					
+				echo '</tbody>';
+			echo '</table>';
+		echo '</div>'; // Close top
+
+		
+		$currenttab = 'plugin-tools';
+
+    $defaults = $this->option_defaults();
+    $submitted = ( ( isset($_POST[ "hidden" ]) && ($_POST[ "hidden" ]=="Y") ) ? true : false );
+		
+      $test = (isset($_POST[ $this->get_private('settings').'_test']['submit-test']) && $_POST[ $this->get_private('settings').'_test']['submit-test'] == 'Test Plugin')?true:false;
+      if( $submitted && isset($_POST['shortcode']) && $test ){
+        $short = str_replace('\"','"',$_POST['shortcode']);
+      }else{
+				$short = '';
+			}
+			
+      ?>
+      <div>
+        <h3>Plugin Loading Test</h3>
+        <p>Create a shortcode using the Shortcode Generator and paste it into the box below. Then, click "Test Plugin" to use the tool. 
+				The plugin will be loaded once directly from the Instagram feed and once from the cache (unless disabled). 
+				This test shows the server-side loading times only and does not include delays from loading photos into a browser or running the JS/jQuery code 
+				(It should be clear that loading from the cache is much faster).</p>
+      </div>
+      <?php       
+
+        ?>
+			<form action="" method="post">
+        <input type="hidden" name="hidden" value="Y">
+        <div id="<?php echo $this->get_private('settings');?>-shortcode" style="position:relative;clear:both;margin-bottom:20px;" >
+          <div class="AlpinePhotoTiles-test" style="">
+            <input type="hidden" name="hidden" value="Y">
+            <textarea id="shortcode" name="shortcode" style="margin-bottom:20px;height:100px;"><?php echo $short;?></textarea>
+            <input name="<?php echo $this->get_private('settings');?>_test[submit-test]" type="submit" class="button-primary" value="Test Plugin" />
+            <br style="clear:both">
+          </div>
+        </div>
+			</form>
+        <?php 
+
+
+			if( $submitted && isset($_POST['shortcode']) && $test ){  
+				// Use "plugin-loading-test" as widget id and set "test" variable to true.
+				$plugin_id = "plugin-loading-test";
+				$short_one = str_replace(']',' id='.$plugin_id.' testmode=1]',$short); // No cache
+				$short_two = str_replace(']',' id='.$plugin_id.' testmode=2]',$short); // With cache
+				//echo $short;
+				
+				echo '<br>';
+				echo '<h3>Load from the Instagram feed</h3>';
+				echo '<div style="border-top: 1px solid #DDDDDD;padding-bottom:10px;margin-bottom:30px;">';
+				echo do_shortcode($short_one);
+				echo '</div>';
+				echo '<h3>Load from cache</h3>';
+				echo '<div style="border-top: 1px solid #DDDDDD;padding-bottom:0px;margin-bottom:0px;">';
+				echo do_shortcode($short_two);
+				echo '</div>';
+			}
+	}
+
+	
 }
-
-
 ?>

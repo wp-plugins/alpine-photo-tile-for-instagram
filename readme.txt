@@ -2,13 +2,13 @@
 Contributors: theAlpinePress
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=eric%40thealpinepress%2ecom&lc=US&item_name=Alpine%20PhotoTile%20for%20Instagram%20Donation&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted
 Tags: photos, instagram, photostream, javascript, jQuery, stylish, pictures, images, widget, sidebar, display, gallery, wall, lightbox, fancybox, colorbox
-Requires at least: 2.8
+Requires at least: 3.2
 Tested up to: 3.8
-Stable tag: 1.2.6.6
+Stable tag: 1.2.7
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
-Simple, stylish and compact plugin for displaying Instagram photos in a sidebar, post, or page. 
+Simple, stylish, and compact plugin for displaying Instagram photos in a sidebar, post, or page. 
 
 == Description == 
 Retrieve photos from a particular Instagram user or tag and display them on your WordPress site using the Alpine PhotoTile for Instagram. 
@@ -177,7 +177,15 @@ I am a one-man development team and I distribute these plugins for free, so plea
 * Add addEventListener and attachEvent calls to JS loading (for jQuery in footer)
 * Add SSL option
 
+= 1.2.7 =
+* Replaced local JSON decoder (with slower but more reliable library).
+* Add Transient and cacheid
+* Add echo_point function
+* Add Plugin Tools page with plugin loading speed test.
+* Disabled Delete Cache button (will not work with transient)
+
 = TODO =
+* Move JS to seperate file
 * Change to FancyBox 2
 * Add caption to display
 * Rebuild jQuery display

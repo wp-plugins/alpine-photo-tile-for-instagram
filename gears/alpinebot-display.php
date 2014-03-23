@@ -71,17 +71,45 @@ class PhotoTileForInstagramBotSecondary extends PhotoTileForInstagramPrimary{
  * Functions for retrieving results from cache
  *  
  * @ Since 1.2.4
- *
+ * @ Updated 1.2.7
  */
   function retrieve_from_cache( $key ){
     if ( !$this->check_active_option('cache_disable') ) {
-      if( $this->cacheExists($key) ) {
+			// New method (since 1.2.7)
+			if( is_callable('get_transient') ){
+				$this->echo_point('<span style="color:blue">Using get_transient()...</span>');
+				$id = $this->get_private('cacheid');
+				$old_key = get_transient( $id.'_key' );
+				if( $key != $old_key ){
+					// Settings have changed or transient expired.
+					$this->echo_point('<span style="color:blue">No cache found</span>');
+					return false;
+				}else{
+					// Retreive from transient
+					$results = get_transient( $id.'_record' );
+					if( count($results) ){
+						$results['hidden'] .= '<!-- Retrieved from transient -->';
+						$this->set_private('results',$results);
+						if( $this->check_active_result('photos') ){
+							$this->echo_point('Cache found. Returned from transient.');
+							return true;
+						}
+					}else{
+						return false;
+					}
+				}
+			}
+
+			// Old method
+			if( $this->cacheExists($key) ) {
+				$this->echo_point('<span style="color:blue">Using text file as cache...</span>');
         $results = $this->getCache($key);
         $results = @unserialize($results);
         if( count($results) ){
           $results['hidden'] .= '<!-- Retrieved from cache -->';
           $this->set_private('results',$results);
           if( $this->check_active_result('photos') ){
+						$this->echo_point('Cache found. Return from text file.');
             return true;
           }
         }
@@ -93,20 +121,48 @@ class PhotoTileForInstagramBotSecondary extends PhotoTileForInstagramPrimary{
  * Functions for storing results in cache
  *  
  * @ Since 1.2.4
+ * @ Updated 1.2.7
  *
  */
   function store_in_cache( $key ){
     if( $this->check_active_result('success') && !$this->check_active_option('disable_cache') ){     
       $cache_results = $this->get_private('results');
-      if(!is_serialized( $cache_results  )) { $cache_results  = @maybe_serialize( $cache_results ); }
-      $this->putCache($key, $cache_results);
-      $cachetime = $this->get_option( 'cache_time' );
-      if( !empty($cachetime) && is_numeric($cachetime) ){
-        $this->setExpiryInterval( $cachetime*60*60 );
-      }
+			$cachetime = $this->get_option('cache_time');
+
+			// New method (since 1.2.7)
+			if( is_callable('set_transient') ){
+				// Use $cacheid.'_key' as transient key
+				$id = $this->get_private('cacheid');
+				// Store "key" and "record" as a transient
+				if( set_transient( $id.'_key', $key, $cachetime*60*60 ) && set_transient( $id.'_record', $cache_results, $cachetime*60*60 ) ){
+					// Value was set successfully
+          return;
+				}
+			}
+			
+			// Old method
+			if(!is_serialized( $cache_results  )) { $cache_results  = @maybe_serialize( $cache_results ); }
+			$this->putCache($key, $cache_results);
+			if( !empty($cachetime) && is_numeric($cachetime) ){
+				$this->setExpiryInterval( $cachetime*60*60 );
+			}
     }
   }
-
+/**
+ * Functions for clearing cache/transient
+ *  
+ * @ Since 1.2.7
+ *
+ */
+  function clear_cache( $key ){
+		if( is_callable('delete_transient') ){
+			$id = $this->get_private('cacheid');
+			delete_transient( $id.'_key' );
+			delete_transient( $id.'_record' );
+		}else{
+			$this->clearAllCache();
+		}
+	}
 /**
  * Functions for caching results and clearing cache
  *  
@@ -250,77 +306,7 @@ class PhotoTileForInstagramBotSecondary extends PhotoTileForInstagramPrimary{
         @file_put_contents ($cleaning_info , $time); // save the time of last cache cleaning        
       }
     }
-  } 
-  
-  /*
-  function putCacheImage($image_url){
-    $time = time(); //Current Time  
-    if ( ! file_exists($this->cacheDir) ){  
-      @mkdir($this->cacheDir);  
-      $cleaning_info = $this->cacheDir . '/cleaning.info'; //Cache info 
-      @file_put_contents ($cleaning_info , $time); // save the time of last cache update  
-    }
-    
-    if ( file_exists($this->cacheDir) && is_dir($this->cacheDir) ){ 
-      //replace with your cache directory
-      $dir = $this->cacheDir.'/';
-      //get the name of the file
-      $exploded_image_url = explode("/",$image_url);
-      $image_filename = end($exploded_image_url);
-      $exploded_image_filename = explode(".",$image_filename);
-      $name = current($exploded_image_filename);
-      $extension = end($exploded_image_filename);
-      //make sure its an image
-      if($extension=="gif"||$extension=="jpg"||$extension=="png"){
-        //get the remote image
-        $image_to_fetch = @file_get_contents($image_url);
-        //save it
-        $filename_image = $dir . $image_filename;
-        $filename_info = $dir . $name . '.info'; //Cache info  
-      
-        $local_image_file = @fopen($filename_image, 'w+');
-        @chmod($dir.$image_filename,0755);
-        @fwrite($local_image_file, $image_to_fetch);
-        @fclose($local_image_file);
-        
-        @file_put_contents($filename_info , $time); // save the time of last cache update  
-      }
-    }
   }
-  
-  function getImageCache($image_url)  {  
-    $dir = $this->cacheDir.'/';
-  
-    $exploded_image_url = explode("/",$image_url);
-    $image_filename = end($exploded_image_url);
-    $exploded_image_filename = explode(".",$image_filename);
-    $name = current($exploded_image_filename);  
-    $filename_image = $dir . $image_filename;
-    $filename_info = $dir . $name . '.info'; //Cache info  
-  
-    if (file_exists($filename_image) && file_exists($filename_info))  {  
-      $cache_time = @file_get_contents ($filename_info) + (int)$this->expiryInterval; //Last update time of the cache file  
-      $time = time(); //Current Time  
-
-      $expiry_time = (int)$time; //Expiry time for the cache  
-
-      if ((int)$cache_time >= (int)$expiry_time){ //Compare last updated and current time 
-        return $this->cacheUrl.'/'.$image_filename;   // Return image URL
-      }else{
-        $local_image_file = @fopen($filename_image, 'w+');
-        @chmod($dir.$image_filename,0755);
-        @fwrite($local_image_file, $image_to_fetch);
-        @fclose($local_image_file);
-        
-        @file_put_contents($filename_info , $time); // save the time of last cache update  
-      }
-    }elseif( $this->cacheAttempts < $this->cacheLimit ){
-      $this->putCacheImage($image_url);
-      $this->cacheAttempts++;
-    }
-    return null;  
-  }  
-  */
 }
 
 /** ##############################################################################################################################################
@@ -349,10 +335,11 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
  *  Function for fetching instagram feed
  *  
  *  @ Since 1.2.1
- *  @ Updated 1.2.6
+ *  @ Updated 1.2.7
  */
   function fetch_instagram_feed($request){
     // No longer write out curl_init and user WP API instead
+		$this->echo_point('<span style="color:blue">Use wp_remote_get() (cURL) to make request</span>');
     $response = wp_remote_get($request,
       array(
         'method' => 'GET',
@@ -361,40 +348,69 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
       )
     );
     $this->append_active_result('hidden','<!-- Request made -->');
-    
-    
+    $this->echo_point('Request complete');
+		
     if( is_wp_error( $response ) || !isset($response['body']) ) {
+			$this->echo_point('An error occured');
       $this->append_active_result('hidden','<!-- An error occured -->');
       if( is_wp_error( $response ) ){
         $this->append_active_result('hidden','<!-- '.$response->get_error_message().' -->');
+				$this->echo_point('Error message:'.$response->get_error_message());
       }elseif( !isset($response['body']) ){
+				$this->echo_point('Plugin received an empty feed');
         $this->append_active_result('hidden','<!-- No body set -->');
       }
       // Try again
       if( method_exists( $this, 'manual_cURL' ) ){
+				$this->echo_point('<span style="color:blue">Try request again using Alpine\'s cURL function</span>');
         $content = $this->manual_cURL($request);
+				$this->echo_point('Request complete');
       }
       
       if( !isset($content) ){
+				$this->echo_point('No content found');
         return false;
       }
-    }else{
+		}elseif( empty( $response['body'] ) ){
+			$this->echo_point('Plugin received an empty feed');
+			$this->append_active_result('hidden','<!-- No body content in response -->');
+			return false;
+		}elseif( !empty($response['response']) && !empty($response['response']['code']) && $response['response']['code'] != 200 ){
+			$this->echo_point('<span style="color:red">An error occured.</span>');
+			$this->echo_point('<span style="color:red">Code</span>: '.$response['response']['code']);
+			if( !empty($response['response']['message']) ){
+				$this->echo_point('<span style="color:red">Message</span>: '.$response['response']['message']);
+			}
+			return false;
+		}else{
+			$this->echo_point('Content received from Instagram');
       $content = $response['body'];
     }
-    
-    if( function_exists('json_decode') ){
+
+		if( function_exists('json_decode') ){
+			$this->echo_point('<span style="color:blue">Decode content using json_decode()</span>');
       $_instagram_json = @json_decode( $content, true );
+			$this->echo_point('Decode completed');
+    }else{
+			$this->echo_point('<span style="color:red">Server is missing json_decode(). I recommend contacting your hosting provider.</span>');
+			$this->echo_point('Try using alternative json decoder (Services_JSON). <span style="color:red">Loading times will increase significantly.</span>');
+			$this->append_active_result('hidden','<!-- Missing json_decode() -->');
+			if( function_exists('alpine_json_decode') ) {
+				$_instagram_json = @alpine_json_decode($content, true);
+			}else{
+				$this->echo_point('<span style="color:red">Plugin is missing alpine_json_decode()</span>');
+				$this->append_active_result('hidden','<!-- Missing alpine_json_decode() -->');
+			}
     }
-    if( empty($_instagram_json) && method_exists( $this, 'json_decoder' ) ){
-      //$this->append_active_result('hidden','<!-- Try json_decoder() -->');
-      //$_instagram_json = $this->json_decoder( $content );
-    }
+
     if( empty($_instagram_json) || !isset($_instagram_json['meta']['code']) ){
+			$this->echo_point('<span style="color:red">An error occured: Empty JSON.</span>');
       $this->append_active_result('hidden','<!-- An error occured: Empty JSON -->');
       return false;
     }elseif( 200 != $_instagram_json['meta']['code'] ){
       $this->append_active_result('hidden','<!-- An error occured: Code '.$_instagram_json['meta']['code'].' -->');
       if( isset( $_instagram_json['meta']['error_message'] ) ){
+				$this->echo_point('<span style="color:red">An error occured: '.$_instagram_json['meta']['error_type'].', Message: '.$_instagram_json['meta']['error_message'].'</span>');
         $this->append_active_result('hidden','<!-- An error occured: Type '.$_instagram_json['meta']['error_type'].', Message: '.$_instagram_json['meta']['error_message'].' -->');
         $this->append_active_result('message', '<br>- '.$_instagram_json['meta']['error_message'].'');
       }
@@ -410,7 +426,7 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
  * The PHP for retrieving content from Instagram.
  *
  * @ Since 1.0.0
- * @ Updated 1.2.6.1
+ * @ Updated 1.2.7
  */
   function photo_retrieval(){
     $options = $this->get_private('options');
@@ -423,23 +439,28 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
       $this->append_active_result('message','- No Instagram user was specified.');
       return;
     }
-    
+
     $key_input = array(
-      'name' => 'instagram',
+      'name' => 'in',
       'info' => array(
-        'vers' => $this->get_private('vers'),
-        'src' => isset($options['instagram_source'])?$options['instagram_source']:'src',
-        'uid' => $instagram_uid,
-        'tag' => isset($options['instagram_tag'])?$options['instagram_tag']:'tag',$options['instagram_tag'],
-        'num' => isset($options['instagram_photo_number'])?$options['instagram_photo_number']:'num',
-        'link' => isset($options['instagram_display_link'])?$options['instagram_display_link']:'link',
-        'text' => isset($options['instagram_display_link_text'])?$options['instagram_display_link_text']:'text',
-        'size' => isset($options['instagram_photo_size'])?$options['instagram_photo_size']:'size',
+        'v' => $this->get_private('vers'),
+        's' => isset($options['instagram_source'])?$options['instagram_source']:'s',
+        'u' => $instagram_uid,
+        't' => isset($options['instagram_tag'])?$options['instagram_tag']:'t',$options['instagram_tag'],
+        'n' => isset($options['instagram_photo_number'])?$options['instagram_photo_number']:'n',
+        'l' => isset($options['instagram_display_link'])?$options['instagram_display_link']:'l',
+        't' => isset($options['instagram_display_link_text'])?$options['instagram_display_link_text']:'t',
+        's' => isset($options['instagram_photo_size'])?$options['instagram_photo_size']:'s',
         )
       );
+		$this->echo_point('Check cache');
     $key = $this->key_maker( $key_input );
-    if( $this->retrieve_from_cache( $key ) ){  return; } // Check Cache
+		
+		if( $this->get_private('testmode') == 1 ){ $this->clear_cache( $key ); }
+		
+		if( $this->retrieve_from_cache( $key ) ){  return; } // Check Cache
     
+		$this->echo_point('Check for access_token');
     // Check if access_token is available for given user
     $users = $this->get_instagram_users();
     if( empty( $users[ $instagram_uid ] ) || empty( $users[ $instagram_uid ]['access_token'] )){
@@ -474,6 +495,7 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
     $request = $this->get_instagram_request( $token, $user_id, $num );
 
     if( $request ) {
+			$this->echo_point('Try accessing Instagram feed');
       $this->append_active_result('hidden','<!-- Using AlpinePT for Instagram v'.$this->get_private('ver').' with JSON-->');
       $this->try_json( $request, $num );
     }
@@ -490,6 +512,10 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
       }else{
         $this->set_active_result('userlink',null);
       }
+			// Only store in cache if successful
+			$this->echo_point('<span style="color:blue">Store results in cache</span>');
+			$this->store_in_cache( $key );  // Store in cache
+			$this->echo_point('Store complete');
     }else{
       if( $this->check_active_result('feed_found') ){
         $this->append_active_result('message','<br>- Instagram feed was successfully retrieved, but no photos found.');
@@ -497,15 +523,13 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
         $this->append_active_result('message','<br>- Instagram feed not found.');
       }
     }
-
-    $this->store_in_cache( $key );  // Store in cache
   }
   
 /**
  *  Function for making Instagram request with json return format ( API v1 and v2 )
  *  
  *  @ Since 1.2.4
- *  @ Updated 1.2.6.3
+ *  @ Updated 1.2.7
  */  
   function try_json( $request, $num ){
     $_instagram_json = $this->fetch_instagram_feed($request);
@@ -515,10 +539,13 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
     $instagram_tag = $this->check_active_option('instagram_tag') ? $this->get_active_option('instagram_tag') : '';
     //var_dump($_instagram_json);
     if( empty($_instagram_json) || !isset($_instagram_json['data']) || empty($_instagram_json['data']) ){
+			$this->echo_point('<span style="color:red">Failed using wp_remote_get()</span>');
+			$this->echo_point('Check your <a href="'.$request.'" target="_blank">Instagram feed</a>. If the feed is empty, then the problem is with Instagram. If you see a full page of text, then the problem is with the Alpine plugin or your web server.');
       $this->append_active_result('hidden','<!-- Failed using wp_remote_get and JSON @ '.$request.' -->');
       $this->set_active_result('success',false);
       return;
     }else{
+			$this->echo_point('Parse/filter results');
       $photos = array();
       $blocked = $this->check_active_option('general_block_users') ? explode(',',str_replace(' ','',$this->get_active_option('general_block_users'))) : array();
       while( !empty($repeat) && count($photos)<$num ){
@@ -548,7 +575,7 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
               $the_photo = array();
 
               $the_photo['image_link'] = (string) isset($imageinfo['link'])?$imageinfo['link']:'';
-              
+							
               $the_photo['image_title'] = (string) isset($imageinfo['caption']['text'])?$imageinfo['caption']['text']:'';
               $the_photo['image_title'] = @wp_strip_all_tags( $the_photo['image_title'] , true );
               $the_photo['image_title'] = @strip_tags( $the_photo['image_title'] );  // Strip HTML
@@ -561,14 +588,18 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
               $the_photo['image_source'] = (string) $url;
               $the_photo['image_original'] = (string) isset($imageinfo['images']['standard_resolution']['url'])?$imageinfo['images']['standard_resolution']['url']:$the_photo['image_source'];
               $photos[] = $the_photo;
+							
+              $this->echo_point( '<span style="color:green">Link: '.$the_photo['image_link'].',<br><span style="padding-left:2em">Src: '.$url.'</span></span>');
             }
           }
         } 
         $next_url = (isset($_instagram_json['pagination']['next_url'])) ? $_instagram_json['pagination']['next_url'] : null;
         if( count($photos)<$num && !empty($next_url) ){
+					$this->echo_point( count($photos).' of '.$num.' photos found. Make another request.');
           $_instagram_json = $this->fetch_instagram_feed($next_url);
         }elseif( count($photos)<$num && 'global_popular' == $this->get_active_option('instagram_source') ){
-            $_instagram_json = $this->fetch_instagram_feed($request);
+					$this->echo_point( count($photos).' of '.$num.' photos found. Make another request.');
+          $_instagram_json = $this->fetch_instagram_feed($request);
         }else{
           $repeat = false;
         }
@@ -576,6 +607,7 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
 
       // Remove offset from photo results
       if( $this->check_active_option('photo_feed_offset') ){
+				$this->echo_point( 'Apply photo offset.');
         $offset = $this->get_active_option('photo_feed_offset');
         if( is_numeric($offset) && $offset > 0 ){
           for($j=0;$j<$offset;$j++){
@@ -593,9 +625,11 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
       }
       
       if( $this->check_active_result('photos') ){
+				$this->echo_point( '<span style="color:blue">'.count($photos).' photos found in feed</span>' );
         $this->set_active_result('success',true);
         $this->append_active_result('hidden','<!-- Success using wp_remote_get() and JSON -->');
       }else{
+				$this->echo_point( '<span style="color:red">No photos found in feed</span>' );
         $this->set_active_result('success',false);
         $this->set_active_result('feed_found',true);
         $this->append_active_result('hidden','<!-- No photos found using wp_remote_get() and JSON @ '.$request.' -->');
@@ -612,7 +646,7 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
   function get_instagram_request( $token, $user_id, $num = 5 ){
     $request = false;
     $options = $this->get_private('options');
-    $num = 2*$num; // Instagram often returns less than requested, so increase request
+    //$num = $num; // Instagram often returns less than requested, so increase request
     if( isset($options['instagram_source']) ){
       switch ($options['instagram_source']) {
         case 'user_recent':
@@ -690,40 +724,51 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
  *  Function for printing vertical style
  *  
  *  @ Since 0.0.1
- *  @ Updated 1.2.6.6
+ *  @ Updated 1.2.7
  */
   function display_vertical(){
     $this->set_private('out',''); // Clear any output;
     $this->update_count(); // Check number of images found
     $this->randomize_display(); 
     $opts = $this->get_private('options');
-    $src = $this->get_private('src');
+		
+		$siteurl = get_option( 'siteurl' );
     $wid = $this->get_private('wid');
-                      
+    $src = $this->get_private('src');
+		$ssl = $this->get_option( 'general_images_ssl' );
+    $pin = $this->get_option( 'pinterest_pin_it_button' );
+		
+		$shadow = ($this->check_active_option('style_shadow')?'AlpinePhotoTiles-img-shadow':'AlpinePhotoTiles-img-noshadow');
+    $border = ($this->check_active_option('style_border')?'AlpinePhotoTiles-img-border':'AlpinePhotoTiles-img-noborder');
+    $curves = ($this->check_active_option('style_curve_corners')?'AlpinePhotoTiles-img-corners':'AlpinePhotoTiles-img-nocorners');
+    $highlight = ($this->check_active_option('style_highlight')?'AlpinePhotoTiles-img-highlight':'AlpinePhotoTiles-img-nohighlight');
+    $onContextMenu = ($this->check_active_option('general_disable_right_click')?'onContextMenu="return false;"':'');
+		
     $this->add('<div id="'.$wid.'-AlpinePhotoTiles_container" class="AlpinePhotoTiles_container_class">');     
     
       // Align photos
       $css = $this->get_parent_css();
       $this->add('<div id="'.$wid.'-vertical-parent" class="AlpinePhotoTiles_parent_class" style="'.$css.'">');
-
+				$this->echo_point( 'Place photos in HTML' );
+				$css = "margin:1px 0 5px 0;padding:0;max-width:100%;";
         for($i = 0;$i<$opts[$src.'_photo_number'];$i++){
-          $css = "margin:1px 0 5px 0;padding:0;max-width:100%;";
-          $pin = $this->get_option( 'pinterest_pin_it_button' );
-          $this->add_image($i,$css,$pin); // Add image
+					$this->add_image($i,$siteurl,$wid,$src,$shadow,$border,$curves,$highlight,$onContextMenu,$ssl,$pin,$css); // Add image
         }
-        
-        $this->add_credit_link();
+        $this->echo_point( 'Placement complete' );
+        $this->add_credit_link($wid);
       
       $this->add('</div>'); // Close vertical-parent
 
-      $this->add_user_link();
+      $this->add_user_link($wid);
 
     $this->add('</div>'); // Close container
     $this->add('<div class="AlpinePhotoTiles_breakline"></div>');
     
+		$this->echo_point( 'Prepare JS/jQuery code' );
     // Add Lightbox call (if necessary)
+		$this->echo_point( 'Check/add lightbox JS' );
     $this->add_lightbox_call();
-    
+    $this->echo_point( 'Check/add border style JS' );
     $parentID = $wid."-vertical-parent";
     $borderCall = $this->get_borders_call( $parentID );
 
@@ -735,49 +780,61 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
  *  Function for printing cascade style
  *  
  *  @ Since 0.0.1
- *  @ Updated 1.2.6.6
+ *  @ Updated 1.2.7
  */
   function display_cascade(){
     $this->set_private('out',''); // Clear any output;
     $this->update_count(); // Check number of images found
     $this->randomize_display();
     $opts = $this->get_private('options');
+
+		$siteurl = get_option( 'siteurl' );
     $wid = $this->get_private('wid');
     $src = $this->get_private('src');
-    
+		$ssl = $this->get_option( 'general_images_ssl' );
+    $pin = $this->get_option( 'pinterest_pin_it_button' );
+		
+		$shadow = ($this->check_active_option('style_shadow')?'AlpinePhotoTiles-img-shadow':'AlpinePhotoTiles-img-noshadow');
+    $border = ($this->check_active_option('style_border')?'AlpinePhotoTiles-img-border':'AlpinePhotoTiles-img-noborder');
+    $curves = ($this->check_active_option('style_curve_corners')?'AlpinePhotoTiles-img-corners':'AlpinePhotoTiles-img-nocorners');
+    $highlight = ($this->check_active_option('style_highlight')?'AlpinePhotoTiles-img-highlight':'AlpinePhotoTiles-img-nohighlight');
+    $onContextMenu = ($this->check_active_option('general_disable_right_click')?'onContextMenu="return false;"':'');
+		
     $this->add('<div id="'.$wid.'-AlpinePhotoTiles_container" class="AlpinePhotoTiles_container_class">');     
     
       // Align photos
       $css = $this->get_parent_css();
       $this->add('<div id="'.$wid.'-cascade-parent" class="AlpinePhotoTiles_parent_class" style="'.$css.'">');
-      
+				$this->echo_point( 'Place photos in HTML' );
+				$css = "margin:1px 0 5px 0;padding:0;max-width:100%;";
+				$width = (100/$opts['style_column_number']);
         for($col = 0; $col<$opts['style_column_number'];$col++){
-          $this->add('<div class="AlpinePhotoTiles_cascade_column" style="width:'.(100/$opts['style_column_number']).'%;float:left;margin:0;">');
+          $this->add('<div class="AlpinePhotoTiles_cascade_column" style="width:'.$width.'%;float:left;margin:0;">');
           $this->add('<div class="AlpinePhotoTiles_cascade_column_inner" style="display:block;margin:0 3px;overflow:hidden;">');
           for($i = $col;$i<$opts[$src.'_photo_number'];$i+=$opts['style_column_number']){
-            $css = "margin:1px 0 5px 0;padding:0;max-width:100%;";
-            $pin = $this->get_option( 'pinterest_pin_it_button' );
-            $this->add_image($i,$css,$pin); // Add image
+            $this->add_image($i,$siteurl,$wid,$src,$shadow,$border,$curves,$highlight,$onContextMenu,$ssl,$pin,$css); // Add image
           }
           $this->add('</div></div>');
         }
         $this->add('<div class="AlpinePhotoTiles_breakline"></div>');
           
-        $this->add_credit_link();
-      
+        $this->add_credit_link($wid);
+				$this->echo_point( 'Placement complete' );
       $this->add('</div>'); // Close cascade-parent
 
       $this->add('<div class="AlpinePhotoTiles_breakline"></div>');
       
-      $this->add_user_link();
+      $this->add_user_link($wid);
 
     // Close container
     $this->add('</div>');
     $this->add('<div class="AlpinePhotoTiles_breakline"></div>');
     
+		$this->echo_point( 'Prepare JS/jQuery code' );
     // Add Lightbox call (if necessary)
+		$this->echo_point( 'Check/add lightbox JS' );
     $this->add_lightbox_call();
-    
+    $this->echo_point( 'Check/add border style JS' );
     $parentID = $wid."-cascade-parent";
     $borderCall = $this->get_borders_call( $parentID );
 
@@ -794,7 +851,8 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
   function get_borders_call( $parentID ){
     $highlight = $this->get_option("general_highlight_color");
     $highlight = (!empty($highlight)?$highlight:'#64a2d8');
-    
+
+		// NOTE: BE CAREFUL ABOUT BREAKLINES, && SYMBOLS, AND LEADING SPACES
     $return ="		// Use self invoking function expression
 		(function() {// Wait for window to load. Them start plugin.
 			var alpinePluginLoadingFunction = function(method){
@@ -837,47 +895,60 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
  *  Function for printing and initializing JS styles
  *  
  *  @ Since 0.0.1
- *  @ Updated 1.2.6.6
+ *  @ Updated 1.2.7
  */
   function display_hidden(){
     $this->set_private('out',''); // Clear any output;
     $this->update_count(); // Check number of images found
     $this->randomize_display();
     $opts = $this->get_private('options');
+		
+		$siteurl = get_option( 'siteurl' );
     $wid = $this->get_private('wid');
-    $src = $this->get_private('src');
+    $src = $this->get_private('src');		
     $ssl = $this->get_option( 'general_images_ssl' );
     
+		$shadow = ($this->check_active_option('style_shadow')?'AlpinePhotoTiles-img-shadow':'AlpinePhotoTiles-img-noshadow');
+    $border = ($this->check_active_option('style_border')?'AlpinePhotoTiles-img-border':'AlpinePhotoTiles-img-noborder');
+    $curves = ($this->check_active_option('style_curve_corners')?'AlpinePhotoTiles-img-corners':'AlpinePhotoTiles-img-nocorners');
+    $highlight = ($this->check_active_option('style_highlight')?'AlpinePhotoTiles-img-highlight':'AlpinePhotoTiles-img-nohighlight');
+    $onContextMenu = ($this->check_active_option('general_disable_right_click')?'onContextMenu="return false;"':'');
+		
     $this->add('<div id="'.$wid.'-AlpinePhotoTiles_container" class="AlpinePhotoTiles_container_class">');     
       // Align photos
       $css = $this->get_parent_css();
       $this->add('<div id="'.$wid.'-hidden-parent" class="AlpinePhotoTiles_parent_class" style="'.$css.'">');
-      
+				
+				$this->echo_point( 'Place photos in HTML' );
         $this->add('<div id="'.$wid.'-image-list" class="AlpinePhotoTiles_image_list_class" style="display:none;visibility:hidden;">'); 
-        
           for($i=0;$i<$opts[$src.'_photo_number'];$i++){
 
-            $this->add_image($i); // Add image
+						$this->add_image($i,$siteurl,$wid,$src,$shadow,$border,$curves,$highlight,$onContextMenu,$ssl,false,false); // Add image
             
-            // Load original image size
-            $original = $this->get_photo_info($i,'image_original');
-            if( isset($opts['style_option']) && "gallery" == $opts['style_option'] && !empty( $original ) ){
-              if( $ssl ){
-                $original = str_replace("http:", "https:", $original, $temp = 1);
-              }
-              $this->add('<img class="AlpinePhotoTiles-original-image" src="' . $original . '" />');
+            if( isset($opts['style_option']) && "gallery" == $opts['style_option'] ){
+							// Load original image size
+							$original = $this->get_photo_info($i,'image_original');
+							if( !empty( $original ) ){
+								if( $ssl ){
+									$original = str_replace("http:", "https:", $original, $temp = 1);
+								}
+								$this->add('<img class="AlpinePhotoTiles-original-image" src="' . $original . '" />');
+							}
             }
           }
         $this->add('</div>');
-        
-        $this->add_credit_link();       
+        $this->echo_point( 'Placement complete' );
+        $this->add_credit_link($wid);       
       
       $this->add('</div>'); // Close parent  
 
-      $this->add_user_link();
+      $this->add_user_link($wid);
       
     $this->add('</div>'); // Close container
+
+		$this->echo_point( 'Prepare JS/jQuery code' );
     
+		$this->echo_point( 'Check lightbox and link options' );
     $disable = $this->get_option("general_loader");
 
     $lightbox = $this->get_option('general_lightbox');
@@ -895,7 +966,8 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
         $hasLight = true;
       }
     }
-    
+
+		// NOTE: BE CAREFUL ABOUT BREAKLINES, && SYMBOLS, AND LEADING SPACES
     $this->add("<script type='text/javascript'><!--//--><![CDATA[//><!--");
       if(!$disable){
         $this->add("		//Check for jQuery
@@ -906,9 +978,9 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
 			});
 		}");
       }
-  
+		$this->echo_point( 'Get Apline JS Plugin call' );  
     $pluginCall = $this->get_loading_call($opts,$wid,$src,$lightbox,$hasLight,$lightScript,$lightStyle);
-    
+    $this->echo_point( 'Add JS to HTML page' );
     $this->add("		//Use self invoking function expression
 		(function(){
 			// Wait for window to load. Them start plugin.
@@ -938,6 +1010,7 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
  *  @ Since 1.2.6.5
  */
   function get_loading_call($opts,$wid,$src,$lightbox,$hasLight,$lightScript,$lightStyle){
+		// NOTE: BE CAREFUL ABOUT BREAKLINES, && SYMBOLS, AND LEADING SPACES
     $return = "jQuery('#".$wid."-AlpinePhotoTiles_container').removeClass('loading');
 				var alpineLoadPlugin = function(){".$this->get_plugin_call($opts,$wid,$src,$hasLight)."}
 				// Load Alpine Plugin
@@ -1051,40 +1124,28 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
  *  Add Image Function
  *  
  *  @ Since 1.2.2
- *  @ Updated 1.2.6.6
- ** Possible change: place original image as 'alt' and load image as needed
+ *  @ Updated 1.2.7
+ *  Possible change: place original image as 'alt' and load image as needed
  */
-  function add_image($i,$css="",$pin=false){
-    $light = $this->get_option( 'general_lightbox' );
-    $title = $this->get_photo_info($i,'image_title');
-    $src = $this->get_photo_info($i,'image_source');
-    $ssl = $this->get_option( 'general_images_ssl' );
-    if( $ssl ){
-      $src = str_replace("http:", "https:", $src, $temp = 1);
-    }
-    $shadow = ($this->check_active_option('style_shadow')?'AlpinePhotoTiles-img-shadow':'AlpinePhotoTiles-img-noshadow');
-    $border = ($this->check_active_option('style_border')?'AlpinePhotoTiles-img-border':'AlpinePhotoTiles-img-noborder');
-    $curves = ($this->check_active_option('style_curve_corners')?'AlpinePhotoTiles-img-corners':'AlpinePhotoTiles-img-nocorners');
-    $highlight = ($this->check_active_option('style_highlight')?'AlpinePhotoTiles-img-highlight':'AlpinePhotoTiles-img-nohighlight');
-    $onContextMenu = ($this->check_active_option('general_disable_right_click')?'onContextMenu="return false;"':'');
+  function add_image($i,$siteurl,$wid,$src,$shadow,$border,$curves,$highlight,$onContextMenu,$ssl=false,$pin=false,$css=""){
+    $imagetitle = $this->get_photo_info($i,'image_title');
+    $imagesrc = $this->get_photo_info($i,'image_source');
     
+    if( $ssl ){ $imagesrc = str_replace("http:", "https:", $imagesrc, $temp = 1); }
     if( $pin ){ $this->add('<div class="AlpinePhotoTiles-pinterest-container" style="position:relative;display:block;" >'); }
-    
-    //$src = $this->getImageCache( $this->photos[$i]['image_source'] );
-    //$src = ( $src?$src:$this->photos[$i]['image_source']);
-    
-    $has_link = $this->get_link($i); // Add link
-    $this->add('<img id="'.$this->get_private('wid').'-tile-'.$i.'" class="AlpinePhotoTiles-image '.$shadow.' '.$border.' '.$curves.' '.$highlight.'" src="' . $src . '" ');
-    $this->add('title='."'". $title ."'".' alt='."'". $title ."' "); // Careful about caps with ""
-    $this->add('border="0" hspace="0" vspace="0" style="'.$css.'" '.$onContextMenu.' />'); // Override the max-width set by theme
+
+    $has_link = $this->get_link($i,$imagetitle,$src,$ssl); // Add link
+		$inside = '<img id="'.$wid.'-tile-'.$i.'" class="AlpinePhotoTiles-image '.$shadow.' '.$border.' '.$curves.' '.$highlight.'" src="'. $imagesrc .'" ';
+		$inside .= 'title=" '. $imagetitle .' " alt=" '. $imagetitle .' " border="0" hspace="0" vspace="0" style="'.$css.'" '.$onContextMenu.' />'; // Careful about caps with ""
+    $this->add($inside); // Override the max-width set by theme
     if( $has_link ){ $this->add('</a>'); } // Close link
-    
+
     if( $pin ){ 
       $original = $this->get_photo_info($i,'image_original');
       if( $ssl ){
         $original = str_replace("http:", "https:", $original, $temp = 1);
       }
-      $this->add('<a href="http://pinterest.com/pin/create/button/?media='.$original.'&url='.get_option( 'siteurl' ).'" class="AlpinePhotoTiles-pin-it-button" count-layout="horizontal" target="_blank">');
+      $this->add('<a href="http://pinterest.com/pin/create/button/?media='.$original.'&url='.$siteurl.'" class="AlpinePhotoTiles-pin-it-button" count-layout="horizontal" target="_blank">');
       $this->add('<div class="AlpinePhotoTiles-pin-it"></div></a>');
       $this->add('</div>');
     }
@@ -1093,36 +1154,39 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
  *  Get Image Link
  *  
  *  @ Since 1.2.2
- *  @ Updated 1.2.6.6
+ *  @ Updated 1.2.7
  */
-  function get_link($i){
-    $src = $this->get_private('src');
-    $link = $this->get_active_option($src.'_image_link_option');
-    $url = $this->get_active_option('custom_link_url');
+  function get_link($i,$imagetitle,$src,$ssl=false){
+    
+		$ilink = $this->get_active_option($src.'_image_link_option');
 
-    $phototitle = $this->get_photo_info($i,'image_title'); 
-    $photourl = $this->get_photo_info($i,'image_source');
-    $linkurl = $this->get_photo_info($i,'image_link');
-    $originalurl = $this->get_photo_info($i,'image_original');
-    $ssl = $this->get_option( 'general_images_ssl' );
-    if( $ssl ){
-      $photourl = str_replace("http:", "https:", $photourl, $temp = 1);
-      $originalurl = str_replace("http:", "https:", $originalurl, $temp = 1);
-    }
-    if( 'original' == $link && !empty($photourl) ){
-      $this->add('<a href="' . $photourl . '" class="AlpinePhotoTiles-link" target="_blank" title=" '. $phototitle .' " alt=" '. $phototitle .' ">');
-      return true;
-    }elseif( ($src == $link || '1' == $link) && !empty($linkurl) ){
-      $this->add('<a href="' . $linkurl . '" class="AlpinePhotoTiles-link" target="_blank" title=" '. $phototitle .' " alt=" '. $phototitle .' ">');
-      return true;
-    }elseif( 'link' == $link && !empty($url) ){
-      $this->add('<a href="' . $url . '" class="AlpinePhotoTiles-link" title=" '. $phototitle .' " alt=" '. $phototitle .' ">'); 
-      return true;
-    }elseif( 'fancybox' == $link && !empty($originalurl) ){
-      $light = $this->get_option( 'general_lightbox' );
-      $this->add('<a href="' . $originalurl . '" class="AlpinePhotoTiles-link AlpinePhotoTiles-lightbox" title=" '. $phototitle .' " alt=" '. $phototitle .' ">'); 
-      return true;
-    }  
+    if( 'fancybox' == $ilink ){
+			$originalurl = $this->get_photo_info($i,'image_original');
+			if( $ssl ){ $originalurl = str_replace("http:", "https:", $originalurl, $temp = 1); }
+			if( !empty($originalurl) ){
+				$this->add('<a href="' . $originalurl . '" class="AlpinePhotoTiles-link AlpinePhotoTiles-lightbox" title=" '. $imagetitle .' " alt=" '. $imagetitle .' ">'); 
+				return true;
+			}
+		}elseif( ($src == $ilink || '1' == $ilink) ){
+			$linkurl = $this->get_photo_info($i,'image_link');
+			if( !empty($linkurl) ){
+				$this->add('<a href="' . $linkurl . '" class="AlpinePhotoTiles-link" target="_blank" title=" '. $imagetitle .' " alt=" '. $imagetitle .' ">');
+				return true;
+			}
+    }elseif( 'link' == $ilink ){
+			$url = $this->get_active_option('custom_link_url');
+			if( !empty($url) ){
+				$this->add('<a href="' . $url . '" class="AlpinePhotoTiles-link" title=" '. $imagetitle .' " alt=" '. $imagetitle .' ">'); 
+				return true;
+			}
+    }elseif( 'original' == $ilink ){
+			$photourl = $this->get_photo_info($i,'image_source');
+			if( $ssl ){ $photourl = str_replace("http:", "https:", $photourl, $temp = 1);	}
+			if( !empty($photourl) ){
+				$this->add('<a href="' . $photourl . '" class="AlpinePhotoTiles-link" target="_blank" title=" '. $imagetitle .' " alt=" '. $imagetitle .' ">');
+				return true;
+			}
+		}
     return false;    
   }
 /**
@@ -1130,9 +1194,9 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
  *  
  *  @ Since 1.2.2
  */
-  function add_credit_link(){
+  function add_credit_link($wid){
     if( !$this->get_active_option('widget_disable_credit_link') ){
-      $this->add('<div id="'.$this->get_private('wid').'-by-link" class="AlpinePhotoTiles-by-link"><a href="http://thealpinepress.com/" style="COLOR:#C0C0C0;text-decoration:none;" title="Widget by The Alpine Press">TAP</a></div>');
+      $this->add('<div id="'.$wid.'-by-link" class="AlpinePhotoTiles-by-link"><a href="http://thealpinepress.com/" style="COLOR:#C0C0C0;text-decoration:none;" title="Widget by The Alpine Press">TAP</a></div>');
     }  
   }
   
@@ -1141,15 +1205,15 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
  *  
  *  @ Since 1.2.2
  */
-  function add_user_link(){
+  function add_user_link($wid){
     if( $this->check_active_result('userlink') ){
       $userlink = $this->get_active_result('userlink');
       if($this->get_active_option('widget_alignment') == 'center'){                          //  Optional: Set text alignment (left/right) or center
-        $this->add('<div id="'.$this->get_private('wid').'-display-link" class="AlpinePhotoTiles-display-link-container" ');
+        $this->add('<div id="'.$wid.'-display-link" class="AlpinePhotoTiles-display-link-container" ');
         $this->add('style="width:100%;margin:0px auto;">'.$userlink.'</div>');
       }
       else{
-        $this->add('<div id="'.$this->get_private('wid').'-display-link" class="AlpinePhotoTiles-display-link-container" ');
+        $this->add('<div id="'.$wid.'-display-link" class="AlpinePhotoTiles-display-link-container" ');
         $this->add('style="float:'.$this->get_active_option('widget_alignment').';max-width:'.$this->get_active_option('widget_max_width').'%;"><center>'.$userlink.'</center></div>'); 
         $this->add('<div class="AlpinePhotoTiles_breakline"></div>'); // Only breakline if floating
       }
@@ -1175,6 +1239,7 @@ class PhotoTileForInstagramBot extends PhotoTileForInstagramBotTertiary{
 			$lightStyle = $this->get_style( $lightbox );
 			if( !empty($lightScript) && !empty($lightStyle) ){
 				$lightCall = $this->get_lightbox_call();
+				// NOTE: BE CAREFUL ABOUT BREAKLINES, && SYMBOLS, AND LEADING SPACES
 				$lightboxSetup = "
 			if( !jQuery().".$check." ){
 				var css = '".$lightStyle."';

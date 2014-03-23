@@ -461,10 +461,10 @@
         
         if(perm){
           if(options.lightbox){
-            newDiv.wrap('<a href="'+perm.href+'" title="'+perm.title+'" alt="'+perm.title+'"  class="AlpinePhotoTiles-link AlpinePhotoTiles-lightbox" target="_blank"></a>');
+            newDiv.wrap('<a href="'+perm.href+'" title="'+perm.title+'" alt="'+perm.title+'"  class="AlpinePhotoTiles-link AlpinePhotoTiles-lightbox" target="'+perm.target+'"></a>');
             s(perm).removeClass( 'AlpinePhotoTiles-lightbox' );
           }else{
-            newDiv.wrap('<a href="'+perm.href+'" class="AlpinePhotoTiles-link" target="_blank"></a>');
+            newDiv.wrap('<a href="'+perm.href+'" class="AlpinePhotoTiles-link" target="'+perm.target+'"></a>');
           }
         }
         /*if( img.title ){

@@ -3,7 +3,7 @@
 Plugin Name: Alpine PhotoTile for Instagram
 Plugin URI: http://thealpinepress.com/alpine-phototile-for-instagram/
 Description: The Alpine PhotoTile for Instagram is capable of retrieving photos from a particular Instagram user or tag. The photos can be linked to the your Instagram page, a specific URL, or to a Fancybox slideshow. Also, the Shortcode Generator makes it easy to insert the widget into posts without learning any of the code. This lightweight but powerful widget takes advantage of WordPress's built in JQuery scripts to create a sleek presentation that I hope you will like.
-Version: 1.2.6.6
+Version: 1.2.7
 Author: the Alpine Press
 Author URI: http://thealpinepress.com/
 License: GNU General Public License v3.0
@@ -46,7 +46,7 @@ Copyright 2014  Eric Burger
  * Register Widget
  *  
  * @ Since 1.0.0
- * @ Updated 1.2.5
+ * @ Updated 1.2.7
  */
   function APTFINbyTAP_widget_register() {
 
@@ -57,12 +57,32 @@ Copyright 2014  Eric Burger
     }
     include_once( WP_PLUGIN_DIR.'/'.basename(dirname(__FILE__)).'/gears/plugin-widget.php' );
     include_once( WP_PLUGIN_DIR.'/'.basename(dirname(__FILE__)).'/gears/plugin-shortcode.php' );
+		
+		// Add JSON encoding functions, if necessary
+		if (!function_exists('json_decode')) {
+				// Check if already added
+				if (!function_exists('alpine_json_decode')) {
+					// Use Services_JSON by PEAR, http://pear.php.net/package/Services_JSON/
+					include_once( WP_PLUGIN_DIR.'/'.basename(dirname(__FILE__)).'/gears/JSON.php' );
+					function alpine_json_decode($content, $assoc=false) {
+							if( class_exists('Services_JSON') ){
+									if ($assoc) {
+											$json = new Services_JSON(SERVICES_JSON_LOOSE_TYPE);
+									}
+									else {
+											$json = new Services_JSON;
+									}
+									$result = $json->decode($content);
+									return $result;
+							}
+							return false;
+					}
+				}
+		}		
     register_widget( 'Alpine_PhotoTile_for_Instagram' );
   }
   add_action('widgets_init','APTFINbyTAP_widget_register');
 
-
-  
 /**
  * Load Admin JS and CSS
  *  
@@ -195,6 +215,7 @@ Copyright 2014  Eric Burger
  * Settings link on plugin page
  *
  * @ Since 1.2.5
+ * @ Updated 1.2.7
  */
   function APTFINbyTAP_plugin_settings_link($links) { 
     $bot = new PhotoTileForInstagramPrimary();
@@ -204,6 +225,8 @@ Copyright 2014  Eric Burger
     array_push($links, $generator_link); 
     $settings_link = '<a href="options-general.php?page='.$bot->get_private('settings').'&tab=plugin-settings">'. __('Settings') .'</a>'; 
     array_push($links, $settings_link);     
+    $tools_link = '<a href="options-general.php?page='.$bot->get_private('settings').'&tab=plugin-tools">'. __('Tools') .'</a>'; 
+    array_push($links, $tools_link);  
     return $links; 
   }
   $plugin = plugin_basename(__FILE__); 
