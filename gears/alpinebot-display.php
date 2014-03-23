@@ -343,7 +343,7 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
     $response = wp_remote_get($request,
       array(
         'method' => 'GET',
-        'timeout' => 10,
+        'timeout' => 20,
         'sslverify' => apply_filters('https_local_ssl_verify', false)
       )
     );
