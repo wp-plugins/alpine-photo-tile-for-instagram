@@ -541,7 +541,7 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
     if( empty($_instagram_json) || !isset($_instagram_json['data']) || empty($_instagram_json['data']) ){
 			$this->echo_point('<span style="color:red">Failed using wp_remote_get()</span>');
 			$this->echo_point('Check your <a href="'.$request.'" target="_blank">Instagram feed</a>. If the feed is empty, then the problem is with Instagram. If you see a full page of text, then the problem is with the Alpine plugin or your web server.');
-      $this->append_active_result('hidden','<!-- Failed using wp_remote_get and JSON @ '.$request.' -->');
+      $this->append_active_result('hidden','<!-- Failed using wp_remote_get and JSON -->');
       $this->set_active_result('success',false);
       return;
     }else{
@@ -632,7 +632,7 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
 				$this->echo_point( '<span style="color:red">No photos found in feed</span>' );
         $this->set_active_result('success',false);
         $this->set_active_result('feed_found',true);
-        $this->append_active_result('hidden','<!-- No photos found using wp_remote_get() and JSON @ '.$request.' -->');
+        $this->append_active_result('hidden','<!-- No photos found using wp_remote_get() and JSON -->');
       }
     }
   }
