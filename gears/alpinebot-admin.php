@@ -1246,13 +1246,7 @@ class PhotoTileForInstagramAdmin extends PhotoTileForInstagramAdminSecondary{
 						echo '<b>Check:</b> <span style="color:green">curl_init function found</span>.';
 						// Try connecting to Instagram.com
 						$request = 'http://instagram.com/';
-						$response = wp_remote_get($request,
-							array(
-								'method' => 'GET',
-								'timeout' => 10,
-								'sslverify' => apply_filters('https_local_ssl_verify', false)
-							)
-						);
+						$response = wp_remote_get($request,array('timeout' => 10));
 						if( is_wp_error( $response ) ){
 							echo '<br><b>Check:</b> <span style="color:red">Plugin failed to connect to Instagram.com.</span>';
 							echo '<br><b>WordPress Error Message:</b> '.$response->get_error_message().'.';

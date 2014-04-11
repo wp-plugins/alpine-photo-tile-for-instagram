@@ -183,6 +183,7 @@ I am a one-man development team and I distribute these plugins for free, so plea
 * Add echo_point function
 * Add Plugin Tools page with plugin loading speed test.
 * Disabled Delete Cache button (will not work with transient)
+* Updated manual_cURL function
 
 = TODO =
 * Move JS to seperate file

@@ -88,7 +88,7 @@ class PhotoTileForInstagramBotSecondary extends PhotoTileForInstagramPrimary{
 					// Retreive from transient
 					$results = get_transient( $id.'_record' );
 					if( count($results) ){
-						$results['hidden'] .= '<!-- Retrieved from transient -->';
+						$results['hidden'] = $results['hidden'].'<!-- Retrieved from transient -->';
 						$this->set_private('results',$results);
 						if( $this->check_active_result('photos') ){
 							$this->echo_point('Cache found. Returned from transient.');
@@ -344,7 +344,7 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
       array(
         'method' => 'GET',
         'timeout' => 20,
-        'sslverify' => apply_filters('https_local_ssl_verify', false)
+        'sslverify' => false
       )
     );
     $this->append_active_result('hidden','<!-- Request made -->');
@@ -355,7 +355,7 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
       $this->append_active_result('hidden','<!-- An error occured -->');
       if( is_wp_error( $response ) ){
         $this->append_active_result('hidden','<!-- '.$response->get_error_message().' -->');
-				$this->echo_point('Error message:'.$response->get_error_message());
+				$this->echo_point('Error message: '.$response->get_error_message());
       }elseif( !isset($response['body']) ){
 				$this->echo_point('Plugin received an empty feed');
         $this->append_active_result('hidden','<!-- No body set -->');
@@ -363,10 +363,23 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
       // Try again
       if( method_exists( $this, 'manual_cURL' ) ){
 				$this->echo_point('<span style="color:blue">Try request again using Alpine\'s cURL function</span>');
-        $content = $this->manual_cURL($request);
+				$r = $this->manual_cURL($request,true);
 				$this->echo_point('Request complete');
+				if( isset($r['body']) && !empty( $r['body'] ) ){
+					if( isset($r['code']) && !empty( $r['code'] ) && $r['code'] >= 200 && $r['code'] < 300 ){
+						// All Good
+						$content = $r['body'];
+					}else{
+						// Error
+						$this->echo_point('<span style="color:red">An error occured.</span>');
+						if( isset($r['code']) ){
+						$this->echo_point('<span style="color:red">Code</span>: '.$r['code']);
+						}
+						$this->echo_point('Content Received: '.esc_html($r['body']));
+						return false;
+					}
+				}
       }
-      
       if( !isset($content) ){
 				$this->echo_point('No content found');
         return false;
@@ -381,7 +394,30 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
 			if( !empty($response['response']['message']) ){
 				$this->echo_point('<span style="color:red">Message</span>: '.$response['response']['message']);
 			}
-			return false;
+      // Try again
+      if( method_exists( $this, 'manual_cURL' ) ){
+				$this->echo_point('<span style="color:blue">Try request again using Alpine\'s cURL function</span>');
+				$r = $this->manual_cURL($request,true);
+				$this->echo_point('Request complete');
+				if( isset($r['body']) && !empty( $r['body'] ) ){
+					if( isset($r['code']) && !empty( $r['code'] ) && $r['code'] >= 200 && $r['code'] < 300 ){
+						// All Good
+						$content = $r['body'];
+					}else{
+						// Error
+						$this->echo_point('<span style="color:red">An error occured.</span>');
+						if( isset($r['code']) ){
+						$this->echo_point('<span style="color:red">Code</span>: '.$r['code']);
+						}
+						$this->echo_point('Content Received: '.esc_html($r['body']));
+						return false;
+					}
+				}
+      }
+      if( !isset($content) || empty($content) ){
+				$this->echo_point('No content found');
+        return false;
+      }
 		}else{
 			$this->echo_point('Content received from Instagram');
       $content = $response['body'];
@@ -404,8 +440,9 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
     }
 
     if( empty($_instagram_json) || !isset($_instagram_json['meta']['code']) ){
-			$this->echo_point('<span style="color:red">An error occured: Empty JSON.</span>');
-      $this->append_active_result('hidden','<!-- An error occured: Empty JSON -->');
+			$this->echo_point('<span style="color:red">An error occured: No JSON Data.</span>');
+      $this->append_active_result('hidden','<!-- An error occured: No JSON Data -->');
+			$this->echo_point('Content Received: '.esc_html($content));
       return false;
     }elseif( 200 != $_instagram_json['meta']['code'] ){
       $this->append_active_result('hidden','<!-- An error occured: Code '.$_instagram_json['meta']['code'].' -->');
@@ -475,8 +512,9 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
     }
     
     $token = $users[ $instagram_uid ]['access_token'];
+		$client_id = $users[ $instagram_uid ]['client_id'];
     $user_id = $users[ $instagram_uid ]['user_id'];
-    
+
     $blocked = $this->check_active_option('general_block_users') ? explode(',',str_replace(' ','',$this->get_active_option('general_block_users'))) : array();
     if( !empty($blocked) && (in_array($instagram_uid,$blocked)||in_array($user_id,$blocked)) ){
       $this->append_active_result('hidden','<!-- User '.$instagram_uid.' is blocked -->');
@@ -492,7 +530,7 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
     if( $this->check_active_option('photo_feed_shuffle') && function_exists('shuffle') ){ // Shuffle the results
       $num = min( 50, $num*4 );
     }
-    $request = $this->get_instagram_request( $token, $user_id, $num );
+    $request = $this->get_instagram_request( $token, $client_id, $user_id, $num );
 
     if( $request ) {
 			$this->echo_point('Try accessing Instagram feed');
@@ -536,7 +574,6 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
 
     $repeat = true;
     $record = array();
-    $instagram_tag = $this->check_active_option('instagram_tag') ? $this->get_active_option('instagram_tag') : '';
     //var_dump($_instagram_json);
     if( empty($_instagram_json) || !isset($_instagram_json['data']) || empty($_instagram_json['data']) ){
 			$this->echo_point('<span style="color:red">Failed using wp_remote_get()</span>');
@@ -548,6 +585,7 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
 			$this->echo_point('Parse/filter results');
       $photos = array();
       $blocked = $this->check_active_option('general_block_users') ? explode(',',str_replace(' ','',$this->get_active_option('general_block_users'))) : array();
+			$instagram_tag = $this->check_active_option('instagram_tag') ? $this->get_active_option('instagram_tag') : '';
       while( !empty($repeat) && count($photos)<$num ){
         $data = $_instagram_json['data'];
         //var_dump( $data );
@@ -642,15 +680,16 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
  *  Function for forming Instagram request
  *  
  *  @ Since 1.2.4
+ *  @ Updated 1.2.7
  */ 
-  function get_instagram_request( $token, $user_id, $num = 5 ){
+  function get_instagram_request( $token, $client_id, $user_id, $num = 5 ){
     $request = false;
     $options = $this->get_private('options');
     //$num = $num; // Instagram often returns less than requested, so increase request
     if( isset($options['instagram_source']) ){
       switch ($options['instagram_source']) {
         case 'user_recent':
-          $request = 'https://api.instagram.com/v1/users/'.$user_id.'/media/recent/?access_token='.$token.'&count='.$num;
+          $request = 'https://api.instagram.com/v1/users/'.$user_id.'/media/recent/?client_id='.$client_id.'&count='.$num;
         break;
         case 'user_feed':
           $request = 'https://api.instagram.com/v1/users/self/feed?access_token='.$token.'&count='.$num.'';
@@ -659,9 +698,9 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
           $request = 'https://api.instagram.com/v1/users/self/media/liked?access_token='.$token.'&count='.$num.'';
         break;
         case 'user_tag':
-          $this->append_active_result('hidden','<!-- with User_Tag -->');
           $instagram_tag = empty($options['instagram_tag']) ? '' : $options['instagram_tag'];
-          $request = 'https://api.instagram.com/v1/users/'.$user_id.'/media/recent/?access_token='.$token.'&count='.$num;
+          $request = 'https://api.instagram.com/v1/users/'.$user_id.'/media/recent/?client_id='.$client_id.'&count='.$num;
+					$this->append_active_result('hidden','<!-- with User_Tag: '.$instagram_tag.' -->');
         break;
         case 'global_popular':
           $request = 'https://api.instagram.com/v1/media/popular?access_token='.$token.'&count='.$num;
@@ -677,7 +716,7 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
     /*    protected $_endpointUrls = array(
         'user' => 'https://api.instagram.com/v1/users/%d/?access_token=%s',
         'user_feed' => 'https://api.instagram.com/v1/users/self/feed?access_token=%s&max_id=%s&min_id=%s&count=%d',
-        'user_recent' => 'https://api.instagram.com/v1/users/%s/media/recent/?access_token=%s&max_id=%s&min_id=%d&max_timestamp=%d&min_timestamp=%d&count=%d', // 2011-10-18: Changed %d to %s
+        'user_recent' => 'https://api.instagram.com/v1/users/%s/media/recent/?client_id=%s&max_id=%s&min_id=%d&max_timestamp=%d&min_timestamp=%d&count=%d', // 2011-10-18: Changed %d to %s
         'user_search' => 'https://api.instagram.com/v1/users/search?q=%s&access_token=%s',
         'user_follows' => 'https://api.instagram.com/v1/users/%d/follows?access_token=%s',
         'user_followed_by' => 'https://api.instagram.com/v1/users/%d/followed-by?access_token=%s',

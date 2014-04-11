@@ -351,22 +351,25 @@ class PhotoTileForInstagramPrimary {
  * cURL Function
  *  
  * @ Since 1.2.6
- * 
+ * @ Updated 1.2.7
  */
-  function manual_cURL( $request, $fields = null ){
+  function manual_cURL( $request, $array_resp = false, $fields = null ){
     if( function_exists('curl_init') ){
+			$v = get_bloginfo( 'version' );
+			$u = get_bloginfo( 'url' );
       $this->append_active_result('hidden','<!-- Try manual_cURL() -->');
       $options = array(
           CURLOPT_RETURNTRANSFER => true,     // return web page
           CURLOPT_HEADER         => false,    // don't return headers
           CURLOPT_FOLLOWLOCATION => true,     // follow redirects
           CURLOPT_ENCODING       => "",       // handle all encodings
-          CURLOPT_USERAGENT      => "spider", // who am i
+          CURLOPT_USERAGENT      => 'WordPress/' . $v . '; ' . $u, // who am i
           CURLOPT_AUTOREFERER    => true,     // set referer on redirect
           CURLOPT_CONNECTTIMEOUT => 120,      // timeout on connect
           CURLOPT_TIMEOUT        => 120,      // timeout on response
           CURLOPT_MAXREDIRS      => 10,       // stop after 10 redirects
-          CURLOPT_SSL_VERIFYPEER => false     // Disabled SSL Cert checks
+          CURLOPT_SSL_VERIFYPEER => false,     // Disabled SSL Cert checks
+					CURLOPT_SSL_VERIFYHOST => false     // Disabled SSL Cert checks
       );
 
       $ch      = curl_init( $request );
@@ -379,14 +382,23 @@ class PhotoTileForInstagramPrimary {
       $err     = curl_errno( $ch );
       $errmsg  = curl_error( $ch );
       $header  = curl_getinfo( $ch );
+			$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
       curl_close( $ch );
-      
+
       if( $err ){
         $this->append_active_result('hidden','<!-- An error occured: Num '.$err.', Message: '.$errmsg.' -->');
+				$this->echo_point('<span style="color:red">An error occured: Num '.$err.', Message: '.$errmsg.'</span>');
       }
-      if( $content ){
-        return $content;
-      }
+			if( $array_resp ){
+				if( $content ){
+					return array('body'=>$content,'code'=>$status);
+				}
+				return array('body'=>'','code'=>404);
+			}else{
+			  if( $content ){
+					return $content;
+				}
+			}
     }
   }  
 /**
