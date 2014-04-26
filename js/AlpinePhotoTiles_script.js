@@ -442,7 +442,35 @@
         }
         
         newDivContainer = s('<div class="AlpinePhotoTiles-image-div-container '+theClasses+'"></div>');
-        
+				
+        //options.captions = true;
+				if( options.captions ){
+					cap = s('<p>'+img.alt+'</p>');
+					cap.css({
+						"text-align":"left",
+						"display": "block",
+						"position": "absolute",
+						"margin": 0,
+						"padding": 5,
+						"font-size": "1em",
+						"bottom": 0,
+						"left": 0,
+						"background": "black",
+						"color": "white",
+						"opacity": 0
+					});
+					newDiv.append( cap );   
+					newDivContainer.hover(function(){
+						s('p',this).css({
+							"opacity": "0.8"
+						});
+					},function(){
+						s('p',this).css({
+							"opacity": 0
+						});
+					});
+				}
+				
         if(!s.support.leadingWhitespace && !d.querySelector){
           newDivContainer.css({
             "height":(theHeight*0.99)+"px",
@@ -540,7 +568,7 @@
         var currentImg = s(this);
         var width = currentImg.parent().width();
         var wBorder = false;
-        
+        console.log( this.alt );
         // Remove and replace ! important classes
         if( currentImg.hasClass('AlpinePhotoTiles-img-border') ){
           width -= 10;
@@ -607,6 +635,35 @@
             }
           });
         }
+				/*
+        options.captions = true;
+				if( options.captions ){
+					cap = s('<p>'+this.alt+'</p>');
+					cap.css({
+						"text-align":"left",
+						"display": "block",
+						"position": "absolute",
+						"margin": 0,
+						"padding": 5,
+						"font-size": "1em",
+						"bottom": 0,
+						"left": 0,
+						"background": "black",
+						"color": "white",
+						"opacity": 0
+					});
+					currentImg.parent().append( cap );   
+					currentImg.parent().hover(function(){
+						s('p',this).css({
+							"opacity": "0.8"
+						});
+					},function(){
+						s('p',this).css({
+							"opacity": 0
+						});
+					});
+				}*/
+				
       });
     });
   }

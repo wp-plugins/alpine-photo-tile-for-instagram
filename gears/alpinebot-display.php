@@ -574,6 +574,8 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
 
     $repeat = true;
     $record = array();
+		$repeat_limit = 3;
+		$loop_count = 0;
     //var_dump($_instagram_json);
     if( empty($_instagram_json) || !isset($_instagram_json['data']) || empty($_instagram_json['data']) ){
 			$this->echo_point('<span style="color:red">Failed using wp_remote_get()</span>');
@@ -587,6 +589,11 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
       $blocked = $this->check_active_option('general_block_users') ? explode(',',str_replace(' ','',$this->get_active_option('general_block_users'))) : array();
 			$instagram_tag = $this->check_active_option('instagram_tag') ? $this->get_active_option('instagram_tag') : '';
       while( !empty($repeat) && count($photos)<$num ){
+				if( $repeat_limit == $loop_count ){
+					$this->echo_point('Request limit reached');
+					break;
+				}
+				$loop_count++;
         $data = $_instagram_json['data'];
         //var_dump( $data );
         foreach( $data as $key=>$imageinfo ){
@@ -680,7 +687,7 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
  *  Function for forming Instagram request
  *  
  *  @ Since 1.2.4
- *  @ Updated 1.2.7
+ *  @ Updated 1.2.7.1
  */ 
   function get_instagram_request( $token, $client_id, $user_id, $num = 5 ){
     $request = false;
@@ -689,25 +696,25 @@ class PhotoTileForInstagramBotTertiary extends PhotoTileForInstagramBotSecondary
     if( isset($options['instagram_source']) ){
       switch ($options['instagram_source']) {
         case 'user_recent':
-          $request = 'https://api.instagram.com/v1/users/'.$user_id.'/media/recent/?client_id='.$client_id.'&count='.$num;
+          $request = 'https://api.instagram.com/v1/users/'.$user_id.'/media/recent/?access_token='.$token.'&client_id='.$client_id.'&count='.$num;
         break;
         case 'user_feed':
-          $request = 'https://api.instagram.com/v1/users/self/feed?access_token='.$token.'&count='.$num.'';
+          $request = 'https://api.instagram.com/v1/users/self/feed?access_token='.$token.'&client_id='.$client_id.'&count='.$num.'';
         break;
         case 'user_liked':
-          $request = 'https://api.instagram.com/v1/users/self/media/liked?access_token='.$token.'&count='.$num.'';
+          $request = 'https://api.instagram.com/v1/users/self/media/liked?access_token='.$token.'&client_id='.$client_id.'&count='.$num.'';
         break;
         case 'user_tag':
           $instagram_tag = empty($options['instagram_tag']) ? '' : $options['instagram_tag'];
-          $request = 'https://api.instagram.com/v1/users/'.$user_id.'/media/recent/?client_id='.$client_id.'&count='.$num;
+          $request = 'https://api.instagram.com/v1/users/'.$user_id.'/media/recent/?access_token='.$token.'&client_id='.$client_id.'&count='.$num;
 					$this->append_active_result('hidden','<!-- with User_Tag: '.$instagram_tag.' -->');
         break;
         case 'global_popular':
-          $request = 'https://api.instagram.com/v1/media/popular?access_token='.$token.'&count='.$num;
+          $request = 'https://api.instagram.com/v1/media/popular?access_token='.$token.'&client_id='.$client_id.'&count='.$num;
         break;
         case 'global_tag':
           $instagram_tag = empty($options['instagram_tag']) ? '' : $options['instagram_tag'];
-          $request = 'https://api.instagram.com/v1/tags/'.$instagram_tag.'/media/recent?access_token='.$token.'&count='.$num;
+          $request = 'https://api.instagram.com/v1/tags/'.$instagram_tag.'/media/recent?access_token='.$token.'&client_id='.$client_id.'&count='.$num;
         break;
       }
     }

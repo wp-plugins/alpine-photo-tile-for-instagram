@@ -1244,6 +1244,8 @@ class PhotoTileForInstagramAdmin extends PhotoTileForInstagramAdminSecondary{
 					echo '<tr valign="top"><td class="unlinked "><div class="title">';
 					if ( function_exists('curl_init') ){
 						echo '<b>Check:</b> <span style="color:green">curl_init function found</span>.';
+						$version = curl_version();
+						echo '<br><b>cURL Version:</b> '.$version['version'] ;
 						// Try connecting to Instagram.com
 						$request = 'http://instagram.com/';
 						$response = wp_remote_get($request,array('timeout' => 10));
