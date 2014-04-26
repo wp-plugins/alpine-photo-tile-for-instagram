@@ -568,7 +568,7 @@
         var currentImg = s(this);
         var width = currentImg.parent().width();
         var wBorder = false;
-        console.log( this.alt );
+        //console.log( this.alt );
         // Remove and replace ! important classes
         if( currentImg.hasClass('AlpinePhotoTiles-img-border') ){
           width -= 10;
