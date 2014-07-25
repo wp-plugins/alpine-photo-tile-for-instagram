@@ -71,7 +71,7 @@ class PhotoTileForInstagramBotSecondary extends PhotoTileForInstagramPrimary{
  * Functions for retrieving results from cache
  *  
  * @ Since 1.2.4
- * @ Updated 1.2.7
+ * @ Updated 1.2.7.2
  */
   function retrieve_from_cache( $key ){
     if ( !$this->check_active_option('cache_disable') ) {
@@ -85,16 +85,18 @@ class PhotoTileForInstagramBotSecondary extends PhotoTileForInstagramPrimary{
 					$this->echo_point('<span style="color:blue">No cache found</span>');
 					return false;
 				}else{
-					// Retreive from transient
+					// Retrieve from transient
 					$results = get_transient( $id.'_record' );
-					if( count($results) ){
-						$results['hidden'] = $results['hidden'].'<!-- Retrieved from transient -->';
+					if( isset($results['hidden']) && isset($results['photos']) && isset($results['success']) && isset($results['feed_found']) && array_key_exists('message',$results) && array_key_exists('userlink',$results) ){
+						$results['hidden'] .= '<!-- Retrieved from transient -->';
 						$this->set_private('results',$results);
 						if( $this->check_active_result('photos') ){
 							$this->echo_point('Cache found. Returned from transient.');
 							return true;
 						}
 					}else{
+						var_dump($results);
+						$this->echo_point('<span style="color:blue">Data missing from cache</span>');
 						return false;
 					}
 				}

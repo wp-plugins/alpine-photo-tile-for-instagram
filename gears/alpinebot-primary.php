@@ -2,7 +2,7 @@
 /**
  * AlpineBot Primary
  * 
- * Holds paramaters and settings specific to this plugin
+ * Holds parameters and settings specific to this plugin
  * Some universal functions, but mostly unique
  * 
  */
@@ -182,10 +182,13 @@ class PhotoTileForInstagramPrimary {
  * Simple set function
  *  
  * @ Since 1.2.5
+ * @ Updated 1.2.7.2
  * 
  */
   function set_active_result($string,$val){
-    $this->results[$string] = $val;
+    $r = $this->results;
+    $r[$string] = $val;
+    $this->results = $r;
   }
 /**
  * Simply check function for search results that returns boolean
@@ -204,11 +207,14 @@ class PhotoTileForInstagramPrimary {
  * Function for appending to specific result
  *  
  * @ Since 1.2.5
+ * @ Updated 1.2.7.2
  * 
  */
   function append_active_result($string,$add){
     if(isset($this->results[$string])){
-      $this->results[$string] = ($this->results[$string]).$add;
+      $this->results[$string] .= $add;
+    }else{
+      set_active_result($string,$add);
     }
   }
 /**
@@ -481,7 +487,7 @@ class PhotoTileForInstagramPrimary {
         }
       }
     }
-    update_option( $this->settings, $options ); //Unnecessary since options will soon be updated if this fuction was called
+    update_option( $this->settings, $options ); //Unnecessary since options will soon be updated if this function was called
     return $options;
   }
 /**
