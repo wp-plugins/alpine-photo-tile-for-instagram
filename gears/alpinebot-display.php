@@ -95,7 +95,6 @@ class PhotoTileForInstagramBotSecondary extends PhotoTileForInstagramPrimary{
 							return true;
 						}
 					}else{
-						var_dump($results);
 						$this->echo_point('<span style="color:blue">Data missing from cache</span>');
 						return false;
 					}
