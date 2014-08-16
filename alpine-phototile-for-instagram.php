@@ -3,7 +3,7 @@
 Plugin Name: Alpine PhotoTile for Instagram
 Plugin URI: http://thealpinepress.com/alpine-phototile-for-instagram/
 Description: The Alpine PhotoTile for Instagram is capable of retrieving photos from a particular Instagram user or tag. The photos can be linked to the your Instagram page, a specific URL, or to a Fancybox slideshow. Also, the Shortcode Generator makes it easy to insert the widget into posts without learning any of the code. This lightweight but powerful widget takes advantage of WordPress's built in JQuery scripts to create a sleek presentation that I hope you will like.
-Version: 1.2.7.2
+Version: 1.2.7.3
 Author: the Alpine Press
 Author URI: http://thealpinepress.com/
 License: GNU General Public License v3.0
@@ -42,22 +42,20 @@ Copyright 2014  Eric Burger
   if ( ! defined( 'WP_PLUGIN_DIR' ) )
     define( 'WP_PLUGIN_DIR', WP_CONTENT_DIR . '/plugins' );
   
+	// Load the pieces
+  include_once( WP_PLUGIN_DIR.'/'.basename(dirname(__FILE__)).'/gears/alpinebot-primary.php' );
+  include_once( WP_PLUGIN_DIR.'/'.basename(dirname(__FILE__)).'/gears/alpinebot-display.php' );
+	include_once( WP_PLUGIN_DIR.'/'.basename(dirname(__FILE__)).'/gears/alpinebot-admin.php' );
+	include_once( WP_PLUGIN_DIR.'/'.basename(dirname(__FILE__)).'/gears/plugin-widget.php' );
+	include_once( WP_PLUGIN_DIR.'/'.basename(dirname(__FILE__)).'/gears/plugin-shortcode.php' );
+
 /**
  * Register Widget
  *  
  * @ Since 1.0.0
- * @ Updated 1.2.7
+ * @ Updated 1.2.7.3
  */
   function APTFINbyTAP_widget_register() {
-
-    include_once( WP_PLUGIN_DIR.'/'.basename(dirname(__FILE__)).'/gears/alpinebot-primary.php' );
-    include_once( WP_PLUGIN_DIR.'/'.basename(dirname(__FILE__)).'/gears/alpinebot-display.php' );
-    if( is_admin() ){
-      include_once( WP_PLUGIN_DIR.'/'.basename(dirname(__FILE__)).'/gears/alpinebot-admin.php' );
-    }
-    include_once( WP_PLUGIN_DIR.'/'.basename(dirname(__FILE__)).'/gears/plugin-widget.php' );
-    include_once( WP_PLUGIN_DIR.'/'.basename(dirname(__FILE__)).'/gears/plugin-shortcode.php' );
-		
 		// Add JSON encoding functions, if necessary
 		if (!function_exists('json_decode')) {
 				// Check if already added
