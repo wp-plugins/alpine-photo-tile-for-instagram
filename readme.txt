@@ -12,6 +12,7 @@ Simple, stylish, and compact plugin for displaying Instagram photos in a sidebar
 
 == Description == 
 **Please Note: Plugin is not being actively developed at this time.**
+
 Retrieve photos from a particular Instagram user or tag and display them on your WordPress site using the Alpine PhotoTile for Instagram. 
 The photos can be linked to the your Instagram page, a specific URL, or to a Lightbox slideshow. 
 Also, the Shortcode Generator makes it easy to insert the widget into posts without learning any of the code. 
