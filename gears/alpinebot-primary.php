@@ -319,7 +319,7 @@ class PhotoTileForInstagramPrimary {
     }elseif( 'fancybox' == $string ){
       return $this->url.'/js/fancybox/jquery.fancybox-1.3.4.pack.js?ver=1.3.4';
     }elseif( 'prettyphoto' == $string ){
-      return $this->url.'/js/prettyPhoto/js/jquery.prettyPhoto.js?ver=3.1.5';
+      return $this->url.'/js/prettyPhoto/js/jquery.prettyPhoto.js?ver=3.1.6';
     }elseif( 'colorbox' == $string ){
       return $this->url.'/js/colorbox/jquery.colorbox-min.js?ver=1.4.33';	
     }elseif( 'alpine-fancybox' == $string ){

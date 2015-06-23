@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=eric%
 Tags: photos, instagram, photostream, javascript, jQuery, stylish, pictures, images, widget, sidebar, display, gallery, wall, lightbox, fancybox, colorbox
 Requires at least: 3.2
 Tested up to: 3.8
-Stable tag: 1.2.7.4
+Stable tag: 1.2.7.5
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -200,6 +200,9 @@ I am a one-man development team and I distribute these plugins for free, so plea
 
 = 1.2.7.4 =
 * Small bug fixes
+
+= 1.2.7.5 =
+* Pretty Photo Update
 
 = TODO =
 * Move JS to separate file
